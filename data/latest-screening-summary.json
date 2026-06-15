@@ -1,0 +1,126 @@
+{
+  "schema_version": "1.0",
+  "report_date": "2026-06-15",
+  "generated_at": "2026-06-15T15:55:41+08:00",
+  "timezone": "Asia/Taipei",
+  "data_quality": {
+    "listed_rows": 0,
+    "otc_rows": 0,
+    "coverage": {
+      "market_environment": {
+        "available": false,
+        "source": "TWSE",
+        "notes": "TWSE current market environment not verified"
+      },
+      "listed_ohlcv": {
+        "available": false,
+        "source": "TWSE",
+        "notes": "Listed OHLCV unavailable"
+      },
+      "otc_ohlcv": {
+        "available": false,
+        "source": "TPEx",
+        "notes": "OTC OHLCV unavailable"
+      },
+      "volume_ranking": {
+        "available": false,
+        "source": "official_ohlcv",
+        "notes": "Requires listed or OTC OHLCV"
+      },
+      "turnover_ranking": {
+        "available": false,
+        "source": "official_ohlcv",
+        "notes": "Requires listed or OTC OHLCV"
+      },
+      "price_change_screening": {
+        "available": false,
+        "source": "official_ohlcv",
+        "notes": "Requires listed or OTC OHLCV"
+      },
+      "limit_up_screening": {
+        "available": false,
+        "source": "official_ohlcv",
+        "notes": "Requires listed or OTC OHLCV"
+      },
+      "volume_spike_screening": {
+        "available": false,
+        "source": "official_ohlcv_history",
+        "notes": "Requires at least 20 trading days of history"
+      },
+      "institutional_trading": {
+        "available": false,
+        "source": "TWSE/TPEx",
+        "notes": "First version does not parse institutional trading yet"
+      },
+      "margin_short": {
+        "available": false,
+        "source": "TWSE/TPEx",
+        "notes": "First version does not parse margin short data yet"
+      },
+      "material_information": {
+        "available": false,
+        "source": "MOPS",
+        "notes": "MOPS material information date not verified"
+      },
+      "revenue_financials": {
+        "available": false,
+        "source": "MOPS",
+        "notes": "First version does not parse revenue or financial statements yet"
+      },
+      "news_topics": {
+        "available": true,
+        "source": "news_sources",
+        "notes": "At least one catalyst news source reachable"
+      },
+      "technical_review": {
+        "available": false,
+        "source": "manual_review",
+        "notes": "TradingView/WantGoo/CMoney are manual review sources, not automated signals"
+      }
+    }
+  },
+  "historical_data_status": {
+    "available_trading_days": 0,
+    "has_20d_history": false,
+    "has_60d_history": false,
+    "start_date": null,
+    "end_date": null
+  },
+  "market_summary": {
+    "total_symbols": 0,
+    "advancers": 0,
+    "decliners": 0,
+    "unchanged": 0,
+    "average_change_pct": null
+  },
+  "rankings": {
+    "top_turnover": [],
+    "top_volume": [],
+    "top_gainers": []
+  },
+  "screening": {
+    "limit_up": [],
+    "volume_spike": [],
+    "breakout_candidates": [],
+    "institutional_buy_candidates": [],
+    "margin_short_attention": [],
+    "mops_event_candidates": [],
+    "revenue_financial_candidates": [],
+    "manual_review_candidates": []
+  },
+  "full_market_scan_ready": false,
+  "missing_sections": [
+    "market_environment",
+    "listed_ohlcv",
+    "otc_ohlcv",
+    "institutional_trading",
+    "margin_short",
+    "material_information"
+  ],
+  "overall_confidence": "low",
+  "limitations": [
+    "歷史資料不足 20 個交易日；未產生 20 日均量、爆量倍數或 20 日突破訊號",
+    "歷史資料不足 60 個交易日；未產生 60 日突破訊號",
+    "核心資料段落缺失：market_environment, listed_ohlcv, otc_ohlcv, institutional_trading, margin_short, material_information"
+  ]
+}

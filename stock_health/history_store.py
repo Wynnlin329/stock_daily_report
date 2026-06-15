@@ -1,0 +1,83 @@
+from __future__ import annotations
+
+import json
+from datetime import date
+from pathlib import Path
+from typing import Any
+
+from .config import SCHEMA_VERSION, TIMEZONE
+from .data_fetcher import records_from_csv_text, records_to_csv_text
+from .models import OhlcvRecord
+
+
+def ensure_dirs(root: Path) -> None:
+    for path in [root / "history", root / "data", root / "data" / "market", root / "reports"]:
+        path.mkdir(parents=True, exist_ok=True)
+
+
+def write_json(path: Path, payload: dict[str, Any]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=False) + "\n", encoding="utf-8")
+
+
+def write_text(path: Path, content: str) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(content, encoding="utf-8")
+
+
+def history_report_paths(root: Path, report_date: date) -> tuple[Path, Path]:
+    folder = root / "history" / f"{report_date:%Y}" / f"{report_date:%m}"
+    return folder / f"{report_date:%Y-%m-%d}.json", folder / f"{report_date:%Y-%m-%d}.md"
+
+
+def market_history_paths(root: Path, report_date: date) -> tuple[Path, Path]:
+    folder = root / "data" / "market" / f"{report_date:%Y}" / f"{report_date:%m}"
+    return folder / f"{report_date:%Y-%m-%d}-listed-ohlcv.csv", folder / f"{report_date:%Y-%m-%d}-otc-ohlcv.csv"
+
+
+def write_ohlcv_outputs(root: Path, report_date: date, listed_rows: list[OhlcvRecord], otc_rows: list[OhlcvRecord]) -> None:
+    listed_csv = records_to_csv_text(listed_rows)
+    otc_csv = records_to_csv_text(otc_rows)
+    write_text(root / "data" / "latest-listed-ohlcv.csv", listed_csv)
+    write_text(root / "data" / "latest-otc-ohlcv.csv", otc_csv)
+    listed_history, otc_history = market_history_paths(root, report_date)
+    write_text(listed_history, listed_csv)
+    write_text(otc_history, otc_csv)
+
+
+def load_history_rows(root: Path) -> dict[str, list[OhlcvRecord]]:
+    market_dir = root / "data" / "market"
+    rows: dict[str, list[OhlcvRecord]] = {}
+    if not market_dir.exists():
+        return rows
+    for path in sorted(market_dir.glob("*/*/*-listed-ohlcv.csv")):
+        day = path.name.removesuffix("-listed-ohlcv.csv")
+        day_rows = records_from_csv_text(path.read_text(encoding="utf-8"))
+        otc_path = path.with_name(f"{day}-otc-ohlcv.csv")
+        if otc_path.exists():
+            day_rows.extend(records_from_csv_text(otc_path.read_text(encoding="utf-8")))
+        if day_rows:
+            rows[day] = day_rows
+    return rows
+
+
+def build_history_index(generated_at: str, target_trading_days: int, listed_days: list[str], otc_days: list[str], errors: list[str]) -> dict[str, Any]:
+    common_days = sorted(set(listed_days) & set(otc_days))
+    all_days = sorted(set(listed_days) | set(otc_days))
+    missing_dates = [day for day in all_days if day not in common_days]
+    return {
+        "schema_version": SCHEMA_VERSION,
+        "generated_at": generated_at,
+        "timezone": TIMEZONE,
+        "target_trading_days": target_trading_days,
+        "available_trading_days": len(common_days),
+        "start_date": common_days[0] if common_days else None,
+        "end_date": common_days[-1] if common_days else None,
+        "listed_ohlcv_days": sorted(listed_days),
+        "otc_ohlcv_days": sorted(otc_days),
+        "missing_dates": missing_dates,
+        "errors": errors,
+        "has_20d_history": len(common_days) >= 20,
+        "has_60d_history": len(common_days) >= 60,
+    }
+

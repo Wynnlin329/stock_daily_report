@@ -1,0 +1,47 @@
+name: Bootstrap History
+
+on:
+  workflow_dispatch:
+    inputs:
+      trading_days:
+        description: "Number of trading days to backfill"
+        required: false
+        default: "60"
+
+permissions:
+  contents: write
+
+jobs:
+  bootstrap-history:
+    runs-on: ubuntu-latest
+    env:
+      TZ: Asia/Taipei
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run tests
+        run: python -m pytest -q
+
+      - name: Bootstrap history
+        run: python scripts/bootstrap_history.py --trading-days "${{ inputs.trading_days }}"
+
+      - name: Commit generated history
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/history-index.json data/latest-listed-ohlcv.csv data/latest-otc-ohlcv.csv data/market/
+          if git diff --cached --quiet; then
+            echo "No generated history changes to commit."
+            exit 0
+          fi
+          git commit -m "bootstrap stock history ${{ inputs.trading_days }} trading days"
+          git push
+
