@@ -52,12 +52,11 @@ def load_history_rows(root: Path) -> dict[str, list[OhlcvRecord]]:
         return rows
     for path in sorted(market_dir.glob("*/*/*-listed-ohlcv.csv")):
         day = path.name.removesuffix("-listed-ohlcv.csv")
-        day_rows = records_from_csv_text(path.read_text(encoding="utf-8"))
+        listed_rows = records_from_csv_text(path.read_text(encoding="utf-8"))
         otc_path = path.with_name(f"{day}-otc-ohlcv.csv")
-        if otc_path.exists():
-            day_rows.extend(records_from_csv_text(otc_path.read_text(encoding="utf-8")))
-        if day_rows:
-            rows[day] = day_rows
+        otc_rows = records_from_csv_text(otc_path.read_text(encoding="utf-8")) if otc_path.exists() else []
+        if listed_rows and otc_rows:
+            rows[day] = listed_rows + otc_rows
     return rows
 
 
@@ -80,4 +79,3 @@ def build_history_index(generated_at: str, target_trading_days: int, listed_days
         "has_20d_history": len(common_days) >= 20,
         "has_60d_history": len(common_days) >= 60,
     }
-

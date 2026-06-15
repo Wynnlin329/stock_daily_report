@@ -1,6 +1,6 @@
 # 報告日期：2026/06/15（星期一）
 
-- 執行時間：2026-06-15T16:59:41+08:00
+- 執行時間：2026-06-15T17:18:27+08:00
 - 交易日判定：True
 - 最新市場資料日期：2026-06-15
 - 是否足以執行全市場掃描：False
@@ -66,7 +66,7 @@
 - turnover_ranking：True（Computed from official OHLCV）
 - price_change_screening：True（Computed from official OHLCV）
 - limit_up_screening：True（Estimated from daily change percent）
-- volume_spike_screening：False（Requires at least 20 trading days of history）
+- volume_spike_screening：True（20-day volume history available）
 - institutional_trading：False（First version does not parse institutional trading yet）
 - margin_short：False（First version does not parse margin short data yet）
 - material_information：False（MOPS material information date not verified）

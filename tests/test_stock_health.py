@@ -8,7 +8,7 @@ from pathlib import Path
 
 from stock_health.coverage import build_coverage
 from stock_health.data_fetcher import fetch_tpex_otc_ohlcv, fetch_twse_listed_ohlcv, records_to_csv_text
-from stock_health.history_store import build_history_index, history_report_paths, write_json
+from stock_health.history_store import build_history_index, history_report_paths, load_history_rows, write_json, write_ohlcv_outputs
 from stock_health.http_client import HttpResponse
 import stock_health.http_client as http_client_module
 from stock_health.models import OhlcvRecord, SourceHealth
@@ -184,6 +184,16 @@ def test_history_paths() -> None:
     json_path, md_path = history_report_paths(Path("/repo"), date(2026, 6, 15))
     assert str(json_path).endswith("history/2026/06/2026-06-15.json")
     assert str(md_path).endswith("history/2026/06/2026-06-15.md")
+
+
+def test_load_history_rows_requires_both_markets(tmp_path: Path) -> None:
+    listed = sample_record(symbol="2330")
+    otc = sample_record(symbol="8069")
+    otc.market = "otc"
+    write_ohlcv_outputs(tmp_path, date(2026, 6, 15), [listed], [otc])
+    write_ohlcv_outputs(tmp_path, date(2026, 6, 16), [listed], [])
+    rows = load_history_rows(tmp_path)
+    assert sorted(rows) == ["2026-06-15"]
 
 
 def test_twse_parser_with_mock_response() -> None:
