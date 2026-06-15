@@ -39,12 +39,6 @@ jobs:
             echo "No generated changes to commit."
             exit 0
           fi
-          REPORT_DATE="$(python - <<'PY'
-import json
-with open("latest.json", encoding="utf-8") as fh:
-    print(json.load(fh)["report_date"])
-PY
-)"
+          REPORT_DATE="$(python -c 'import json; print(json.load(open("latest.json", encoding="utf-8"))["report_date"])')"
           git commit -m "daily stock health check ${REPORT_DATE}"
           git push
-
