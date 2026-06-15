@@ -78,6 +78,19 @@ def build_market_scan_markdown(summary: dict[str, Any], target_date: date) -> st
         lines.append(f"### {key}")
         lines.extend(_candidate_lines(values[:10]))
         lines.append("")
+    lines.extend(["## Qullamaggie-style 動能掃描", ""])
+    qullamaggie = summary.get("qullamaggie", {})
+    market_regime = qullamaggie.get("market_regime", {})
+    lines.append(f"- 市場狀態：{market_regime.get('status', 'insufficient_data')}")
+    lines.append(f"- 市場分數：{market_regime.get('score', 0)}")
+    lines.append("")
+    for setup_type, values in qullamaggie.get("candidates", {}).items():
+        lines.append(f"### {setup_type}")
+        lines.extend(_candidate_lines(values[:10]))
+        lines.append("")
+    lines.extend(["### top_candidates", ""])
+    lines.extend(_candidate_lines(qullamaggie.get("top_candidates", [])[:10]))
+    lines.append("")
     lines.extend(["## 缺少的資料段落", ""])
     lines.extend(_list_or_empty(summary["missing_sections"]))
     lines.extend(["", "## 限制", ""])
@@ -105,4 +118,3 @@ def _md(value: Any) -> str:
     if value is None:
         return ""
     return str(value).replace("|", "\\|").replace("\n", " ")
-

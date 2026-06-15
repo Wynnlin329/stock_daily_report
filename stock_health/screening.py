@@ -6,6 +6,7 @@ from typing import Any
 
 from .config import SCHEMA_VERSION, TIMEZONE
 from .models import OhlcvRecord
+from .qullamaggie import calculate_qullamaggie_signals
 
 
 def build_screening_summary(
@@ -30,6 +31,8 @@ def build_screening_summary(
         limitations.append("歷史資料不足 60 個交易日；未產生 60 日突破訊號")
     if missing_sections:
         limitations.append("核心資料段落缺失：" + ", ".join(missing_sections))
+    qullamaggie = calculate_qullamaggie_signals(all_rows, history_rows)
+    limitations.extend(qullamaggie["limitations"])
 
     return {
         "schema_version": SCHEMA_VERSION,
@@ -64,6 +67,7 @@ def build_screening_summary(
             "revenue_financial_candidates": [],
             "manual_review_candidates": [],
         },
+        "qullamaggie": qullamaggie,
         "full_market_scan_ready": full_market_scan_ready,
         "missing_sections": missing_sections,
         "overall_confidence": overall_confidence,
@@ -147,4 +151,3 @@ def _reasons(tags: list[str], extra: dict[str, Any]) -> list[str]:
         if tag.endswith("日突破"):
             reasons.append(f"收盤價創近 {tag.removesuffix('突破')} 新高")
     return reasons
-

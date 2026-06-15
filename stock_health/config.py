@@ -10,6 +10,40 @@ HTTP_RETRIES = 2
 HTTP_BACKOFF_SECONDS = 1.5
 USER_AGENT = "stock-daily-report/1.0 (+https://github.com/<OWNER>/<REPO>)"
 
+MIN_DAILY_TURNOVER = 100_000_000
+MIN_AVG_TURNOVER_20D = 50_000_000
+MAX_BASE_DEPTH_PCT = 25
+MIN_BASE_DAYS = 10
+MAX_BASE_DAYS = 30
+MAX_EXTENDED_FROM_PIVOT_PCT = 8
+MAX_RISK_TO_STOP_PCT = 10
+EP_MIN_CHANGE_PCT = 5
+EP_MIN_VOLUME_RATIO = 2
+BREAKOUT_VOLUME_RATIO = 1.5
+CLOSE_NEAR_HIGH_PCT = 75
+ANTICIPATION_MIN_DISTANCE_TO_PIVOT_PCT = -3
+ANTICIPATION_MAX_DISTANCE_TO_PIVOT_PCT = 1
+QULLAMAGGIE_MAX_CANDIDATES_PER_SETUP = 50
+QULLAMAGGIE_MAX_TOP_CANDIDATES = 100
+QULLAMAGGIE_SCORE_WEIGHTS = {
+    "market_regime": 15,
+    "liquidity": 10,
+    "trend": 20,
+    "base_and_pivot": 20,
+    "breakout_and_volume": 20,
+    "relative_strength_and_catalyst": 10,
+    "risk_control": 5,
+}
+
+QULLAMAGGIE_SETUP_TYPES = [
+    "breakout",
+    "episodic_pivot",
+    "anticipation",
+    "extended_watch",
+    "failed_breakout",
+    "insufficient_data",
+]
+
 ALLOWED_ROLES = {
     "主資料源",
     "候補資料源",
@@ -88,4 +122,3 @@ def source_configs(target_date: date) -> list[SourceConfig]:
         SourceConfig("cmoney", "CMoney", "人工複核源", "https://www.cmoney.tw/", False, dynamic_loading_suspected=True),
         SourceConfig("statementdog", "財報狗 StatementDog", "人工複核源", "https://statementdog.com/", False, login_required=False, dynamic_loading_suspected=True),
     ]
-

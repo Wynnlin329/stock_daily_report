@@ -1,0 +1,175 @@
+from __future__ import annotations
+
+import json
+from datetime import date, timedelta
+
+from stock_health.models import OhlcvRecord
+from stock_health.qullamaggie import calculate_qullamaggie_signals
+from stock_health.screening import build_screening_summary
+
+
+def make_record(
+    day: date,
+    symbol: str = "2330",
+    close: float = 95.0,
+    high: float = 100.0,
+    low: float = 95.0,
+    volume: int = 1000,
+    turnover: int = 80_000_000,
+    market: str = "listed",
+) -> OhlcvRecord:
+    return OhlcvRecord(
+        date=day.isoformat(),
+        symbol=symbol,
+        name=f"{symbol}公司",
+        market=market,
+        open=close - 1,
+        high=high,
+        low=low,
+        close=close,
+        change=1.0,
+        change_pct=1.0,
+        volume=volume,
+        turnover=turnover,
+        transactions=100,
+        source="TWSE" if market == "listed" else "TPEx",
+    )
+
+
+def history_for(symbol: str = "2330", days: int = 60, close: float = 95.0, high: float = 100.0, low: float = 95.0, volume: int = 1000, turnover: int = 80_000_000) -> dict[str, list[OhlcvRecord]]:
+    start = date(2026, 3, 1)
+    output: dict[str, list[OhlcvRecord]] = {}
+    for offset in range(days):
+        day = start + timedelta(days=offset)
+        output[day.isoformat()] = [make_record(day, symbol=symbol, close=close, high=high, low=low, volume=volume, turnover=turnover)]
+    return output
+
+
+def first_candidate(result: dict, setup_type: str) -> dict:
+    return result["candidates"][setup_type][0]
+
+
+def test_qullamaggie_prior_high_uses_history_only_no_lookahead() -> None:
+    history = history_for(high=100.0)
+    current = make_record(date(2026, 6, 15), close=105.0, high=200.0, low=104.0, volume=2000, turnover=200_000_000)
+    result = calculate_qullamaggie_signals([current], history, {"listed": [100 + i for i in range(61)]})
+    candidate = result["top_candidates"][0]
+    assert candidate["prior_20d_high"] == 100.0
+    assert candidate["prior_60d_high"] == 100.0
+    assert candidate["new_high_20d"] is True
+    assert candidate["new_high_60d"] is True
+
+
+def test_qullamaggie_insufficient_history_setup() -> None:
+    current = make_record(date(2026, 6, 15), close=105.0, high=106.0, low=100.0)
+    result = calculate_qullamaggie_signals([current], history_for(days=10), {"listed": [100 + i for i in range(61)]})
+    candidate = first_candidate(result, "insufficient_data")
+    assert candidate["setup_type"] == "insufficient_data"
+    assert candidate["volume_ratio_20d"] is None
+
+
+def test_qullamaggie_volume_close_location_distance_and_risk_metrics() -> None:
+    current = make_record(date(2026, 6, 15), close=102.0, high=103.0, low=99.0, volume=3000, turnover=200_000_000)
+    result = calculate_qullamaggie_signals([current], history_for(), {"listed": [100 + i for i in range(61)]})
+    candidate = result["top_candidates"][0]
+    assert candidate["volume_ratio_20d"] == 3.0
+    assert candidate["close_location_pct"] == 75.0
+    assert candidate["close_near_high"] is True
+    assert candidate["distance_to_pivot_pct"] == 2.0
+    assert candidate["extended_risk"] is False
+    assert candidate["risk_to_stop_pct"] == round((102.0 / 95.0 - 1) * 100, 4)
+
+
+def test_qullamaggie_breakout_classification() -> None:
+    current = make_record(date(2026, 6, 15), close=102.0, high=103.0, low=99.0, volume=3000, turnover=200_000_000)
+    result = calculate_qullamaggie_signals([current], history_for(), {"listed": [100 + i for i in range(61)]})
+    candidate = first_candidate(result, "breakout")
+    assert candidate["setup_type"] == "breakout"
+    assert 0 <= candidate["qullamaggie_score"] <= 100
+
+
+def test_qullamaggie_anticipation_classification() -> None:
+    history = history_for()
+    # Force contraction: older ranges are wider than the latest ranges.
+    for index, rows in enumerate(history.values()):
+        row = rows[0]
+        if index < 45:
+            row.high = 102.0
+            row.low = 90.0
+        else:
+            row.high = 100.0
+            row.low = 97.0
+    current = make_record(date(2026, 6, 15), close=99.0, high=100.0, low=98.5, volume=1200, turnover=200_000_000)
+    result = calculate_qullamaggie_signals([current], history, {"listed": [100 + i for i in range(61)]})
+    candidate = first_candidate(result, "anticipation")
+    assert candidate["setup_type"] == "anticipation"
+    assert candidate["range_contraction"] is True
+
+
+def test_qullamaggie_extended_watch_classification() -> None:
+    current = make_record(date(2026, 6, 15), close=112.0, high=113.0, low=110.0, volume=3000, turnover=250_000_000)
+    result = calculate_qullamaggie_signals([current], history_for(), {"listed": [100 + i for i in range(61)]})
+    candidate = first_candidate(result, "extended_watch")
+    assert candidate["setup_type"] == "extended_watch"
+    assert candidate["extended_risk"] is True
+
+
+def test_qullamaggie_failed_breakout_classification() -> None:
+    current = make_record(date(2026, 6, 15), close=99.0, high=101.0, low=98.0, volume=3000, turnover=200_000_000)
+    result = calculate_qullamaggie_signals([current], history_for(), {"listed": [100 + i for i in range(61)]})
+    candidate = first_candidate(result, "failed_breakout")
+    assert candidate["setup_type"] == "failed_breakout"
+
+
+def test_qullamaggie_relative_strength_values_and_rank() -> None:
+    history = history_for(symbol="2330", close=100.0)
+    other_history = history_for(symbol="2317", close=100.0)
+    for day, rows in other_history.items():
+        history.setdefault(day, []).extend(rows)
+    current_strong = make_record(date(2026, 6, 15), symbol="2330", close=130.0, high=131.0, low=125.0, volume=3000, turnover=250_000_000)
+    current_weak = make_record(date(2026, 6, 15), symbol="2317", close=105.0, high=106.0, low=101.0, volume=3000, turnover=250_000_000)
+    result = calculate_qullamaggie_signals([current_strong, current_weak], history, {"listed": [100.0] * 61})
+    candidates = {item["symbol"]: item for group in result["candidates"].values() for item in group}
+    assert candidates["2330"]["relative_strength_20d"] == 30.0
+    assert candidates["2330"]["relative_strength_60d"] == 30.0
+    assert candidates["2330"]["relative_strength_rank"] == 100.0
+    assert candidates["2317"]["relative_strength_rank"] == 0.0
+    assert candidates["2330"]["relative_strength_rank_basis"] == "60d"
+
+
+def test_qullamaggie_json_fields_and_no_trading_advice_text() -> None:
+    current = make_record(date(2026, 6, 15), close=102.0, high=103.0, low=99.0, volume=3000, turnover=200_000_000)
+    summary = build_screening_summary(
+        "2026-06-15",
+        "2026-06-15T18:15:00+08:00",
+        [current],
+        [],
+        history_for(),
+        {},
+        False,
+        ["institutional_trading"],
+        "low",
+    )
+    payload = json.loads(json.dumps(summary, ensure_ascii=False))
+    candidate = payload["qullamaggie"]["top_candidates"][0]
+    required = {
+        "symbol",
+        "name",
+        "market",
+        "setup_type",
+        "qullamaggie_score",
+        "score_breakdown",
+        "ma10",
+        "avg_volume_20d",
+        "volume_ratio_20d",
+        "prior_20d_high",
+        "pivot_price",
+        "relative_strength_rank",
+        "risk_to_stop_pct",
+        "setup_reasons",
+        "risk_notes",
+    }
+    assert required.issubset(candidate)
+    serialized = json.dumps(payload, ensure_ascii=False)
+    for forbidden in ["買進", "賣出", "目標價", "停損價"]:
+        assert forbidden not in serialized

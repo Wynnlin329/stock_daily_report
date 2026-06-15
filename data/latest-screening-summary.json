@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "report_date": "2026-06-15",
-  "generated_at": "2026-06-15T15:55:41+08:00",
+  "generated_at": "2026-06-15T16:05:41+08:00",
   "timezone": "Asia/Taipei",
   "data_quality": {
     "listed_rows": 0,
@@ -108,6 +108,32 @@
     "revenue_financial_candidates": [],
     "manual_review_candidates": []
   },
+  "qullamaggie": {
+    "market_regime": {
+      "status": "insufficient_data",
+      "score": 5,
+      "reasons": [
+        "指數歷史不足 50 日，無法判定市場狀態"
+      ],
+      "risk_notes": [
+        "未收集 TAIEX/OTC 指數歷史時，不宣稱完整市場順風程度"
+      ],
+      "metrics": {}
+    },
+    "candidates": {
+      "breakout": [],
+      "episodic_pivot": [],
+      "anticipation": [],
+      "extended_watch": [],
+      "failed_breakout": [],
+      "insufficient_data": []
+    },
+    "top_candidates": [],
+    "limitations": [
+      "TAIEX 或 OTC 指數歷史不足；market_regime 與相對強弱可能無法完整計算",
+      "今日 OHLCV 不足，無法產生 Qullamaggie-style 候選清單"
+    ]
+  },
   "full_market_scan_ready": false,
   "missing_sections": [
     "market_environment",
@@ -121,6 +147,8 @@
   "limitations": [
     "歷史資料不足 20 個交易日；未產生 20 日均量、爆量倍數或 20 日突破訊號",
     "歷史資料不足 60 個交易日；未產生 60 日突破訊號",
-    "核心資料段落缺失：market_environment, listed_ohlcv, otc_ohlcv, institutional_trading, margin_short, material_information"
+    "核心資料段落缺失：market_environment, listed_ohlcv, otc_ohlcv, institutional_trading, margin_short, material_information",
+    "TAIEX 或 OTC 指數歷史不足；market_regime 與相對強弱可能無法完整計算",
+    "今日 OHLCV 不足，無法產生 Qullamaggie-style 候選清單"
   ]
 }

@@ -1,14 +1,14 @@
 {
   "schema_version": "1.0",
   "report_date": "2026-06-15",
-  "generated_at": "2026-06-15T15:55:41+08:00",
+  "generated_at": "2026-06-15T16:05:41+08:00",
   "timezone": "Asia/Taipei",
   "market_is_trading_day": true,
   "latest_market_data_date": "2026-06-15",
   "sources": {
     "twse": {
       "name": "TWSE",
-      "checked_at": "2026-06-15T15:55:41+08:00",
+      "checked_at": "2026-06-15T16:05:41+08:00",
       "reachable": true,
       "http_status": 200,
       "data_date": null,
@@ -21,11 +21,11 @@
       "role": "主資料源",
       "evidence": "上市 OHLCV official endpoint reachable status=200, but no parsable OHLCV rows were obtained",
       "error": "TWSE response did not contain a parsable listed OHLCV table",
-      "response_time_ms": 2141
+      "response_time_ms": 1280
     },
     "tpex": {
       "name": "TPEx",
-      "checked_at": "2026-06-15T15:55:41+08:00",
+      "checked_at": "2026-06-15T16:05:41+08:00",
       "reachable": true,
       "http_status": 200,
       "data_date": null,
@@ -38,11 +38,11 @@
       "role": "主資料源",
       "evidence": "上櫃 OHLCV official endpoint reachable status=200, but no parsable OHLCV rows were obtained",
       "error": "TPEx response did not contain a parsable OTC OHLCV table",
-      "response_time_ms": 5639
+      "response_time_ms": 19843
     },
     "data_gov_tw": {
       "name": "data.gov.tw",
-      "checked_at": "2026-06-15T15:55:41+08:00",
+      "checked_at": "2026-06-15T16:05:41+08:00",
       "reachable": true,
       "http_status": 200,
       "data_date": null,
@@ -55,11 +55,11 @@
       "role": "主資料源",
       "evidence": "GET https://data.gov.tw/ succeeded, but no explicit data date was parsed",
       "error": "未取得明確資料日期；不可判定為當日資料可用",
-      "response_time_ms": 2761
+      "response_time_ms": 2891
     },
     "mops": {
       "name": "MOPS",
-      "checked_at": "2026-06-15T15:55:41+08:00",
+      "checked_at": "2026-06-15T16:05:41+08:00",
       "reachable": true,
       "http_status": 200,
       "data_date": null,
@@ -72,11 +72,11 @@
       "role": "主資料源",
       "evidence": "GET https://mops.twse.com.tw/mops/web/index succeeded, but no explicit data date was parsed",
       "error": "未取得明確資料日期；不可判定為當日資料可用",
-      "response_time_ms": 985
+      "response_time_ms": 3723
     },
     "goodinfo": {
       "name": "Goodinfo",
-      "checked_at": "2026-06-15T15:55:41+08:00",
+      "checked_at": "2026-06-15T16:05:41+08:00",
       "reachable": true,
       "http_status": 200,
       "data_date": null,
@@ -89,11 +89,11 @@
       "role": "候補資料源",
       "evidence": "GET https://goodinfo.tw/tw/index.asp succeeded, but no explicit data date was parsed",
       "error": "未取得明確資料日期；不可判定為當日資料可用",
-      "response_time_ms": 777
+      "response_time_ms": 1780
     },
     "yahoo_tw_stock": {
       "name": "Yahoo 奇摩股市",
-      "checked_at": "2026-06-15T15:55:41+08:00",
+      "checked_at": "2026-06-15T16:05:41+08:00",
       "reachable": true,
       "http_status": 200,
       "data_date": null,
@@ -106,11 +106,11 @@
       "role": "催化新聞源",
       "evidence": "GET https://tw.stock.yahoo.com/ succeeded, but no explicit data date was parsed",
       "error": "未取得明確資料日期；不可判定為當日資料可用",
-      "response_time_ms": 2065
+      "response_time_ms": 1451
     },
     "cnyes": {
       "name": "鉅亨網 Cnyes",
-      "checked_at": "2026-06-15T15:55:41+08:00",
+      "checked_at": "2026-06-15T16:05:41+08:00",
       "reachable": true,
       "http_status": 200,
       "data_date": null,
@@ -123,11 +123,11 @@
       "role": "催化新聞源",
       "evidence": "GET https://www.cnyes.com/twstock/ succeeded, but no explicit data date was parsed",
       "error": "未取得明確資料日期；不可判定為當日資料可用",
-      "response_time_ms": 1289
+      "response_time_ms": 390
     },
     "moneydj": {
       "name": "MoneyDJ",
-      "checked_at": "2026-06-15T15:55:41+08:00",
+      "checked_at": "2026-06-15T16:05:41+08:00",
       "reachable": true,
       "http_status": 200,
       "data_date": null,
@@ -140,11 +140,11 @@
       "role": "催化新聞源",
       "evidence": "GET https://www.moneydj.com/ succeeded, but no explicit data date was parsed",
       "error": "未取得明確資料日期；不可判定為當日資料可用",
-      "response_time_ms": 1467
+      "response_time_ms": 228
     },
     "tradingview": {
       "name": "TradingView",
-      "checked_at": "2026-06-15T15:55:41+08:00",
+      "checked_at": "2026-06-15T16:05:41+08:00",
       "reachable": true,
       "http_status": 200,
       "data_date": null,
@@ -157,11 +157,11 @@
       "role": "人工複核源",
       "evidence": "GET https://tw.tradingview.com/markets/stocks-taiwan/ succeeded, but no explicit data date was parsed",
       "error": "未取得明確資料日期；不可判定為當日資料可用",
-      "response_time_ms": 1376
+      "response_time_ms": 710
     },
     "wantgoo": {
       "name": "WantGoo",
-      "checked_at": "2026-06-15T15:55:41+08:00",
+      "checked_at": "2026-06-15T16:05:41+08:00",
       "reachable": true,
       "http_status": 200,
       "data_date": null,
@@ -174,11 +174,11 @@
       "role": "人工複核源",
       "evidence": "GET https://www.wantgoo.com/ succeeded, but no explicit data date was parsed",
       "error": "未取得明確資料日期；不可判定為當日資料可用",
-      "response_time_ms": 256
+      "response_time_ms": 150
     },
     "cmoney": {
       "name": "CMoney",
-      "checked_at": "2026-06-15T15:55:41+08:00",
+      "checked_at": "2026-06-15T16:05:41+08:00",
       "reachable": true,
       "http_status": 200,
       "data_date": null,
@@ -191,11 +191,11 @@
       "role": "人工複核源",
       "evidence": "GET https://www.cmoney.tw/ succeeded, but no explicit data date was parsed",
       "error": "未取得明確資料日期；不可判定為當日資料可用",
-      "response_time_ms": 553
+      "response_time_ms": 622
     },
     "statementdog": {
       "name": "財報狗 StatementDog",
-      "checked_at": "2026-06-15T15:55:41+08:00",
+      "checked_at": "2026-06-15T16:05:41+08:00",
       "reachable": true,
       "http_status": 200,
       "data_date": null,
@@ -208,7 +208,7 @@
       "role": "人工複核源",
       "evidence": "GET https://statementdog.com/ succeeded, but no explicit data date was parsed",
       "error": "未取得明確資料日期；不可判定為當日資料可用",
-      "response_time_ms": 783
+      "response_time_ms": 2026
     }
   },
   "coverage": {

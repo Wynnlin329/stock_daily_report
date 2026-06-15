@@ -18,6 +18,9 @@ https://raw.githubusercontent.com/<OWNER>/<REPO>/main/data/latest-screening-summ
 5. 若 `historical_data_status.has_60d_history=false`，不得產生 60 日突破結論。
 6. 僅提供研究與人工複核清單，不提供買賣建議。
 7. 優先摘要官方資料來源，第三方來源僅作為催化新聞或人工複核。
+8. 若需要 Qullamaggie-style 動能掃描，只讀取 `data/latest-screening-summary.json` 的 `qullamaggie` 區塊，不得重新爬外部網站。
+9. Qullamaggie-style 是規則化研究篩選，不代表 Qullamaggie 本人選股。
+10. 歷史資料不足時，尊重 `qullamaggie.limitations` 與候選股的 `setup_type=insufficient_data`，不得補出缺失訊號。
 
 輸出格式：
 
@@ -27,7 +30,16 @@ https://raw.githubusercontent.com/<OWNER>/<REPO>/main/data/latest-screening-summ
 3. 成交金額與成交量排行
 4. 漲幅與漲停初篩
 5. 量增與突破候選
-6. 重大事件與人工複核清單
-7. 今日不應解讀或需要補資料的段落
+6. Qullamaggie-style 動能候選與限制
+7. 重大事件與人工複核清單
+8. 今日不應解讀或需要補資料的段落
 ```
 
+Qullamaggie-style 區塊摘要時請包含：
+
+```text
+- market_regime.status
+- setup_type 分組數量
+- top_candidates 前 10 名的 symbol、name、setup_type、qullamaggie_score、setup_reasons、risk_notes
+- limitations
+```

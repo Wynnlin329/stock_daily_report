@@ -98,6 +98,56 @@ error, response_time_ms
 
 若歷史資料不足，系統不會產生 20 日均量、60 日突破或爆量倍數等長週期訊號，並會在 `historical_data_status` 與 `limitations` 中標示。
 
+### Qullamaggie-style 動能掃描
+
+`latest-screening-summary.json` 另包含 `qullamaggie` 區塊。這是以 Qullamaggie 常見公開動能交易框架為靈感的可重現欄位計算，僅供研究與人工複核，不代表 Qullamaggie 本人選股，也不輸出買賣建議。
+
+主要門檻集中在 `stock_health/config.py`：
+
+```text
+MIN_DAILY_TURNOVER = 100_000_000
+MIN_AVG_TURNOVER_20D = 50_000_000
+MAX_BASE_DEPTH_PCT = 25
+MIN_BASE_DAYS = 10
+MAX_BASE_DAYS = 30
+BREAKOUT_VOLUME_RATIO = 1.5
+MAX_EXTENDED_FROM_PIVOT_PCT = 8
+MAX_RISK_TO_STOP_PCT = 10
+EP_MIN_CHANGE_PCT = 5
+EP_MIN_VOLUME_RATIO = 2
+```
+
+主要欄位包含：
+
+```text
+ma10, ma20, ma50,
+above_ma10, above_ma20, above_ma50, ma20_above_ma50,
+avg_volume_20d, volume_ratio_20d, avg_turnover_20d,
+daily_range_pct, close_location_pct, close_near_high,
+prior_20d_high, prior_60d_high, pivot_price,
+distance_to_pivot_pct, breakout_volume_confirmed,
+base_days, base_high, base_low, base_depth_pct,
+range_contraction, volatility_contraction, tight_close_count,
+relative_strength_20d, relative_strength_60d, relative_strength_rank,
+extended_from_pivot_pct, extended_risk, stop_reference, risk_to_stop_pct,
+mops_event_flag, revenue_financial_flag, news_topic_flag,
+setup_type, qullamaggie_score, score_breakdown
+```
+
+`setup_type` 只使用：
+
+```text
+breakout, episodic_pivot, anticipation, extended_watch, failed_breakout, insufficient_data
+```
+
+歷史資料不足時會停用對應條件：
+
+```text
+少於 20 個交易日：不計算 20 日均量、20 日新高、20 日相對強弱、量能倍數。
+少於 60 個交易日：不計算 60 日新高、60 日相對強弱，也不宣稱完整 Qullamaggie-style 訊號。
+缺少 TAIEX/OTC 指數歷史：market_regime 為 insufficient_data，相對強弱欄位保留 null。
+```
+
 ## Raw URL
 
 將 repository 建立完成並推到 GitHub 後，把 `<OWNER>` 與 `<REPO>` 換成實際值：
@@ -113,7 +163,8 @@ https://raw.githubusercontent.com/<OWNER>/<REPO>/main/data/latest-screening-summ
 
 ChatGPT 排程應讀取 `latest.json` 與 `data/latest-screening-summary.json`。若 `full_market_scan_ready=false`，應先說明缺少的核心資料段落，不得把摘要解讀成完整市場掃描。
 
+若需要動能候選清單，ChatGPT 應讀取 `data/latest-screening-summary.json` 的 `qullamaggie` 區塊，不應重新爬外部網站。`qullamaggie.top_candidates` 與各 setup 分組都只可作為研究與人工複核清單。
+
 ## 第三方網站限制
 
 官方來源優先於第三方來源。Goodinfo、Yahoo 奇摩股市、鉅亨網、MoneyDJ、TradingView、WantGoo、CMoney 與財報狗只作為候補、催化新聞或人工複核來源。本專案不繞過登入、驗證碼、Cloudflare、付費牆或任何存取控制；遇到 403、429、逾時、動態載入或解析失敗時會記錄實際錯誤。
-
