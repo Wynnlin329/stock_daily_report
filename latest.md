@@ -1,17 +1,17 @@
 # 報告日期：2026/06/15（星期一）
 
-- 執行時間：2026-06-15T16:36:34+08:00
+- 執行時間：2026-06-15T16:59:41+08:00
 - 交易日判定：True
 - 最新市場資料日期：2026-06-15
 - 是否足以執行全市場掃描：False
-- 整體信心等級：low
+- 整體信心等級：medium
 
 ## 資料來源健康狀態
 
 | 來源 | 角色 | 可連線 | HTTP | 資料日期 | 明確日期 | 當期 | 排程可用 | 錯誤 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| TWSE | 主資料源 | True | 200 |  | False | False | False | TWSE response did not contain a parsable listed OHLCV table |
-| TPEx | 主資料源 | True | 200 |  | False | False | False | TPEx response did not contain a parsable OTC OHLCV table |
+| TWSE | 主資料源 | True | 200 | 2026-06-15 | True | True | True |  |
+| TPEx | 主資料源 | True | 200 | 2026-06-15 | True | True | True |  |
 | data.gov.tw | 主資料源 | True | 200 |  | False | False | False | 未取得明確資料日期；不可判定為當日資料可用 |
 | MOPS | 主資料源 | True | 200 |  | False | False | False | 未取得明確資料日期；不可判定為當日資料可用 |
 | Goodinfo | 候補資料源 | True | 200 |  | False | False | False | 未取得明確資料日期；不可判定為當日資料可用 |
@@ -19,13 +19,14 @@
 | 鉅亨網 Cnyes | 催化新聞源 | True | 200 |  | False | False | False | 未取得明確資料日期；不可判定為當日資料可用 |
 | MoneyDJ | 催化新聞源 | True | 200 |  | False | False | False | 未取得明確資料日期；不可判定為當日資料可用 |
 | TradingView | 人工複核源 | True | 200 |  | False | False | False | 未取得明確資料日期；不可判定為當日資料可用 |
-| WantGoo | 人工複核源 | False | 403 |  | False | False | False | HTTP 403: Forbidden |
+| WantGoo | 人工複核源 | True | 200 |  | False | False | False | 未取得明確資料日期；不可判定為當日資料可用 |
 | CMoney | 人工複核源 | True | 200 |  | False | False | False | 未取得明確資料日期；不可判定為當日資料可用 |
 | 財報狗 StatementDog | 人工複核源 | True | 200 |  | False | False | False | 未取得明確資料日期；不可判定為當日資料可用 |
 
 ## 今日可用主資料源
 
-- 無
+- TWSE
+- TPEx
 
 ## 今日候補資料源
 
@@ -45,8 +46,6 @@
 
 ## 失敗來源與錯誤
 
-- TWSE：TWSE response did not contain a parsable listed OHLCV table
-- TPEx：TPEx response did not contain a parsable OTC OHLCV table
 - data.gov.tw：未取得明確資料日期；不可判定為當日資料可用
 - MOPS：未取得明確資料日期；不可判定為當日資料可用
 - Goodinfo：未取得明確資料日期；不可判定為當日資料可用
@@ -54,19 +53,19 @@
 - 鉅亨網 Cnyes：未取得明確資料日期；不可判定為當日資料可用
 - MoneyDJ：未取得明確資料日期；不可判定為當日資料可用
 - TradingView：未取得明確資料日期；不可判定為當日資料可用
-- WantGoo：HTTP 403: Forbidden
+- WantGoo：未取得明確資料日期；不可判定為當日資料可用
 - CMoney：未取得明確資料日期；不可判定為當日資料可用
 - 財報狗 StatementDog：未取得明確資料日期；不可判定為當日資料可用
 
 ## 掃描模組覆蓋狀況
 
-- market_environment：False（TWSE current market environment not verified）
-- listed_ohlcv：False（Listed OHLCV unavailable）
-- otc_ohlcv：False（OTC OHLCV unavailable）
-- volume_ranking：False（Requires listed or OTC OHLCV）
-- turnover_ranking：False（Requires listed or OTC OHLCV）
-- price_change_screening：False（Requires listed or OTC OHLCV）
-- limit_up_screening：False（Requires listed or OTC OHLCV）
+- market_environment：True（TWSE has explicit current market date）
+- listed_ohlcv：True（1366 listed rows parsed）
+- otc_ohlcv：True（10147 OTC rows parsed）
+- volume_ranking：True（Computed from official OHLCV）
+- turnover_ranking：True（Computed from official OHLCV）
+- price_change_screening：True（Computed from official OHLCV）
+- limit_up_screening：True（Estimated from daily change percent）
 - volume_spike_screening：False（Requires at least 20 trading days of history）
 - institutional_trading：False（First version does not parse institutional trading yet）
 - margin_short：False（First version does not parse margin short data yet）
@@ -77,15 +76,10 @@
 
 ## 缺少的資料段落
 
-- market_environment
-- listed_ohlcv
-- otc_ohlcv
 - institutional_trading
 - margin_short
 - material_information
 
 ## 限制
 
-- TWSE response did not contain a parsable listed OHLCV table
-- TPEx response did not contain a parsable OTC OHLCV table
-- 核心資料段落缺失：market_environment, listed_ohlcv, otc_ohlcv, institutional_trading, margin_short, material_information
+- 核心資料段落缺失：institutional_trading, margin_short, material_information

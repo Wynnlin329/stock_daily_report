@@ -95,21 +95,17 @@ def fetch_twse_listed_ohlcv(target_date: date, client: HttpClient | None = None)
     except json.JSONDecodeError as exc:
         return FetchResult(errors=[f"TWSE JSON parse failed: {exc}"])
 
-    fields: list[str] | None = None
-    rows: list[list[Any]] = []
-    for key, value in payload.items():
-        if not key.startswith("fields"):
-            continue
-        candidate_fields = [str(item) for item in value]
-        data_key = "data" + key.removeprefix("fields")
-        candidate_rows = payload.get(data_key, [])
-        if "證券代號" in candidate_fields and "開盤價" in candidate_fields and candidate_rows:
-            fields = candidate_fields
-            rows = candidate_rows
-            break
+    fields, rows = _extract_table(
+        payload,
+        required_fields=["證券代號", "開盤價", "最高價", "最低價", "收盤價"],
+        title_keywords=["每日收盤行情"],
+    )
 
     if not fields or not rows:
-        return FetchResult(data_date=_extract_payload_date(payload), errors=["TWSE response did not contain a parsable listed OHLCV table"])
+        return FetchResult(
+            data_date=_extract_payload_date(payload),
+            errors=[_table_error("TWSE", payload, ["證券代號", "開盤價", "最高價", "最低價", "收盤價"])],
+        )
 
     records = [_normalize_twse_row(target_date, fields, row) for row in rows]
     return FetchResult(rows=[record for record in records if record.symbol], data_date=_extract_payload_date(payload) or f"{target_date:%Y-%m-%d}")
@@ -161,10 +157,18 @@ def fetch_tpex_otc_ohlcv(target_date: date, client: HttpClient | None = None) ->
     except json.JSONDecodeError as exc:
         return FetchResult(errors=[f"TPEx JSON parse failed: {exc}"])
 
-    fields = [str(item) for item in payload.get("aaDataHeader", payload.get("fields", []))]
-    rows = payload.get("aaData", payload.get("data", []))
+    fields, rows = _extract_table(
+        payload,
+        required_fields=["代號", "開盤", "最高", "最低", "收盤"],
+        title_keywords=["上櫃股票行情"],
+        legacy_field_keys=["aaDataHeader", "fields"],
+        legacy_data_keys=["aaData", "data"],
+    )
     if not fields or not rows:
-        return FetchResult(data_date=_extract_payload_date(payload), errors=["TPEx response did not contain a parsable OTC OHLCV table"])
+        return FetchResult(
+            data_date=_extract_payload_date(payload),
+            errors=[_table_error("TPEx", payload, ["代號", "開盤", "最高", "最低", "收盤"])],
+        )
 
     records = [_normalize_tpex_row(target_date, fields, row) for row in rows]
     return FetchResult(rows=[record for record in records if record.symbol], data_date=_extract_payload_date(payload) or f"{target_date:%Y-%m-%d}")
@@ -188,6 +192,78 @@ def _normalize_tpex_row(target_date: date, fields: list[str], row: list[Any]) ->
         turnover=_to_int(_row_value(row, fields, ["成交金額", "成交金額(元)"])),
         transactions=_to_int(_row_value(row, fields, ["成交筆數"])),
         source="TPEx",
+    )
+
+
+def _extract_table(
+    payload: dict[str, Any],
+    required_fields: list[str],
+    title_keywords: list[str] | None = None,
+    legacy_field_keys: list[str] | None = None,
+    legacy_data_keys: list[str] | None = None,
+) -> tuple[list[str] | None, list[list[Any]]]:
+    title_keywords = title_keywords or []
+    for table in payload.get("tables", []):
+        if not isinstance(table, dict):
+            continue
+        fields = [str(item).strip() for item in table.get("fields", [])]
+        rows = table.get("data", [])
+        title = str(table.get("title") or "")
+        if not fields or not rows:
+            continue
+        if not _has_required_fields(fields, required_fields):
+            continue
+        if title_keywords and not any(keyword in title for keyword in title_keywords):
+            continue
+        return fields, rows
+
+    for table in payload.get("tables", []):
+        if not isinstance(table, dict):
+            continue
+        fields = [str(item).strip() for item in table.get("fields", [])]
+        rows = table.get("data", [])
+        if fields and rows and _has_required_fields(fields, required_fields):
+            return fields, rows
+
+    if legacy_field_keys or legacy_data_keys:
+        fields = [str(item).strip() for key in (legacy_field_keys or []) for item in payload.get(key, [])]
+        rows: list[list[Any]] = []
+        for key in legacy_data_keys or []:
+            candidate_rows = payload.get(key, [])
+            if candidate_rows:
+                rows = candidate_rows
+                break
+        if fields and rows and _has_required_fields(fields, required_fields):
+            return fields, rows
+
+    for key, value in payload.items():
+        if not key.startswith("fields"):
+            continue
+        fields = [str(item).strip() for item in value]
+        data_key = "data" + key.removeprefix("fields")
+        rows = payload.get(data_key, [])
+        if fields and rows and _has_required_fields(fields, required_fields):
+            return fields, rows
+    return None, []
+
+
+def _has_required_fields(fields: list[str], required_fields: list[str]) -> bool:
+    return all(field in fields for field in required_fields)
+
+
+def _table_error(source: str, payload: dict[str, Any], required_fields: list[str]) -> str:
+    table_summaries: list[str] = []
+    for table in payload.get("tables", []):
+        if not isinstance(table, dict):
+            continue
+        fields = table.get("fields") or []
+        table_summaries.append(
+            f"title={table.get('title')!r}, rows={len(table.get('data') or [])}, fields={','.join(str(field) for field in fields[:8])}"
+        )
+    stat = payload.get("stat", "")
+    return (
+        f"{source} response did not contain a parsable OHLCV table with required fields "
+        f"{required_fields}; stat={stat!r}; tables={' | '.join(table_summaries[:5])}"
     )
 
 

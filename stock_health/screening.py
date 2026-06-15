@@ -4,7 +4,7 @@ from collections import defaultdict
 from statistics import mean
 from typing import Any
 
-from .config import SCHEMA_VERSION, TIMEZONE
+from .config import SCHEMA_VERSION, SCREENING_MAX_CANDIDATES, TIMEZONE
 from .models import OhlcvRecord
 from .qullamaggie import calculate_qullamaggie_signals
 
@@ -58,7 +58,7 @@ def build_screening_summary(
             "top_gainers": [_candidate(row, []) for row in sorted(all_rows, key=lambda item: item.change_pct if item.change_pct is not None else -999, reverse=True)[:20]],
         },
         "screening": {
-            "limit_up": [_candidate(row, ["漲停初篩"]) for row in all_rows if row.change_pct is not None and row.change_pct >= 9.5],
+            "limit_up": [_candidate(row, ["漲停初篩"]) for row in all_rows if row.change_pct is not None and row.change_pct >= 9.5][:SCREENING_MAX_CANDIDATES],
             "volume_spike": _volume_spike_candidates(all_rows, history_rows) if has_20d_history else [],
             "breakout_candidates": _breakout_candidates(all_rows, history_rows, 60) if has_60d_history else [],
             "institutional_buy_candidates": [],
@@ -104,7 +104,7 @@ def _volume_spike_candidates(rows: list[OhlcvRecord], history_rows: dict[str, li
         avg_volume = mean(history)
         if avg_volume > 0 and row.volume / avg_volume >= 1.8:
             candidates.append(_candidate(row, ["量增"], volume_ratio_20d=round(row.volume / avg_volume, 4)))
-    return candidates[:50]
+    return candidates[:SCREENING_MAX_CANDIDATES]
 
 
 def _breakout_candidates(rows: list[OhlcvRecord], history_rows: dict[str, list[OhlcvRecord]], days: int) -> list[dict[str, Any]]:
@@ -116,7 +116,7 @@ def _breakout_candidates(rows: list[OhlcvRecord], history_rows: dict[str, list[O
             continue
         if row.close > max(closes):
             candidates.append(_candidate(row, [f"{days}日突破"], new_high_60d=days == 60))
-    return candidates[:50]
+    return candidates[:SCREENING_MAX_CANDIDATES]
 
 
 def _candidate(row: OhlcvRecord, tags: list[str], **extra: Any) -> dict[str, Any]:

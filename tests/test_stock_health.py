@@ -7,7 +7,7 @@ from datetime import date, datetime
 from pathlib import Path
 
 from stock_health.coverage import build_coverage
-from stock_health.data_fetcher import fetch_twse_listed_ohlcv, records_to_csv_text
+from stock_health.data_fetcher import fetch_tpex_otc_ohlcv, fetch_twse_listed_ohlcv, records_to_csv_text
 from stock_health.history_store import build_history_index, history_report_paths, write_json
 from stock_health.http_client import HttpResponse
 import stock_health.http_client as http_client_module
@@ -137,6 +137,25 @@ def test_screening_does_not_fake_history_signals() -> None:
     assert summary["limitations"]
 
 
+def test_screening_candidate_lists_are_capped() -> None:
+    rows = [sample_record(symbol=f"{index:04d}", close=110.0) for index in range(80)]
+    for row in rows:
+        row.change = 10.0
+        row.change_pct = 10.0
+    summary = build_screening_summary(
+        "2026-06-15",
+        "2026-06-15T18:15:00+08:00",
+        rows,
+        [],
+        {},
+        {},
+        False,
+        [],
+        "low",
+    )
+    assert len(summary["screening"]["limit_up"]) == 50
+
+
 def test_markdown_generation() -> None:
     report = {
         "generated_at": "2026-06-15T18:15:00+08:00",
@@ -177,6 +196,44 @@ def test_twse_parser_with_mock_response() -> None:
     assert result.ok is True
     assert result.rows[0].symbol == "2330"
     assert result.rows[0].volume == 1000
+
+
+def test_twse_parser_with_tables_response() -> None:
+    payload = {
+        "date": "20260615",
+        "stat": "OK",
+        "tables": [
+            {
+                "title": "115年06月15日 每日收盤行情(全部(不含權證、牛熊證、可展延牛熊證))",
+                "fields": ["證券代號", "證券名稱", "成交股數", "成交筆數", "成交金額", "開盤價", "最高價", "最低價", "收盤價", "漲跌(+/-)", "漲跌價差", "本益比"],
+                "data": [["2330", "台積電", "1,000", "10", "100,000", "99.00", "101.00", "98.00", "100.00", "<p style ='color:red'>+</p>", "1.00", "20.00"]],
+            }
+        ],
+    }
+    result = fetch_twse_listed_ohlcv(date(2026, 6, 15), FakeClient([HttpResponse("mock", 200, json.dumps(payload).encode(), 1)]))
+    assert result.ok is True
+    assert result.data_date == "2026-06-15"
+    assert result.rows[0].symbol == "2330"
+    assert result.rows[0].turnover == 100000
+
+
+def test_tpex_parser_with_tables_response() -> None:
+    payload = {
+        "date": "20260615",
+        "stat": "OK",
+        "tables": [
+            {
+                "title": "上櫃股票行情",
+                "fields": ["代號", "名稱", "收盤", "漲跌", "開盤", "最高", "最低", "均價", "成交股數", "成交金額(元)", "成交筆數"],
+                "data": [["8069", "元太", "200.50", "+4.50", "200.00", "202.00", "196.50", "199.21", "6,455,900", "1,286,086,332", "5,247"]],
+            }
+        ],
+    }
+    result = fetch_tpex_otc_ohlcv(date(2026, 6, 15), FakeClient([HttpResponse("mock", 200, json.dumps(payload).encode(), 1)]))
+    assert result.ok is True
+    assert result.data_date == "2026-06-15"
+    assert result.rows[0].symbol == "8069"
+    assert result.rows[0].turnover == 1286086332
 
 
 def test_http_client_handles_incomplete_read(monkeypatch) -> None:
