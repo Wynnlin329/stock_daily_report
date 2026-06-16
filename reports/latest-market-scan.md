@@ -2,10 +2,17 @@
 
 本摘要僅供研究與人工複核，不構成買賣建議。
 
-- 執行時間：2026-06-16T00:06:24+08:00
+- 執行時間：2026-06-16T10:27:22+08:00
 - 是否足以執行全市場掃描：False
 - 整體信心等級：medium
 - 可用歷史交易日：60
+
+## 普通股 Universe 過濾摘要
+
+- total_rows：10147
+- scan_eligible_rows：877
+- excluded_rows：9270
+- excluded_by_type：{'bond_etf': 132, 'etf': 7415, 'other': 12, 'warrant': 1711}
 
 ## 市場概況
 
@@ -30,7 +37,6 @@
 
 ## 成交量排行
 
-- 00937B 群益ESG投等債20+（otc）：close=15.04 change_pct=0.2667 volume=56857668 turnover=855551528
 - 5425 台半（otc）：close=101.0 change_pct=0.0 volume=40207177 turnover=4127782343
 - 3236 千如（otc）：close=69.5 change_pct=9.9684 volume=38997179 turnover=2627261153
 - 4939 亞電（otc）：close=70.5 change_pct=6.4955 volume=32442264 turnover=2219027038
@@ -40,19 +46,20 @@
 - 5483 中美晶（otc）：close=174.5 change_pct=9.7484 volume=27975005 turnover=4822536301
 - 5347 世界（otc）：close=174.5 change_pct=2.9499 volume=27630938 turnover=4807188471
 - 6147 頎邦（otc）：close=234.5 change_pct=4.6875 volume=26813041 turnover=6285472213
+- 3221 台嘉碩（otc）：close=63.7 change_pct=5.4636 volume=26802037 turnover=1712360580
 
 ## 漲幅排行
 
-- 72601U 竹陞凱基57售01（otc）：close=0.7 change_pct=3400.0 volume=1000 turnover=700
-- 703338 世禾富邦57購01（otc）：close=0.25 change_pct=525.0 volume=3000 turnover=750
-- 707059 健亞永豐5B購01（otc）：close=0.74 change_pct=289.4737 volume=1000 turnover=740
-- 703938 創惟元大57購01（otc）：close=0.06 change_pct=200.0 volume=17000 turnover=730
-- 705032 鈊象群益58購01（otc）：close=3.38 change_pct=196.4912 volume=1000 turnover=3380
-- 738197 譜瑞統一58購01（otc）：close=0.3 change_pct=172.7273 volume=1000 turnover=300
-- 703436 台特化兆豐59購01（otc）：close=0.18 change_pct=157.1429 volume=30000 turnover=5000
-- 703840 漢科元大57購01（otc）：close=0.05 change_pct=150.0 volume=154000 turnover=5760
-- 72509U 信驊永豐57售01（otc）：close=0.05 change_pct=150.0 volume=12000 turnover=1000
-- 735646 久禾光統一57購01（otc）：close=0.15 change_pct=150.0 volume=1000 turnover=150
+- 7839 達人網（otc）：close=52.5 change_pct=45.8333 volume=452766 turnover=23236930
+- 8071 能率網通（otc）：close=26.95 change_pct=10.0 volume=5062302 turnover=134236772
+- 5457 宣德（otc）：close=39.1 change_pct=9.9859 volume=5577733 turnover=217340603
+- 6156 松上（otc）：close=22.6 change_pct=9.9757 volume=3712649 turnover=80911595
+- 5230 雷笛克光學（otc）：close=19.3 change_pct=9.9715 volume=1267549 turnover=23951104
+- 8042 金山電（otc）：close=187.5 change_pct=9.9707 volume=573859 turnover=107598472
+- 3228 金麗科（otc）：close=176.5 change_pct=9.9688 volume=340599 turnover=58576443
+- 3362 先進光（otc）：close=176.5 change_pct=9.9688 volume=6955576 turnover=1196242113
+- 3236 千如（otc）：close=69.5 change_pct=9.9684 volume=38997179 turnover=2627261153
+- 6259 百徽（otc）：close=30.35 change_pct=9.9638 volume=2913457 turnover=86661177
 
 ## 初步篩選
 
@@ -140,5 +147,6 @@
 ## 限制
 
 - 核心資料段落缺失：market_environment, listed_ohlcv, institutional_trading, margin_short, material_information
+- Qullamaggie-style 掃描僅針對 scan_eligible=true 的普通股 universe。
 - TAIEX 或 OTC 指數歷史不足；market_regime 與相對強弱可能無法完整計算
 - 部分個股歷史或必要欄位不足，已歸類為 insufficient_data

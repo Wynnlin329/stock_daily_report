@@ -3,6 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
+from .universe import classify_security
+
 
 @dataclass
 class SourceHealth:
@@ -58,6 +60,24 @@ class OhlcvRecord:
     turnover: int | None
     transactions: int | None
     source: str
+    security_type: str = ""
+    is_common_stock: bool = False
+    is_etf: bool = False
+    is_warrant: bool = False
+    is_bond_etf: bool = False
+    is_leveraged_inverse: bool = False
+    is_etn: bool = False
+    is_preferred_stock: bool = False
+    is_dr: bool = False
+    scan_eligible: bool = False
+    exclude_reason: str = ""
+
+    def __post_init__(self) -> None:
+        if self.security_type:
+            return
+        classification = classify_security(self.symbol, self.name, self.close, self.volume, self.turnover)
+        for key, value in classification.to_dict().items():
+            setattr(self, key, value)
 
     def to_csv_row(self) -> dict[str, Any]:
         return {
@@ -75,7 +95,22 @@ class OhlcvRecord:
             "turnover": self.turnover if self.turnover is not None else "",
             "transactions": self.transactions if self.transactions is not None else "",
             "source": self.source,
+            "security_type": self.security_type,
+            "is_common_stock": _csv_bool(self.is_common_stock),
+            "is_etf": _csv_bool(self.is_etf),
+            "is_warrant": _csv_bool(self.is_warrant),
+            "is_bond_etf": _csv_bool(self.is_bond_etf),
+            "is_leveraged_inverse": _csv_bool(self.is_leveraged_inverse),
+            "is_etn": _csv_bool(self.is_etn),
+            "is_preferred_stock": _csv_bool(self.is_preferred_stock),
+            "is_dr": _csv_bool(self.is_dr),
+            "scan_eligible": _csv_bool(self.scan_eligible),
+            "exclude_reason": self.exclude_reason,
         }
+
+
+def _csv_bool(value: bool) -> str:
+    return "true" if value else "false"
 
 
 @dataclass
@@ -87,4 +122,3 @@ class FetchResult:
     @property
     def ok(self) -> bool:
         return bool(self.rows)
-

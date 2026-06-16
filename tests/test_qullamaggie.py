@@ -11,6 +11,7 @@ from stock_health.screening import build_screening_summary
 def make_record(
     day: date,
     symbol: str = "2330",
+    name: str | None = None,
     close: float = 95.0,
     high: float = 100.0,
     low: float = 95.0,
@@ -21,7 +22,7 @@ def make_record(
     return OhlcvRecord(
         date=day.isoformat(),
         symbol=symbol,
-        name=f"{symbol}公司",
+        name=name or f"{symbol}公司",
         market=market,
         open=close - 1,
         high=high,
@@ -173,3 +174,14 @@ def test_qullamaggie_json_fields_and_no_trading_advice_text() -> None:
     serialized = json.dumps(payload, ensure_ascii=False)
     for forbidden in ["買進", "賣出", "目標價", "停損價"]:
         assert forbidden not in serialized
+
+
+def test_qullamaggie_candidates_exclude_scan_ineligible_rows() -> None:
+    current_common = make_record(date(2026, 6, 15), symbol="2330", close=102.0, high=103.0, low=99.0, volume=3000, turnover=200_000_000)
+    current_etf = make_record(date(2026, 6, 15), symbol="0050", name="元大台灣50", close=200.0, high=201.0, low=198.0, volume=9000, turnover=900_000_000)
+    result = calculate_qullamaggie_signals([current_common, current_etf], history_for(), {"listed": [100 + i for i in range(61)]})
+    all_candidates = [candidate for group in result["candidates"].values() for candidate in group]
+    assert current_etf.scan_eligible is False
+    assert all(candidate["symbol"] != "0050" for candidate in all_candidates)
+    assert all(candidate["symbol"] != "0050" for candidate in result["top_candidates"])
+    assert any("scan_eligible=true" in limitation for limitation in result["limitations"])

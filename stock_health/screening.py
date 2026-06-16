@@ -7,6 +7,7 @@ from typing import Any
 from .config import SCHEMA_VERSION, SCREENING_MAX_CANDIDATES, TIMEZONE
 from .models import OhlcvRecord
 from .qullamaggie import calculate_qullamaggie_signals
+from .universe import build_universe_summary
 
 
 def build_screening_summary(
@@ -21,6 +22,7 @@ def build_screening_summary(
     overall_confidence: str,
 ) -> dict[str, Any]:
     all_rows = listed_rows + otc_rows
+    eligible_rows = [row for row in all_rows if row.scan_eligible]
     historical_days = sorted(history_rows)
     has_20d_history = len(historical_days) >= 20
     has_60d_history = len(historical_days) >= 60
@@ -31,7 +33,7 @@ def build_screening_summary(
         limitations.append("歷史資料不足 60 個交易日；未產生 60 日突破訊號")
     if missing_sections:
         limitations.append("核心資料段落缺失：" + ", ".join(missing_sections))
-    qullamaggie = calculate_qullamaggie_signals(all_rows, history_rows)
+    qullamaggie = calculate_qullamaggie_signals(eligible_rows, history_rows)
     limitations.extend(qullamaggie["limitations"])
 
     return {
@@ -51,16 +53,17 @@ def build_screening_summary(
             "start_date": historical_days[0] if historical_days else None,
             "end_date": historical_days[-1] if historical_days else None,
         },
+        "universe_summary": build_universe_summary(all_rows),
         "market_summary": _market_summary(all_rows),
         "rankings": {
-            "top_turnover": [_candidate(row, []) for row in sorted(all_rows, key=lambda item: item.turnover or 0, reverse=True)[:20]],
-            "top_volume": [_candidate(row, []) for row in sorted(all_rows, key=lambda item: item.volume or 0, reverse=True)[:20]],
-            "top_gainers": [_candidate(row, []) for row in sorted(all_rows, key=lambda item: item.change_pct if item.change_pct is not None else -999, reverse=True)[:20]],
+            "top_turnover": [_candidate(row, []) for row in sorted(eligible_rows, key=lambda item: item.turnover or 0, reverse=True)[:20]],
+            "top_volume": [_candidate(row, []) for row in sorted(eligible_rows, key=lambda item: item.volume or 0, reverse=True)[:20]],
+            "top_gainers": [_candidate(row, []) for row in sorted(eligible_rows, key=lambda item: item.change_pct if item.change_pct is not None else -999, reverse=True)[:20]],
         },
         "screening": {
-            "limit_up": [_candidate(row, ["漲停初篩"]) for row in all_rows if row.change_pct is not None and row.change_pct >= 9.5][:SCREENING_MAX_CANDIDATES],
-            "volume_spike": _volume_spike_candidates(all_rows, history_rows) if has_20d_history else [],
-            "breakout_candidates": _breakout_candidates(all_rows, history_rows, 60) if has_60d_history else [],
+            "limit_up": [_candidate(row, ["漲停初篩"]) for row in eligible_rows if row.change_pct is not None and row.change_pct >= 9.5][:SCREENING_MAX_CANDIDATES],
+            "volume_spike": _volume_spike_candidates(eligible_rows, history_rows) if has_20d_history else [],
+            "breakout_candidates": _breakout_candidates(eligible_rows, history_rows, 60) if has_60d_history else [],
             "institutional_buy_candidates": [],
             "margin_short_attention": [],
             "mops_event_candidates": [],
@@ -90,6 +93,8 @@ def _history_by_symbol(history_rows: dict[str, list[OhlcvRecord]]) -> dict[str, 
     grouped: dict[str, list[OhlcvRecord]] = defaultdict(list)
     for day in sorted(history_rows):
         for row in history_rows[day]:
+            if not row.scan_eligible:
+                continue
             grouped[row.symbol].append(row)
     return grouped
 
@@ -128,6 +133,9 @@ def _candidate(row: OhlcvRecord, tags: list[str], **extra: Any) -> dict[str, Any
         "change_pct": row.change_pct,
         "volume": row.volume,
         "turnover": row.turnover,
+        "security_type": row.security_type,
+        "scan_eligible": row.scan_eligible,
+        "exclude_reason": row.exclude_reason,
         "volume_ratio_20d": extra.get("volume_ratio_20d"),
         "new_high_20d": extra.get("new_high_20d", False),
         "new_high_60d": extra.get("new_high_60d", False),

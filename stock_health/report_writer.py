@@ -62,9 +62,20 @@ def build_market_scan_markdown(summary: dict[str, Any], target_date: date) -> st
         f"- 整體信心等級：{summary['overall_confidence']}",
         f"- 可用歷史交易日：{summary['historical_data_status']['available_trading_days']}",
         "",
-        "## 市場概況",
+        "## 普通股 Universe 過濾摘要",
         "",
     ]
+    universe_summary = summary.get("universe_summary", {})
+    for key in ("total_rows", "scan_eligible_rows", "excluded_rows"):
+        lines.append(f"- {key}：{universe_summary.get(key, 0)}")
+    lines.append(f"- excluded_by_type：{universe_summary.get('excluded_by_type', {})}")
+    lines.extend(
+        [
+            "",
+            "## 市場概況",
+            "",
+        ]
+    )
     for key, value in summary["market_summary"].items():
         lines.append(f"- {key}：{value}")
     lines.extend(["", "## 成交金額排行", ""])

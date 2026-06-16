@@ -7,7 +7,7 @@ from datetime import date, datetime
 from pathlib import Path
 
 from stock_health.coverage import build_coverage
-from stock_health.data_fetcher import fetch_tpex_otc_ohlcv, fetch_twse_listed_ohlcv, records_to_csv_text
+from stock_health.data_fetcher import fetch_tpex_otc_ohlcv, fetch_twse_listed_ohlcv, records_from_csv_text, records_to_csv_text
 from stock_health.history_store import build_history_index, history_report_paths, load_history_rows, write_json, write_ohlcv_outputs
 from stock_health.http_client import HttpResponse
 import stock_health.http_client as http_client_module
@@ -30,11 +30,17 @@ class FakeClient:
         return HttpResponse(url=url, status=None, body=b"", elapsed_ms=1, error="URLError: mocked failure")
 
 
-def sample_record(symbol: str = "2330", volume: int = 1000, close: float = 100.0) -> OhlcvRecord:
+def sample_record(
+    symbol: str = "2330",
+    name: str = "台積電",
+    volume: int = 1000,
+    close: float = 100.0,
+    turnover: int = 100000,
+) -> OhlcvRecord:
     return OhlcvRecord(
         date="2026-06-15",
         symbol=symbol,
-        name="台積電",
+        name=name,
         market="listed",
         open=99.0,
         high=101.0,
@@ -43,7 +49,7 @@ def sample_record(symbol: str = "2330", volume: int = 1000, close: float = 100.0
         change=1.0,
         change_pct=1.0101,
         volume=volume,
-        turnover=100000,
+        turnover=turnover,
         transactions=10,
         source="TWSE",
     )
@@ -154,6 +160,94 @@ def test_screening_candidate_lists_are_capped() -> None:
         "low",
     )
     assert len(summary["screening"]["limit_up"]) == 50
+
+
+def test_common_stock_is_scan_eligible() -> None:
+    row = sample_record(symbol="2330", name="台積電")
+    assert row.security_type == "common_stock"
+    assert row.is_common_stock is True
+    assert row.scan_eligible is True
+    assert row.exclude_reason == ""
+
+
+def test_etf_and_bond_etf_are_excluded() -> None:
+    etf = sample_record(symbol="0050", name="元大台灣50")
+    bond_etf = sample_record(symbol="00720B", name="元大投資級公司債")
+    assert etf.is_etf is True
+    assert etf.scan_eligible is False
+    assert bond_etf.security_type == "bond_etf"
+    assert bond_etf.is_bond_etf is True
+    assert bond_etf.scan_eligible is False
+
+
+def test_leveraged_inverse_products_are_excluded() -> None:
+    leveraged = sample_record(symbol="00631L", name="元大台灣50正2")
+    inverse = sample_record(symbol="00632R", name="元大台灣50反1")
+    assert leveraged.security_type == "leveraged_inverse"
+    assert inverse.security_type == "leveraged_inverse"
+    assert leveraged.scan_eligible is False
+    assert inverse.scan_eligible is False
+
+
+def test_warrants_are_excluded_by_symbol_or_name() -> None:
+    warrant_symbol = sample_record(symbol="12345A", name="台積電一")
+    warrant_name = sample_record(symbol="1234", name="台積電認購")
+    assert warrant_symbol.security_type == "warrant"
+    assert warrant_symbol.scan_eligible is False
+    assert warrant_name.is_warrant is True
+    assert warrant_name.scan_eligible is False
+
+
+def test_dr_is_excluded_and_ky_is_not_excluded_by_name() -> None:
+    dr = sample_record(symbol="9105", name="泰金寶-DR")
+    ky = sample_record(symbol="1234", name="測試-KY")
+    assert dr.security_type == "dr"
+    assert dr.is_dr is True
+    assert dr.scan_eligible is False
+    assert ky.security_type == "common_stock"
+    assert ky.scan_eligible is True
+
+
+def test_old_csv_missing_universe_fields_is_readable() -> None:
+    csv_text = (
+        "date,symbol,name,market,open,high,low,close,change,change_pct,volume,turnover,transactions,source\n"
+        "2026-06-15,2330,台積電,listed,99,101,98,100,1,1.0101,1000,100000,10,TWSE\n"
+    )
+    rows = records_from_csv_text(csv_text)
+    assert rows[0].symbol == "2330"
+    assert rows[0].scan_eligible is True
+    assert rows[0].security_type == "common_stock"
+
+
+def test_new_csv_outputs_universe_fields() -> None:
+    csv_text = records_to_csv_text([sample_record()])
+    assert "security_type" in csv_text.splitlines()[0]
+    assert "scan_eligible" in csv_text.splitlines()[0]
+    rows = records_from_csv_text(csv_text)
+    assert rows[0].scan_eligible is True
+
+
+def test_rankings_exclude_etf_and_warrant_with_universe_summary() -> None:
+    common = sample_record(symbol="2330", name="台積電", turnover=100000)
+    etf = sample_record(symbol="0050", name="元大台灣50", turnover=900000)
+    warrant = sample_record(symbol="12345A", name="台積電一", turnover=800000)
+    summary = build_screening_summary(
+        "2026-06-15",
+        "2026-06-15T18:15:00+08:00",
+        [common, etf, warrant],
+        [],
+        {},
+        {},
+        False,
+        [],
+        "low",
+    )
+    assert [row["symbol"] for row in summary["rankings"]["top_turnover"]] == ["2330"]
+    assert summary["universe_summary"]["total_rows"] == 3
+    assert summary["universe_summary"]["scan_eligible_rows"] == 1
+    assert summary["universe_summary"]["excluded_rows"] == 2
+    assert summary["universe_summary"]["excluded_by_type"]["etf"] == 1
+    assert summary["universe_summary"]["excluded_by_type"]["warrant"] == 1
 
 
 def test_markdown_generation() -> None:

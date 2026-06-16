@@ -1,6 +1,6 @@
 # 報告日期：2026/06/16（星期二）
 
-- 執行時間：2026-06-16T00:06:24+08:00
+- 執行時間：2026-06-16T10:27:22+08:00
 - 交易日判定：True
 - 最新市場資料日期：2026-06-15
 - 是否足以執行全市場掃描：False
@@ -19,7 +19,7 @@
 | 鉅亨網 Cnyes | 催化新聞源 | True | 200 |  | False | False | False | 未取得明確資料日期；不可判定為當日資料可用 |
 | MoneyDJ | 催化新聞源 | True | 200 |  | False | False | False | 未取得明確資料日期；不可判定為當日資料可用 |
 | TradingView | 人工複核源 | True | 200 |  | False | False | False | 未取得明確資料日期；不可判定為當日資料可用 |
-| WantGoo | 人工複核源 | False | 403 |  | False | False | False | HTTP 403: Forbidden |
+| WantGoo | 人工複核源 | True | 200 |  | False | False | False | 未取得明確資料日期；不可判定為當日資料可用 |
 | CMoney | 人工複核源 | True | 200 |  | False | False | False | 未取得明確資料日期；不可判定為當日資料可用 |
 | 財報狗 StatementDog | 人工複核源 | True | 200 |  | False | False | False | 未取得明確資料日期；不可判定為當日資料可用 |
 
@@ -53,7 +53,7 @@
 - 鉅亨網 Cnyes：未取得明確資料日期；不可判定為當日資料可用
 - MoneyDJ：未取得明確資料日期；不可判定為當日資料可用
 - TradingView：未取得明確資料日期；不可判定為當日資料可用
-- WantGoo：HTTP 403: Forbidden
+- WantGoo：未取得明確資料日期；不可判定為當日資料可用
 - CMoney：未取得明確資料日期；不可判定為當日資料可用
 - 財報狗 StatementDog：未取得明確資料日期；不可判定為當日資料可用
 
