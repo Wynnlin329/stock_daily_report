@@ -34,10 +34,14 @@ def calculate_qullamaggie_signals(
     benchmark_history: BenchmarkHistory | None = None,
     catalyst_symbols: dict[str, set[str]] | None = None,
     institutional_by_symbol: dict[str, InstitutionalTradingRecord] | None = None,
+    margin_short_by_symbol: dict[str, dict[str, Any]] | None = None,
+    margin_short_attention_symbols: set[str] | None = None,
 ) -> dict[str, Any]:
     benchmark_history = benchmark_history or {}
     catalyst_symbols = catalyst_symbols or {}
     institutional_by_symbol = institutional_by_symbol or {}
+    margin_short_by_symbol = margin_short_by_symbol or {}
+    margin_short_attention_symbols = margin_short_attention_symbols or set()
     market_regime = calculate_market_regime(benchmark_history)
     eligible_rows = [row for row in current_rows if row.scan_eligible]
     limitations: list[str] = ["Qullamaggie-style 掃描僅針對 scan_eligible=true 的普通股 universe。"]
@@ -45,7 +49,16 @@ def calculate_qullamaggie_signals(
         limitations.append("TAIEX 或 OTC 指數歷史不足；market_regime 與相對強弱可能無法完整計算")
 
     candidates = [
-        _calculate_candidate(row, history_rows, benchmark_history, market_regime, catalyst_symbols, institutional_by_symbol)
+        _calculate_candidate(
+            row,
+            history_rows,
+            benchmark_history,
+            market_regime,
+            catalyst_symbols,
+            institutional_by_symbol,
+            margin_short_by_symbol,
+            margin_short_attention_symbols,
+        )
         for row in eligible_rows
     ]
     _apply_relative_strength_ranks(candidates)
@@ -215,9 +228,19 @@ def _calculate_candidate(
     market_regime: dict[str, Any],
     catalyst_symbols: dict[str, set[str]],
     institutional_by_symbol: dict[str, InstitutionalTradingRecord],
+    margin_short_by_symbol: dict[str, dict[str, Any]],
+    margin_short_attention_symbols: set[str],
 ) -> dict[str, Any]:
     history = _history_for_symbol_before_date(history_rows, row.symbol, row.date)
-    metrics = _calculate_metrics(row, history, benchmark_history, catalyst_symbols, institutional_by_symbol.get(row.symbol))
+    metrics = _calculate_metrics(
+        row,
+        history,
+        benchmark_history,
+        catalyst_symbols,
+        institutional_by_symbol.get(row.symbol),
+        margin_short_by_symbol.get(row.symbol),
+        row.symbol in margin_short_attention_symbols,
+    )
     metrics["setup_type"] = classify_setup_type(metrics)
     score, breakdown = score_qullamaggie_candidate(metrics, market_regime)
     metrics["qullamaggie_score"] = score
@@ -235,6 +258,8 @@ def _calculate_metrics(
     benchmark_history: BenchmarkHistory,
     catalyst_symbols: dict[str, set[str]],
     institutional: InstitutionalTradingRecord | None = None,
+    margin_short: dict[str, Any] | None = None,
+    margin_short_attention_flag: bool = False,
 ) -> dict[str, Any]:
     closes = [item.close for item in history if item.close is not None]
     highs = [item.high for item in history if item.high is not None]
@@ -284,6 +309,14 @@ def _calculate_metrics(
         "institutional_net_buy": institutional.institutional_net_buy if institutional else None,
         "institutional_confirmation": bool(institutional and institutional.institutional_net_buy is not None and institutional.institutional_net_buy > 0),
         "institutional_source": institutional.source if institutional else None,
+        "margin_balance": margin_short.get("margin_balance") if margin_short else None,
+        "margin_change": margin_short.get("margin_change") if margin_short else None,
+        "short_balance": margin_short.get("short_balance") if margin_short else None,
+        "short_change": margin_short.get("short_change") if margin_short else None,
+        "margin_balance_ratio_20d": margin_short.get("margin_balance_ratio_20d") if margin_short else None,
+        "short_balance_ratio_20d": margin_short.get("short_balance_ratio_20d") if margin_short else None,
+        "margin_short_attention_flag": margin_short_attention_flag,
+        "margin_short_source": margin_short.get("source") if margin_short else None,
         "ma10": _pct(ma10),
         "ma20": _pct(ma20),
         "ma50": _pct(ma50),
@@ -350,6 +383,13 @@ def _candidate_payload(metrics: dict[str, Any]) -> dict[str, Any]:
         "dealer_net_buy",
         "institutional_net_buy",
         "institutional_confirmation",
+        "margin_balance",
+        "margin_change",
+        "short_balance",
+        "short_change",
+        "margin_balance_ratio_20d",
+        "short_balance_ratio_20d",
+        "margin_short_attention_flag",
         "ma10",
         "ma20",
         "ma50",
@@ -402,6 +442,8 @@ def _candidate_payload(metrics: dict[str, Any]) -> dict[str, Any]:
     payload = {key: metrics.get(key) for key in keys}
     if metrics.get("institutional_source"):
         payload["source_refs"] = list(dict.fromkeys([*(payload.get("source_refs") or []), metrics["institutional_source"]]))
+    if metrics.get("margin_short_source"):
+        payload["source_refs"] = list(dict.fromkeys([*(payload.get("source_refs") or []), metrics["margin_short_source"]]))
     return payload
 
 
@@ -559,6 +601,8 @@ def _setup_reasons(metrics: dict[str, Any]) -> list[str]:
 
 def _risk_notes(metrics: dict[str, Any]) -> list[str]:
     notes = ["僅供研究與人工複核，不構成買賣建議"]
+    if metrics.get("margin_short_attention_flag"):
+        notes.append("資券變化可能代表籌碼分歧，不可單獨視為買賣訊號")
     if metrics["extended_risk"]:
         notes.append("距離 pivot 已超過延伸風險門檻")
     if _gt(metrics["risk_to_stop_pct"], MAX_RISK_TO_STOP_PCT):
@@ -582,6 +626,8 @@ def _tags(metrics: dict[str, Any]) -> list[str]:
         tags.append("外資買超")
     if metrics.get("investment_trust_net_buy") is not None and metrics["investment_trust_net_buy"] > 0:
         tags.append("投信買超")
+    if metrics.get("margin_short_attention_flag"):
+        tags.append("資券異常")
     tags.extend(metrics["catalyst_tags"])
     return tags
 

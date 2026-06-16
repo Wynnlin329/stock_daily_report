@@ -5,7 +5,7 @@ from statistics import mean
 from typing import Any
 
 from .config import SCHEMA_VERSION, SCREENING_MAX_CANDIDATES, TIMEZONE
-from .models import InstitutionalTradingRecord, OhlcvRecord
+from .models import InstitutionalTradingRecord, MarginShortRecord, OhlcvRecord
 from .qullamaggie import calculate_qullamaggie_signals
 from .universe import build_universe_summary
 
@@ -21,11 +21,20 @@ def build_screening_summary(
     missing_sections: list[str],
     overall_confidence: str,
     institutional_rows: list[InstitutionalTradingRecord] | None = None,
+    margin_short_rows: list[MarginShortRecord] | None = None,
+    margin_short_history_rows: dict[str, list[MarginShortRecord]] | None = None,
 ) -> dict[str, Any]:
     all_rows = listed_rows + otc_rows
     eligible_rows = [row for row in all_rows if row.scan_eligible]
     institutional_rows = institutional_rows or []
     institutional_by_symbol = {row.symbol: row for row in institutional_rows}
+    margin_short_rows = margin_short_rows or []
+    margin_short_history_rows = margin_short_history_rows or {}
+    margin_short_by_symbol = {row.symbol: row for row in margin_short_rows}
+    margin_short_metrics_by_symbol = {
+        symbol: _margin_short_metrics(row, margin_short_history_rows)
+        for symbol, row in margin_short_by_symbol.items()
+    }
     historical_days = sorted(history_rows)
     has_20d_history = len(historical_days) >= 20
     has_60d_history = len(historical_days) >= 60
@@ -36,7 +45,17 @@ def build_screening_summary(
         limitations.append("歷史資料不足 60 個交易日；未產生 60 日突破訊號")
     if missing_sections:
         limitations.append("核心資料段落缺失：" + ", ".join(missing_sections))
-    qullamaggie = calculate_qullamaggie_signals(eligible_rows, history_rows, institutional_by_symbol=institutional_by_symbol)
+    if margin_short_rows and len(margin_short_history_rows) < 20:
+        limitations.append("資券歷史資料不足 20 個交易日；margin_balance_ratio_20d 與 short_balance_ratio_20d 保留 null")
+    margin_short_attention = _margin_short_attention_candidates(eligible_rows, margin_short_metrics_by_symbol)
+    margin_short_attention_symbols = {item["symbol"] for item in margin_short_attention}
+    qullamaggie = calculate_qullamaggie_signals(
+        eligible_rows,
+        history_rows,
+        institutional_by_symbol=institutional_by_symbol,
+        margin_short_by_symbol=margin_short_metrics_by_symbol,
+        margin_short_attention_symbols=margin_short_attention_symbols,
+    )
     limitations.extend(qullamaggie["limitations"])
 
     return {
@@ -68,7 +87,7 @@ def build_screening_summary(
             "volume_spike": _volume_spike_candidates(eligible_rows, history_rows) if has_20d_history else [],
             "breakout_candidates": _breakout_candidates(eligible_rows, history_rows, 60) if has_60d_history else [],
             "institutional_buy_candidates": _institutional_buy_candidates(eligible_rows, institutional_by_symbol),
-            "margin_short_attention": [],
+            "margin_short_attention": margin_short_attention,
             "mops_event_candidates": [],
             "revenue_financial_candidates": [],
             "manual_review_candidates": [],
@@ -141,8 +160,76 @@ def _institutional_buy_candidates(
     return candidates[:SCREENING_MAX_CANDIDATES]
 
 
+def _margin_short_attention_candidates(
+    rows: list[OhlcvRecord],
+    margin_short_by_symbol: dict[str, dict[str, Any]],
+) -> list[dict[str, Any]]:
+    row_by_symbol = {row.symbol: row for row in rows}
+    top_short_change = {
+        symbol
+        for symbol, metrics in sorted(
+            margin_short_by_symbol.items(),
+            key=lambda item: item[1].get("short_change") if item[1].get("short_change") is not None else -10**18,
+            reverse=True,
+        )[:SCREENING_MAX_CANDIDATES]
+    }
+    top_margin_balance = {
+        symbol
+        for symbol, metrics in sorted(
+            margin_short_by_symbol.items(),
+            key=lambda item: item[1].get("margin_balance") if item[1].get("margin_balance") is not None else -10**18,
+            reverse=True,
+        )[:SCREENING_MAX_CANDIDATES]
+    }
+    candidates: list[dict[str, Any]] = []
+    for symbol, row in row_by_symbol.items():
+        metrics = margin_short_by_symbol.get(symbol)
+        if not metrics:
+            continue
+        if (
+            (metrics.get("short_change") is not None and metrics["short_change"] > 0)
+            or (metrics.get("margin_change") is not None and metrics["margin_change"] > 0)
+            or symbol in top_short_change
+            or symbol in top_margin_balance
+        ):
+            candidates.append(_candidate(row, ["資券異常"], margin_short=metrics))
+    candidates.sort(key=_margin_short_sort_key)
+    return candidates[:SCREENING_MAX_CANDIDATES]
+
+
+def _margin_short_metrics(row: MarginShortRecord, history_rows: dict[str, list[MarginShortRecord]]) -> dict[str, Any]:
+    history = [
+        item
+        for day in sorted(history_rows)
+        for item in history_rows[day]
+        if item.symbol == row.symbol and item.date < row.date
+    ]
+    margin_values = [item.margin_balance for item in history[-20:] if item.margin_balance is not None]
+    short_values = [item.short_balance for item in history[-20:] if item.short_balance is not None]
+    avg_margin = mean(margin_values) if len(margin_values) >= 20 else None
+    avg_short = mean(short_values) if len(short_values) >= 20 else None
+    return {
+        "margin_balance": row.margin_balance,
+        "margin_change": row.margin_change,
+        "short_balance": row.short_balance,
+        "short_change": row.short_change,
+        "margin_balance_ratio_20d": round(row.margin_balance / avg_margin, 4) if row.margin_balance is not None and avg_margin else None,
+        "short_balance_ratio_20d": round(row.short_balance / avg_short, 4) if row.short_balance is not None and avg_short else None,
+        "source": row.source,
+    }
+
+
+def _margin_short_sort_key(candidate: dict[str, Any]) -> tuple[int, int, int]:
+    return (
+        -(candidate.get("short_change") or 0),
+        -(candidate.get("margin_change") or 0),
+        -(candidate.get("margin_balance") or 0),
+    )
+
+
 def _candidate(row: OhlcvRecord, tags: list[str], **extra: Any) -> dict[str, Any]:
     institutional: InstitutionalTradingRecord | None = extra.get("institutional")
+    margin_short: dict[str, Any] | None = extra.get("margin_short")
     payload: dict[str, Any] = {
         "symbol": row.symbol,
         "name": row.name,
@@ -161,11 +248,16 @@ def _candidate(row: OhlcvRecord, tags: list[str], **extra: Any) -> dict[str, Any
         "investment_trust_net_buy": institutional.investment_trust_net_buy if institutional else None,
         "dealer_net_buy": institutional.dealer_net_buy if institutional else None,
         "institutional_net_buy": institutional.institutional_net_buy if institutional else None,
-        "margin_change": None,
+        "margin_balance": margin_short.get("margin_balance") if margin_short else None,
+        "margin_change": margin_short.get("margin_change") if margin_short else None,
+        "short_balance": margin_short.get("short_balance") if margin_short else None,
+        "short_change": margin_short.get("short_change") if margin_short else None,
+        "margin_balance_ratio_20d": margin_short.get("margin_balance_ratio_20d") if margin_short else None,
+        "short_balance_ratio_20d": margin_short.get("short_balance_ratio_20d") if margin_short else None,
         "tags": tags,
         "reasons": _reasons(tags, extra),
-        "risk_notes": ["僅供研究與人工複核，不構成買賣建議"],
-        "source_refs": [row.source] + ([institutional.source] if institutional else []),
+        "risk_notes": _risk_notes(tags),
+        "source_refs": [row.source] + ([institutional.source] if institutional else []) + ([margin_short["source"]] if margin_short else []),
     }
     return payload
 
@@ -185,7 +277,21 @@ def _reasons(tags: list[str], extra: dict[str, Any]) -> list[str]:
             reasons.append("投信買超")
         if institutional.dealer_net_buy is not None and institutional.dealer_net_buy > 0:
             reasons.append("自營商買超")
+    margin_short: dict[str, Any] | None = extra.get("margin_short")
+    if "資券異常" in tags and margin_short:
+        if margin_short.get("margin_change") is not None and margin_short["margin_change"] > 0:
+            reasons.append("融資餘額增加")
+        if margin_short.get("short_change") is not None and margin_short["short_change"] > 0:
+            reasons.append("融券餘額增加")
+        reasons.append("資券變化需人工複核")
     for tag in tags:
         if tag.endswith("日突破"):
             reasons.append(f"收盤價創近 {tag.removesuffix('突破')} 新高")
     return reasons
+
+
+def _risk_notes(tags: list[str]) -> list[str]:
+    notes = ["僅供研究與人工複核，不構成買賣建議"]
+    if "資券異常" in tags:
+        notes.append("資券變化可能代表籌碼分歧，不可單獨視為買賣訊號")
+    return notes

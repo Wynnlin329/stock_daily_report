@@ -26,6 +26,8 @@ https://raw.githubusercontent.com/<OWNER>/<REPO>/main/data/latest-screening-summ
 13. 若未來要分析 ETF，應使用獨立 ETF 掃描模式，不要把 ETF 結論混入普通股掃描。
 14. 法人買賣超只使用 TWSE / TPEx 官方公開資料；若 `coverage.institutional_trading.available=false` 或 `data/latest-institutional-trading-summary.json` 顯示資料不足，必須清楚標示不可解讀。
 15. `institutional_buy_candidates` 只作為研究與人工複核清單，不得把法人買超視為買進訊號，也不得輸出目標價或停損價。
+16. 融資融券只使用 TWSE / TPEx 官方公開資料；若 `coverage.margin_short.available=false` 或 `data/latest-margin-short-summary.json` 顯示資料不足，必須清楚標示不可解讀。
+17. `margin_short_attention` 只作為籌碼與風險複核，不得把融資或融券變化單獨視為買賣訊號。
 
 輸出格式：
 
@@ -38,8 +40,9 @@ https://raw.githubusercontent.com/<OWNER>/<REPO>/main/data/latest-screening-summ
 6. 量增與突破候選
 7. Qullamaggie-style 動能候選與限制
 8. 法人買賣超候選與資料限制
-9. 重大事件與人工複核清單
-10. 今日不應解讀或需要補資料的段落
+9. 融資融券與資券風險複核
+10. 重大事件與人工複核清單
+11. 今日不應解讀或需要補資料的段落
 ```
 
 Qullamaggie-style 區塊摘要時請包含：
@@ -67,4 +70,13 @@ Universe 摘要時請包含：
 - data/latest-institutional-trading-summary.json 的 listed_rows、otc_rows、data_date、is_current
 - screening.institutional_buy_candidates 前 10 名的 symbol、name、foreign_net_buy、investment_trust_net_buy、dealer_net_buy、institutional_net_buy、reasons、risk_notes
 - 若資料缺失，列出 errors 與 limitations，不得自行補值
+```
+
+融資融券摘要時請包含：
+
+```text
+- coverage.margin_short.available
+- data/latest-margin-short-summary.json 的 listed_rows、otc_rows、data_date、is_current
+- screening.margin_short_attention 前 10 名的 symbol、name、margin_balance、margin_change、short_balance、short_change、margin_balance_ratio_20d、short_balance_ratio_20d、reasons、risk_notes
+- 若資券資料缺失，列出 errors 與 limitations，不得自行補值
 ```

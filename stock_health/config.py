@@ -124,6 +124,22 @@ def tpex_institutional_url(target_date: date) -> str:
     )
 
 
+def twse_margin_short_url(target_date: date) -> str:
+    return (
+        "https://www.twse.com.tw/rwd/zh/marginTrading/MI_MARGN"
+        f"?date={target_date:%Y%m%d}&selectType=STOCK&response=json"
+    )
+
+
+def tpex_margin_short_url(target_date: date) -> str:
+    roc_year = target_date.year - 1911
+    roc_date = f"{roc_year}/{target_date:%m/%d}"
+    return (
+        "https://www.tpex.org.tw/web/stock/margin_trading/margin_balance/"
+        f"margin_bal_result.php?l=zh-tw&o=json&d={roc_date}"
+    )
+
+
 def source_configs(target_date: date) -> list[SourceConfig]:
     return [
         SourceConfig("twse", "TWSE", "主資料源", twse_mi_index_url(target_date), True, schedule_ready=True),

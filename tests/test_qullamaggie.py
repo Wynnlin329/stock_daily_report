@@ -217,3 +217,30 @@ def test_qullamaggie_candidate_includes_institutional_confirmation() -> None:
     assert candidate["institutional_net_buy"] == 1400
     assert "法人買超" in candidate["tags"]
     assert "TWSE" in candidate["source_refs"]
+
+
+def test_qullamaggie_candidate_includes_margin_short_fields() -> None:
+    current = make_record(date(2026, 6, 15), close=102.0, high=103.0, low=99.0, volume=3000, turnover=200_000_000)
+    margin_short = {
+        "margin_balance": 1000,
+        "margin_change": 120,
+        "short_balance": 50,
+        "short_change": 20,
+        "margin_balance_ratio_20d": 1.5,
+        "short_balance_ratio_20d": 2.0,
+        "source": "TWSE",
+    }
+    result = calculate_qullamaggie_signals(
+        [current],
+        history_for(),
+        {"listed": [100 + i for i in range(61)]},
+        margin_short_by_symbol={"2330": margin_short},
+        margin_short_attention_symbols={"2330"},
+    )
+    candidate = result["top_candidates"][0]
+    assert candidate["margin_balance"] == 1000
+    assert candidate["short_change"] == 20
+    assert candidate["short_balance_ratio_20d"] == 2.0
+    assert candidate["margin_short_attention_flag"] is True
+    assert "資券異常" in candidate["tags"]
+    assert any("籌碼分歧" in note for note in candidate["risk_notes"])

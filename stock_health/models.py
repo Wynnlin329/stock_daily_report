@@ -171,3 +171,50 @@ class InstitutionalFetchResult:
     @property
     def ok(self) -> bool:
         return bool(self.rows)
+
+
+@dataclass
+class MarginShortRecord:
+    date: str
+    symbol: str
+    name: str
+    market: str
+    margin_buy: int | None
+    margin_sell: int | None
+    margin_balance: int | None
+    margin_change: int | None
+    short_sell: int | None
+    short_cover: int | None
+    short_balance: int | None
+    short_change: int | None
+    offsetting: int | None
+    source: str
+
+    def to_csv_row(self) -> dict[str, Any]:
+        return {
+            "date": self.date,
+            "symbol": self.symbol,
+            "name": self.name,
+            "market": self.market,
+            "margin_buy": self.margin_buy if self.margin_buy is not None else "",
+            "margin_sell": self.margin_sell if self.margin_sell is not None else "",
+            "margin_balance": self.margin_balance if self.margin_balance is not None else "",
+            "margin_change": self.margin_change if self.margin_change is not None else "",
+            "short_sell": self.short_sell if self.short_sell is not None else "",
+            "short_cover": self.short_cover if self.short_cover is not None else "",
+            "short_balance": self.short_balance if self.short_balance is not None else "",
+            "short_change": self.short_change if self.short_change is not None else "",
+            "offsetting": self.offsetting if self.offsetting is not None else "",
+            "source": self.source,
+        }
+
+
+@dataclass
+class MarginShortFetchResult:
+    rows: list[MarginShortRecord] = field(default_factory=list)
+    data_date: str | None = None
+    errors: list[str] = field(default_factory=list)
+
+    @property
+    def ok(self) -> bool:
+        return bool(self.rows)

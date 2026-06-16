@@ -1,6 +1,6 @@
 # 報告日期：2026/06/16（星期二）
 
-- 執行時間：2026-06-16T10:46:41+08:00
+- 執行時間：2026-06-16T11:03:22+08:00
 - 交易日判定：True
 - 最新市場資料日期：2026-06-15
 - 是否足以執行全市場掃描：False
@@ -68,7 +68,7 @@
 - limit_up_screening：True（Estimated from daily change percent）
 - volume_spike_screening：True（20-day volume history available）
 - institutional_trading：False（Institutional trading unavailable or data date not current）
-- margin_short：False（First version does not parse margin short data yet）
+- margin_short：False（Margin/short data unavailable or data date not current）
 - material_information：False（MOPS material information date not verified）
 - revenue_financials：False（First version does not parse revenue or financial statements yet）
 - news_topics：True（At least one catalyst news source reachable）
@@ -87,4 +87,6 @@
 - TWSE response did not contain a parsable table with required fields ['證券代號', '開盤價', '最高價', '最低價', '收盤價']; stat='很抱歉，沒有符合條件的資料!'; tables=
 - TWSE institutional response did not contain a parsable table with required fields ['證券代號', '證券名稱', '三大法人買賣超股數']; stat='很抱歉，沒有符合條件的資料!'; tables=
 - TPEx institutional response did not contain a parsable table with required fields ['代號', '名稱', '三大法人買賣超股數合計']; stat='ok'; tables=title='三大法人買賣明細資訊', rows=0, fields_count=24 | title=None, rows=0, fields_count=0
+- TWSE margin short response did not contain a parsable table with required fields ['代號', '名稱', '資券互抵']; stat='很抱歉，沒有符合條件的資料'; tables=
+- TPEx margin short response did not contain a parsable table with required fields ['代號', '名稱', '資餘額', '券餘額']; stat='ok'; tables=title='上櫃股票融資融券餘額', rows=0, fields_count=20
 - 核心資料段落缺失：market_environment, listed_ohlcv, institutional_trading, margin_short, material_information
