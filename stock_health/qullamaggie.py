@@ -23,7 +23,7 @@ from .config import (
     QULLAMAGGIE_SCORE_WEIGHTS,
     QULLAMAGGIE_SETUP_TYPES,
 )
-from .models import InstitutionalTradingRecord, OhlcvRecord
+from .models import InstitutionalTradingRecord, MopsEventRecord, OhlcvRecord
 
 BenchmarkHistory = dict[str, list[float]]
 
@@ -36,12 +36,14 @@ def calculate_qullamaggie_signals(
     institutional_by_symbol: dict[str, InstitutionalTradingRecord] | None = None,
     margin_short_by_symbol: dict[str, dict[str, Any]] | None = None,
     margin_short_attention_symbols: set[str] | None = None,
+    mops_events_by_symbol: dict[str, list[MopsEventRecord]] | None = None,
 ) -> dict[str, Any]:
     benchmark_history = benchmark_history or {}
     catalyst_symbols = catalyst_symbols or {}
     institutional_by_symbol = institutional_by_symbol or {}
     margin_short_by_symbol = margin_short_by_symbol or {}
     margin_short_attention_symbols = margin_short_attention_symbols or set()
+    mops_events_by_symbol = mops_events_by_symbol or {}
     market_regime = calculate_market_regime(benchmark_history)
     eligible_rows = [row for row in current_rows if row.scan_eligible]
     limitations: list[str] = ["Qullamaggie-style 掃描僅針對 scan_eligible=true 的普通股 universe。"]
@@ -58,6 +60,7 @@ def calculate_qullamaggie_signals(
             institutional_by_symbol,
             margin_short_by_symbol,
             margin_short_attention_symbols,
+            mops_events_by_symbol,
         )
         for row in eligible_rows
     ]
@@ -230,6 +233,7 @@ def _calculate_candidate(
     institutional_by_symbol: dict[str, InstitutionalTradingRecord],
     margin_short_by_symbol: dict[str, dict[str, Any]],
     margin_short_attention_symbols: set[str],
+    mops_events_by_symbol: dict[str, list[MopsEventRecord]],
 ) -> dict[str, Any]:
     history = _history_for_symbol_before_date(history_rows, row.symbol, row.date)
     metrics = _calculate_metrics(
@@ -240,6 +244,7 @@ def _calculate_candidate(
         institutional_by_symbol.get(row.symbol),
         margin_short_by_symbol.get(row.symbol),
         row.symbol in margin_short_attention_symbols,
+        mops_events_by_symbol.get(row.symbol, []),
     )
     metrics["setup_type"] = classify_setup_type(metrics)
     score, breakdown = score_qullamaggie_candidate(metrics, market_regime)
@@ -260,7 +265,9 @@ def _calculate_metrics(
     institutional: InstitutionalTradingRecord | None = None,
     margin_short: dict[str, Any] | None = None,
     margin_short_attention_flag: bool = False,
+    mops_events: list[MopsEventRecord] | None = None,
 ) -> dict[str, Any]:
+    mops_events = mops_events or []
     closes = [item.close for item in history if item.close is not None]
     highs = [item.high for item in history if item.high is not None]
     lows = [item.low for item in history if item.low is not None]
@@ -288,7 +295,10 @@ def _calculate_metrics(
     distance_to_pivot_pct = _relative_pct(current_close, pivot_price)
     risk_to_stop_pct = _relative_pct(current_close, stop_reference)
     volume_ratio_20d = row.volume / avg_volume_20d if row.volume is not None and avg_volume_20d else None
-    catalyst_tags = _catalyst_tags(row.symbol, catalyst_symbols)
+    mops_event_flag = bool(mops_events) or row.symbol in catalyst_symbols.get("mops", set())
+    mops_event_categories = sorted({event.category for event in mops_events if event.category})
+    mops_event_titles = [event.title for event in mops_events if event.title]
+    catalyst_tags = _catalyst_tags(row.symbol, catalyst_symbols, mops_event_categories, bool(mops_events))
 
     return {
         "symbol": row.symbol,
@@ -357,7 +367,10 @@ def _calculate_metrics(
         "extended_risk": bool(distance_to_pivot_pct is not None and max(0, distance_to_pivot_pct) > MAX_EXTENDED_FROM_PIVOT_PCT),
         "stop_reference": stop_reference,
         "risk_to_stop_pct": risk_to_stop_pct,
-        "mops_event_flag": row.symbol in catalyst_symbols.get("mops", set()),
+        "mops_event_flag": mops_event_flag,
+        "mops_event_count": len(mops_events),
+        "mops_event_categories": mops_event_categories,
+        "mops_event_titles": mops_event_titles,
         "revenue_financial_flag": row.symbol in catalyst_symbols.get("revenue_financials", set()),
         "news_topic_flag": row.symbol in catalyst_symbols.get("news_topics", set()),
         "catalyst_tags": catalyst_tags,
@@ -431,6 +444,9 @@ def _candidate_payload(metrics: dict[str, Any]) -> dict[str, Any]:
         "stop_reference",
         "risk_to_stop_pct",
         "mops_event_flag",
+        "mops_event_count",
+        "mops_event_categories",
+        "mops_event_titles",
         "revenue_financial_flag",
         "news_topic_flag",
         "catalyst_tags",
@@ -444,6 +460,8 @@ def _candidate_payload(metrics: dict[str, Any]) -> dict[str, Any]:
         payload["source_refs"] = list(dict.fromkeys([*(payload.get("source_refs") or []), metrics["institutional_source"]]))
     if metrics.get("margin_short_source"):
         payload["source_refs"] = list(dict.fromkeys([*(payload.get("source_refs") or []), metrics["margin_short_source"]]))
+    if metrics.get("mops_event_count"):
+        payload["source_refs"] = list(dict.fromkeys([*(payload.get("source_refs") or []), "MOPS"]))
     return payload
 
 
@@ -571,10 +589,17 @@ def _daily_range_pct(row: OhlcvRecord) -> float | None:
     return (row.high - row.low) / row.close * 100
 
 
-def _catalyst_tags(symbol: str, catalyst_symbols: dict[str, set[str]]) -> list[str]:
+def _catalyst_tags(
+    symbol: str,
+    catalyst_symbols: dict[str, set[str]],
+    mops_event_categories: list[str] | None = None,
+    has_mops_events: bool = False,
+) -> list[str]:
     tags: list[str] = []
-    if symbol in catalyst_symbols.get("mops", set()):
+    if has_mops_events or symbol in catalyst_symbols.get("mops", set()):
         tags.append("重大訊息")
+    for category in mops_event_categories or []:
+        tags.append(f"重大訊息:{category}")
     if symbol in catalyst_symbols.get("revenue_financials", set()):
         tags.append("營收財報")
     if symbol in catalyst_symbols.get("news_topics", set()):

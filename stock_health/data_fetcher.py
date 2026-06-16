@@ -6,7 +6,9 @@ import json
 import logging
 import re
 from datetime import date
+from html.parser import HTMLParser
 from typing import Any
+from urllib.parse import urljoin
 
 from .config import (
     tpex_daily_url,
@@ -15,9 +17,19 @@ from .config import (
     twse_institutional_url,
     twse_margin_short_url,
     twse_mi_index_url,
+    mops_major_events_url,
 )
 from .http_client import HttpClient
-from .models import FetchResult, InstitutionalFetchResult, InstitutionalTradingRecord, MarginShortFetchResult, MarginShortRecord, OhlcvRecord
+from .models import (
+    FetchResult,
+    InstitutionalFetchResult,
+    InstitutionalTradingRecord,
+    MarginShortFetchResult,
+    MarginShortRecord,
+    MopsEventFetchResult,
+    MopsEventRecord,
+    OhlcvRecord,
+)
 
 LOGGER = logging.getLogger(__name__)
 
@@ -82,6 +94,36 @@ MARGIN_SHORT_CSV_FIELDS = [
     "short_change",
     "offsetting",
     "source",
+]
+
+MOPS_EVENT_CSV_FIELDS = [
+    "date",
+    "time",
+    "symbol",
+    "name",
+    "market",
+    "title",
+    "category",
+    "summary",
+    "url",
+    "source",
+]
+
+MOPS_EVENT_CATEGORIES = [
+    "財報",
+    "營收",
+    "股利",
+    "除權息",
+    "董事會",
+    "併購",
+    "處分資產",
+    "取得資產",
+    "增資",
+    "減資",
+    "法說會",
+    "重大合約",
+    "訴訟",
+    "注意事項",
 ]
 
 
@@ -360,6 +402,205 @@ def fetch_tpex_margin_short(target_date: date, client: HttpClient | None = None)
         )
     records = [_normalize_tpex_margin_short_row(target_date, fields, row) for row in rows]
     return MarginShortFetchResult(rows=[record for record in records if record.symbol], data_date=data_date or f"{target_date:%Y-%m-%d}")
+
+
+def fetch_mops_events(target_date: date, client: HttpClient | None = None) -> MopsEventFetchResult:
+    client = client or HttpClient()
+    roc_year = str(target_date.year - 1911)
+    form = {
+        "encodeURIComponent": "1",
+        "step": "1",
+        "firstin": "1",
+        "off": "1",
+        "TYPEK": "all",
+        "year": roc_year,
+        "month": f"{target_date:%m}",
+        "day": f"{target_date:%d}",
+    }
+    response = client.post(
+        mops_major_events_url(),
+        form,
+        headers={
+            "Referer": "https://mops.twse.com.tw/mops/web/t05sr01_1",
+        },
+    )
+    if response.status != 200:
+        return MopsEventFetchResult(errors=[response.error or f"MOPS material information HTTP status {response.status}"])
+
+    text = response.text
+    if _looks_like_mops_security_page(text):
+        return MopsEventFetchResult(errors=["MOPS material information response returned security page; no parsable event date"])
+
+    events, parser_errors = parse_mops_events_html(text)
+    data_date = _extract_mops_data_date(text, events)
+    errors = list(parser_errors)
+    if data_date is None:
+        errors.append("MOPS material information response did not expose an explicit data date")
+    if not events and data_date and not _looks_like_no_mops_events(text):
+        errors.append("MOPS material information response date was explicit but no parsable event rows or no-data marker were found")
+    return MopsEventFetchResult(rows=events, data_date=data_date, errors=errors)
+
+
+def parse_mops_events_html(text: str) -> tuple[list[MopsEventRecord], list[str]]:
+    parser = _MopsTableParser()
+    parser.feed(text)
+    events: list[MopsEventRecord] = []
+    errors: list[str] = []
+    for table in parser.tables:
+        if not table:
+            continue
+        header_index = _mops_header_index(table)
+        if header_index is None:
+            continue
+        headers = [_normalize_header(cell["text"]) for cell in table[header_index]]
+        for row in table[header_index + 1 :]:
+            if len(row) < 3:
+                continue
+            event = _mops_event_from_row(headers, row)
+            if event:
+                events.append(event)
+    if not events and parser.tables and not _looks_like_no_mops_events(text):
+        errors.append("MOPS material information HTML tables did not match expected company/date/title headers")
+    return events, errors
+
+
+def classify_mops_event(title: str, summary: str | None = None) -> str:
+    text = f"{title} {summary or ''}"
+    for keyword in MOPS_EVENT_CATEGORIES:
+        if keyword in text:
+            return keyword
+    return "其他"
+
+
+class _MopsTableParser(HTMLParser):
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self.tables: list[list[list[dict[str, str]]]] = []
+        self._table: list[list[dict[str, str]]] | None = None
+        self._row: list[dict[str, str]] | None = None
+        self._cell: dict[str, Any] | None = None
+        self._href: str | None = None
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        attrs_dict = {key.lower(): value for key, value in attrs}
+        if tag == "table":
+            self._table = []
+        elif tag == "tr" and self._table is not None:
+            self._row = []
+        elif tag in {"td", "th"} and self._row is not None:
+            self._cell = {"text_parts": [], "href": None}
+        elif tag == "a" and self._cell is not None:
+            self._href = attrs_dict.get("href")
+            if self._href and not self._cell.get("href"):
+                self._cell["href"] = self._href
+
+    def handle_data(self, data: str) -> None:
+        if self._cell is not None:
+            self._cell["text_parts"].append(data)
+
+    def handle_endtag(self, tag: str) -> None:
+        if tag in {"td", "th"} and self._cell is not None and self._row is not None:
+            text = " ".join(" ".join(self._cell["text_parts"]).split())
+            self._row.append({"text": text, "href": self._cell.get("href") or ""})
+            self._cell = None
+            self._href = None
+        elif tag == "tr" and self._row is not None and self._table is not None:
+            if self._row:
+                self._table.append(self._row)
+            self._row = None
+        elif tag == "table" and self._table is not None:
+            self.tables.append(self._table)
+            self._table = None
+
+
+def _looks_like_mops_security_page(text: str) -> bool:
+    return "FOR SECURITY REASONS" in text or "安全性考量" in text or "錯誤代碼" in text
+
+
+def _looks_like_no_mops_events(text: str) -> bool:
+    return any(marker in text for marker in ["查無資料", "無符合條件", "無重大訊息", "無資料"])
+
+
+def _mops_header_index(table: list[list[dict[str, str]]]) -> int | None:
+    for index, row in enumerate(table):
+        headers = [_normalize_header(cell["text"]) for cell in row]
+        if (
+            any("公司代號" in header or header == "代號" for header in headers)
+            and any("公司名稱" in header or "公司簡稱" in header or header == "名稱" for header in headers)
+            and any("主旨" in header or "標題" in header for header in headers)
+        ):
+            return index
+    return None
+
+
+def _normalize_header(value: str) -> str:
+    return re.sub(r"\s+", "", value)
+
+
+def _mops_cell(row: list[dict[str, str]], headers: list[str], candidates: list[str]) -> dict[str, str]:
+    for candidate in candidates:
+        for index, header in enumerate(headers):
+            if candidate in header and index < len(row):
+                return row[index]
+    return {"text": "", "href": ""}
+
+
+def _mops_event_from_row(headers: list[str], row: list[dict[str, str]]) -> MopsEventRecord | None:
+    symbol = _mops_cell(row, headers, ["公司代號", "證券代號", "代號"])["text"].strip()
+    name = _mops_cell(row, headers, ["公司名稱", "公司簡稱", "名稱"])["text"].strip()
+    title_cell = _mops_cell(row, headers, ["重大訊息主旨", "主旨", "標題"])
+    title = title_cell["text"].strip()
+    event_date = _normalize_mops_date(_mops_cell(row, headers, ["發言日期", "公告日期", "日期"])["text"].strip())
+    event_time = _normalize_mops_time(_mops_cell(row, headers, ["發言時間", "公告時間", "時間"])["text"].strip())
+    summary = _mops_cell(row, headers, ["說明", "詳細內容", "詳細資料", "內容"])["text"].strip() or None
+    category = classify_mops_event(title, summary)
+    if not symbol or not title:
+        return None
+    return MopsEventRecord(
+        date=event_date or "",
+        time=event_time,
+        symbol=symbol,
+        name=name,
+        market=None,
+        title=title,
+        category=category,
+        summary=summary,
+        url=urljoin(mops_major_events_url(), title_cell["href"]) if title_cell["href"] else None,
+        source="MOPS",
+    )
+
+
+def _extract_mops_data_date(text: str, events: list[MopsEventRecord]) -> str | None:
+    event_dates = sorted({event.date for event in events if event.date})
+    if event_dates:
+        return event_dates[-1]
+    plain = re.sub(r"<[^>]+>", " ", text)
+    for pattern in (
+        r"(20\d{2})[/-](\d{1,2})[/-](\d{1,2})",
+        r"(20\d{2})(\d{2})(\d{2})",
+    ):
+        match = re.search(pattern, plain)
+        if match:
+            return f"{int(match.group(1)):04d}-{int(match.group(2)):02d}-{int(match.group(3)):02d}"
+    roc_match = re.search(r"(?:民國)?(1\d{2})[年/-](\d{1,2})[月/-](\d{1,2})", plain)
+    if roc_match:
+        year = int(roc_match.group(1)) + 1911
+        return f"{year:04d}-{int(roc_match.group(2)):02d}-{int(roc_match.group(3)):02d}"
+    return None
+
+
+def _normalize_mops_date(value: str) -> str | None:
+    return _extract_mops_data_date(value, [])
+
+
+def _normalize_mops_time(value: str) -> str | None:
+    match = re.search(r"(\d{1,2})[:：](\d{2})(?:[:：]\d{2})?", value)
+    if match:
+        return f"{int(match.group(1)):02d}:{int(match.group(2)):02d}"
+    compact = re.search(r"\b(\d{2})(\d{2})\b", value)
+    if compact:
+        return f"{int(compact.group(1)):02d}:{int(compact.group(2)):02d}"
+    return None
 
 
 def _normalize_twse_institutional_row(target_date: date, fields: list[str], row: list[Any]) -> InstitutionalTradingRecord:
@@ -658,3 +899,70 @@ def margin_short_records_from_csv_text(text: str) -> list[MarginShortRecord]:
             )
         )
     return records
+
+
+def mops_events_to_csv_text(records: list[MopsEventRecord]) -> str:
+    output = io.StringIO()
+    writer = csv.DictWriter(output, fieldnames=MOPS_EVENT_CSV_FIELDS, lineterminator="\n")
+    writer.writeheader()
+    for record in records:
+        writer.writerow(record.to_csv_row())
+    return output.getvalue()
+
+
+def mops_events_from_csv_text(text: str) -> list[MopsEventRecord]:
+    reader = csv.DictReader(io.StringIO(text))
+    records: list[MopsEventRecord] = []
+    for row in reader:
+        records.append(
+            MopsEventRecord(
+                date=row.get("date", ""),
+                time=row.get("time") or None,
+                symbol=row.get("symbol", ""),
+                name=row.get("name", ""),
+                market=row.get("market") or None,
+                title=row.get("title", ""),
+                category=row.get("category") or None,
+                summary=row.get("summary") or None,
+                url=row.get("url") or None,
+                source=row.get("source", "MOPS"),
+            )
+        )
+    return records
+
+
+def mops_events_payload(
+    report_date: str,
+    generated_at: str,
+    data_date: str | None,
+    is_current: bool,
+    events: list[MopsEventRecord],
+    errors: list[str] | None = None,
+    limitations: list[str] | None = None,
+) -> dict[str, Any]:
+    return {
+        "schema_version": "1.0",
+        "report_date": report_date,
+        "generated_at": generated_at,
+        "timezone": "Asia/Taipei",
+        "data_date": data_date,
+        "is_current": is_current,
+        "event_count": len(events),
+        "events": [
+            {
+                "date": event.date,
+                "time": event.time,
+                "symbol": event.symbol,
+                "name": event.name,
+                "market": event.market,
+                "title": event.title,
+                "category": event.category,
+                "summary": event.summary,
+                "url": event.url,
+                "source": event.source,
+            }
+            for event in events
+        ],
+        "errors": errors or [],
+        "limitations": limitations or [],
+    }

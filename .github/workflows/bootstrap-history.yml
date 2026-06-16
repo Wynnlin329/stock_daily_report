@@ -37,7 +37,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/history-index.json data/latest-listed-ohlcv.csv data/latest-otc-ohlcv.csv data/latest-institutional-trading.csv data/latest-margin-short.csv data/market/ data/institutional/ data/margin_short/
+          git add data/history-index.json data/latest-listed-ohlcv.csv data/latest-otc-ohlcv.csv data/latest-institutional-trading.csv data/latest-margin-short.csv data/latest-mops-events.json data/latest-mops-events.csv data/market/ data/institutional/ data/margin_short/ data/mops/
           if git diff --cached --quiet; then
             echo "No generated history changes to commit."
             exit 0

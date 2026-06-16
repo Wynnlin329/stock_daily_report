@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from .config import CORE_COVERAGE_SECTIONS, COVERAGE_SECTIONS
-from .models import InstitutionalTradingRecord, MarginShortRecord, OhlcvRecord, SourceHealth
+from .models import InstitutionalTradingRecord, MarginShortRecord, MopsEventRecord, OhlcvRecord, SourceHealth
 
 
 def build_coverage(
@@ -14,6 +14,9 @@ def build_coverage(
     institutional_is_current: bool = False,
     margin_short_rows: list[MarginShortRecord] | None = None,
     margin_short_is_current: bool = False,
+    mops_event_rows: list[MopsEventRecord] | None = None,
+    mops_events_is_current: bool = False,
+    mops_events_date_explicit: bool = False,
 ) -> tuple[dict[str, dict[str, object]], bool, list[str]]:
     source_current = {key: value.is_current and value.date_explicit for key, value in sources.items()}
     any_rows = bool(listed_rows or otc_rows)
@@ -25,6 +28,8 @@ def build_coverage(
     margin_short_available = bool(margin_short_rows) and margin_short_is_current and any(
         row.symbol and _has_margin_short_values(row) for row in margin_short_rows
     )
+    mops_event_rows = mops_event_rows or []
+    mops_events_available = mops_events_is_current and mops_events_date_explicit
     coverage = {
         "market_environment": _item(source_current.get("twse", False), "TWSE", "TWSE has explicit current market date" if source_current.get("twse", False) else "TWSE current market environment not verified"),
         "listed_ohlcv": _item(bool(listed_rows), "TWSE", f"{len(listed_rows)} listed rows parsed" if listed_rows else "Listed OHLCV unavailable"),
@@ -48,7 +53,13 @@ def build_coverage(
             if margin_short_available
             else "Margin/short data unavailable or data date not current",
         ),
-        "material_information": _item(source_current.get("mops", False), "MOPS", "MOPS current material information verified" if source_current.get("mops", False) else "MOPS material information date not verified"),
+        "material_information": _item(
+            mops_events_available,
+            "MOPS",
+            f"MOPS material information query verified with {len(mops_event_rows)} events"
+            if mops_events_available
+            else "MOPS material information unavailable or data date not verified",
+        ),
         "revenue_financials": _item(False, "MOPS", "First version does not parse revenue or financial statements yet"),
         "news_topics": _item(any(sources[key].reachable for key in ("yahoo_tw_stock", "cnyes", "moneydj") if key in sources), "news_sources", "At least one catalyst news source reachable"),
         "technical_review": _item(False, "manual_review", "TradingView/WantGoo/CMoney are manual review sources, not automated signals"),

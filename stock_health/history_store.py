@@ -10,10 +10,11 @@ from .data_fetcher import (
     institutional_records_to_csv_text,
     margin_short_records_from_csv_text,
     margin_short_records_to_csv_text,
+    mops_events_to_csv_text,
     records_from_csv_text,
     records_to_csv_text,
 )
-from .models import InstitutionalTradingRecord, MarginShortRecord, OhlcvRecord
+from .models import InstitutionalTradingRecord, MarginShortRecord, MopsEventRecord, OhlcvRecord
 
 
 def ensure_dirs(root: Path) -> None:
@@ -23,6 +24,7 @@ def ensure_dirs(root: Path) -> None:
         root / "data" / "market",
         root / "data" / "institutional",
         root / "data" / "margin_short",
+        root / "data" / "mops",
         root / "reports",
     ]:
         path.mkdir(parents=True, exist_ok=True)
@@ -56,6 +58,11 @@ def institutional_history_paths(root: Path, report_date: date) -> tuple[Path, Pa
 def margin_short_history_paths(root: Path, report_date: date) -> tuple[Path, Path]:
     folder = root / "data" / "margin_short" / f"{report_date:%Y}" / f"{report_date:%m}"
     return folder / f"{report_date:%Y-%m-%d}-listed-margin-short.csv", folder / f"{report_date:%Y-%m-%d}-otc-margin-short.csv"
+
+
+def mops_event_history_paths(root: Path, report_date: date) -> tuple[Path, Path]:
+    folder = root / "data" / "mops" / f"{report_date:%Y}" / f"{report_date:%m}"
+    return folder / f"{report_date:%Y-%m-%d}-mops-events.json", folder / f"{report_date:%Y-%m-%d}-mops-events.csv"
 
 
 def write_ohlcv_outputs(root: Path, report_date: date, listed_rows: list[OhlcvRecord], otc_rows: list[OhlcvRecord]) -> None:
@@ -98,6 +105,15 @@ def write_margin_short_outputs(
     write_text(otc_history, otc_csv)
 
 
+def write_mops_event_outputs(root: Path, report_date: date, payload: dict[str, Any], rows: list[MopsEventRecord]) -> None:
+    csv_text = mops_events_to_csv_text(rows)
+    write_json(root / "data" / "latest-mops-events.json", payload)
+    write_text(root / "data" / "latest-mops-events.csv", csv_text)
+    history_json, history_csv = mops_event_history_paths(root, report_date)
+    write_json(history_json, payload)
+    write_text(history_csv, csv_text)
+
+
 def load_history_rows(root: Path) -> dict[str, list[OhlcvRecord]]:
     market_dir = root / "data" / "market"
     rows: dict[str, list[OhlcvRecord]] = {}
@@ -138,16 +154,18 @@ def build_history_index(
     otc_institutional_days: list[str] | None = None,
     listed_margin_short_days: list[str] | None = None,
     otc_margin_short_days: list[str] | None = None,
+    mops_event_days: list[str] | None = None,
 ) -> dict[str, Any]:
     listed_institutional_days = listed_institutional_days or []
     otc_institutional_days = otc_institutional_days or []
     listed_margin_short_days = listed_margin_short_days or []
     otc_margin_short_days = otc_margin_short_days or []
+    mops_event_days = mops_event_days or []
     common_days = sorted(set(listed_days) & set(otc_days))
     all_days = sorted(set(listed_days) | set(otc_days))
     institutional_days = sorted(set(listed_institutional_days) | set(otc_institutional_days))
     margin_short_days = sorted(set(listed_margin_short_days) | set(otc_margin_short_days))
-    latest_reference_day = max(all_days or institutional_days or margin_short_days, default=None)
+    latest_reference_day = max(all_days or institutional_days or margin_short_days or mops_event_days, default=None)
     missing_dates = [day for day in all_days if day not in common_days]
     return {
         "schema_version": SCHEMA_VERSION,
@@ -163,10 +181,12 @@ def build_history_index(
         "otc_institutional_days": sorted(otc_institutional_days),
         "listed_margin_short_days": sorted(listed_margin_short_days),
         "otc_margin_short_days": sorted(otc_margin_short_days),
+        "mops_event_days": sorted(mops_event_days),
         "missing_dates": missing_dates,
         "errors": errors,
         "has_20d_history": len(common_days) >= 20,
         "has_60d_history": len(common_days) >= 60,
         "has_institutional_history": bool(institutional_days and institutional_days[-1] == latest_reference_day),
         "has_margin_short_history": bool(margin_short_days and margin_short_days[-1] == latest_reference_day),
+        "has_mops_event_history": bool(mops_event_days and sorted(mops_event_days)[-1] == latest_reference_day),
     }
