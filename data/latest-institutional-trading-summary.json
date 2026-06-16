@@ -1,0 +1,35 @@
+{
+  "schema_version": "1.0",
+  "report_date": "2026-06-16",
+  "generated_at": "2026-06-16T11:03:22+08:00",
+  "timezone": "Asia/Taipei",
+  "listed_rows": 0,
+  "otc_rows": 0,
+  "data_date": "2026-06-16",
+  "is_current": false,
+  "sources": {
+    "twse": {
+      "rows": 0,
+      "data_date": null,
+      "is_current": false,
+      "errors": [
+        "TWSE institutional response did not contain a parsable table with required fields ['證券代號', '證券名稱', '三大法人買賣超股數']; stat='很抱歉，沒有符合條件的資料!'; tables="
+      ]
+    },
+    "tpex": {
+      "rows": 0,
+      "data_date": "2026-06-16",
+      "is_current": false,
+      "errors": [
+        "TPEx institutional response did not contain a parsable table with required fields ['代號', '名稱', '三大法人買賣超股數合計']; stat='ok'; tables=title='三大法人買賣明細資訊', rows=0, fields_count=24 | title=None, rows=0, fields_count=0"
+      ]
+    }
+  },
+  "errors": [
+    "TWSE institutional response did not contain a parsable table with required fields ['證券代號', '證券名稱', '三大法人買賣超股數']; stat='很抱歉，沒有符合條件的資料!'; tables=",
+    "TPEx institutional response did not contain a parsable table with required fields ['代號', '名稱', '三大法人買賣超股數合計']; stat='ok'; tables=title='三大法人買賣明細資訊', rows=0, fields_count=24 | title=None, rows=0, fields_count=0"
+  ],
+  "limitations": [
+    "官方法人買賣超未取得可解析逐股資料"
+  ]
+}

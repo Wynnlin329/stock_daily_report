@@ -37,11 +37,10 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/history-index.json data/latest-listed-ohlcv.csv data/latest-otc-ohlcv.csv data/market/
+          git add data/history-index.json data/latest-listed-ohlcv.csv data/latest-otc-ohlcv.csv data/latest-institutional-trading.csv data/latest-margin-short.csv data/market/ data/institutional/ data/margin_short/
           if git diff --cached --quiet; then
             echo "No generated history changes to commit."
             exit 0
           fi
           git commit -m "bootstrap stock history ${{ inputs.trading_days }} trading days"
           git push
-

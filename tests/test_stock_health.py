@@ -7,11 +7,20 @@ from datetime import date, datetime
 from pathlib import Path
 
 from stock_health.coverage import build_coverage
-from stock_health.data_fetcher import fetch_tpex_otc_ohlcv, fetch_twse_listed_ohlcv, records_from_csv_text, records_to_csv_text
+from stock_health.data_fetcher import (
+    fetch_tpex_institutional_trading,
+    fetch_tpex_margin_short,
+    fetch_tpex_otc_ohlcv,
+    fetch_twse_institutional_trading,
+    fetch_twse_listed_ohlcv,
+    fetch_twse_margin_short,
+    records_from_csv_text,
+    records_to_csv_text,
+)
 from stock_health.history_store import build_history_index, history_report_paths, load_history_rows, write_json, write_ohlcv_outputs
 from stock_health.http_client import HttpResponse
 import stock_health.http_client as http_client_module
-from stock_health.models import OhlcvRecord, SourceHealth
+from stock_health.models import InstitutionalTradingRecord, MarginShortRecord, OhlcvRecord, SourceHealth
 from stock_health.report_writer import build_health_markdown
 from stock_health.screening import build_screening_summary
 from stock_health.source_health import check_all_sources
@@ -52,6 +61,58 @@ def sample_record(
         turnover=turnover,
         transactions=10,
         source="TWSE",
+    )
+
+
+def sample_institutional_record(
+    symbol: str = "2330",
+    name: str = "台積電",
+    market: str = "listed",
+    net_buy: int | None = 1000,
+) -> InstitutionalTradingRecord:
+    return InstitutionalTradingRecord(
+        date="2026-06-15",
+        symbol=symbol,
+        name=name,
+        market=market,
+        foreign_buy=2000,
+        foreign_sell=1000,
+        foreign_net_buy=1000,
+        investment_trust_buy=500,
+        investment_trust_sell=0,
+        investment_trust_net_buy=500,
+        dealer_buy=100,
+        dealer_sell=600,
+        dealer_net_buy=-500,
+        institutional_net_buy=net_buy,
+        source="TWSE" if market == "listed" else "TPEx",
+    )
+
+
+def sample_margin_short_record(
+    symbol: str = "2330",
+    name: str = "台積電",
+    market: str = "listed",
+    margin_balance: int | None = 1000,
+    margin_change: int | None = 100,
+    short_balance: int | None = 50,
+    short_change: int | None = 10,
+) -> MarginShortRecord:
+    return MarginShortRecord(
+        date="2026-06-15",
+        symbol=symbol,
+        name=name,
+        market=market,
+        margin_buy=200,
+        margin_sell=100,
+        margin_balance=margin_balance,
+        margin_change=margin_change,
+        short_sell=20,
+        short_cover=10,
+        short_balance=short_balance,
+        short_change=short_change,
+        offsetting=0,
+        source="TWSE" if market == "listed" else "TPEx",
     )
 
 
@@ -338,6 +399,268 @@ def test_tpex_parser_with_tables_response() -> None:
     assert result.data_date == "2026-06-15"
     assert result.rows[0].symbol == "8069"
     assert result.rows[0].turnover == 1286086332
+
+
+def test_twse_institutional_parser_with_mock_response() -> None:
+    payload = {
+        "stat": "OK",
+        "date": "20260615",
+        "fields": [
+            "證券代號",
+            "證券名稱",
+            "外陸資買進股數(不含外資自營商)",
+            "外陸資賣出股數(不含外資自營商)",
+            "外陸資買賣超股數(不含外資自營商)",
+            "外資自營商買進股數",
+            "外資自營商賣出股數",
+            "外資自營商買賣超股數",
+            "投信買進股數",
+            "投信賣出股數",
+            "投信買賣超股數",
+            "自營商買賣超股數",
+            "自營商買進股數(自行買賣)",
+            "自營商賣出股數(自行買賣)",
+            "自營商買賣超股數(自行買賣)",
+            "自營商買進股數(避險)",
+            "自營商賣出股數(避險)",
+            "自營商買賣超股數(避險)",
+            "三大法人買賣超股數",
+        ],
+        "data": [["2330", "台積電", "1,000", "200", "800", "100", "50", "50", "300", "100", "200", "-100", "10", "20", "-10", "40", "130", "-90", "950"]],
+    }
+    result = fetch_twse_institutional_trading(date(2026, 6, 15), FakeClient([HttpResponse("mock", 200, json.dumps(payload).encode(), 1)]))
+    assert result.ok is True
+    row = result.rows[0]
+    assert row.symbol == "2330"
+    assert row.foreign_net_buy == 850
+    assert row.investment_trust_net_buy == 200
+    assert row.dealer_net_buy == -100
+    assert row.institutional_net_buy == 950
+
+
+def test_tpex_institutional_parser_with_mock_response() -> None:
+    payload = {
+        "date": "20260615",
+        "tables": [
+            {
+                "title": "三大法人買賣明細資訊",
+                "fields": ["代號", "名稱"] + ["買進股數", "賣出股數", "買賣超股數"] * 7 + ["三大法人買賣超股數合計"],
+                "data": [["8069", "元太", "1", "2", "-1", "0", "0", "0", "1", "2", "-1", "30", "10", "20", "0", "0", "0", "8", "3", "5", "8", "3", "5", "24"]],
+            }
+        ],
+    }
+    result = fetch_tpex_institutional_trading(date(2026, 6, 15), FakeClient([HttpResponse("mock", 200, json.dumps(payload).encode(), 1)]))
+    assert result.ok is True
+    row = result.rows[0]
+    assert row.symbol == "8069"
+    assert row.foreign_net_buy == -1
+    assert row.investment_trust_net_buy == 20
+    assert row.dealer_net_buy == 5
+    assert row.institutional_net_buy == 24
+
+
+def test_single_institutional_source_failure_does_not_block_other_source() -> None:
+    tpex_payload = {
+        "date": "20260615",
+        "tables": [
+            {
+                "title": "三大法人買賣明細資訊",
+                "fields": ["代號", "名稱"] + ["買進股數", "賣出股數", "買賣超股數"] * 7 + ["三大法人買賣超股數合計"],
+                "data": [["8069", "元太", "1", "2", "-1", "0", "0", "0", "1", "2", "-1", "30", "10", "20", "0", "0", "0", "8", "3", "5", "8", "3", "5", "24"]],
+            }
+        ],
+    }
+    listed = fetch_twse_institutional_trading(date(2026, 6, 15), FakeClient([HttpResponse("mock", None, b"", 1, "URLError: mocked")]))
+    otc = fetch_tpex_institutional_trading(date(2026, 6, 15), FakeClient([HttpResponse("mock", 200, json.dumps(tpex_payload).encode(), 1)]))
+    assert listed.rows == []
+    assert listed.errors
+    assert otc.ok is True
+    assert otc.rows[0].symbol == "8069"
+
+
+def test_twse_margin_short_parser_with_mock_response() -> None:
+    payload = {
+        "date": "20260615",
+        "tables": [
+            {},
+            {
+                "title": "115年06月15日 融資融券彙總 (股票)",
+                "fields": ["代號", "名稱", "買進", "賣出", "現金償還", "前日餘額", "今日餘額", "次一營業日限額", "買進", "賣出", "現券償還", "前日餘額", "今日餘額", "次一營業日限額", "資券互抵", "註記"],
+                "data": [["2330", "台積電", "100", "20", "0", "1,000", "1,080", "9999", "30", "5", "0", "80", "55", "9999", "3", " "]],
+            },
+        ],
+    }
+    result = fetch_twse_margin_short(date(2026, 6, 15), FakeClient([HttpResponse("mock", 200, json.dumps(payload).encode(), 1)]))
+    assert result.ok is True
+    row = result.rows[0]
+    assert row.symbol == "2330"
+    assert row.margin_balance == 1080
+    assert row.margin_change == 80
+    assert row.short_sell == 5
+    assert row.short_cover == 30
+    assert row.short_balance == 55
+    assert row.short_change == -25
+
+
+def test_tpex_margin_short_parser_with_mock_response() -> None:
+    payload = {
+        "date": "20260615",
+        "tables": [
+            {
+                "title": "上櫃股票融資融券餘額",
+                "fields": ["代號", "名稱", "前資餘額(張)", "資買", "資賣", "現償", "資餘額", "資屬證金", "資使用率(%)", "資限額", "前券餘額(張)", "券賣", "券買", "券償", "券餘額", "券屬證金", "券使用率(%)", "券限額", "資券相抵(張)", "備註"],
+                "data": [["8069", "元太", "900", "150", "30", "0", "1,020", "0", "0", "9999", "40", "12", "5", "0", "47", "0", "0", "9999", "2", ""]],
+            }
+        ],
+    }
+    result = fetch_tpex_margin_short(date(2026, 6, 15), FakeClient([HttpResponse("mock", 200, json.dumps(payload).encode(), 1)]))
+    assert result.ok is True
+    row = result.rows[0]
+    assert row.symbol == "8069"
+    assert row.margin_balance == 1020
+    assert row.margin_change == 120
+    assert row.short_sell == 12
+    assert row.short_cover == 5
+    assert row.short_balance == 47
+    assert row.short_change == 7
+
+
+def test_margin_short_parser_missing_fields_does_not_fabricate_rows() -> None:
+    payload = {"date": "20260615", "tables": [{"title": "上櫃股票融資融券餘額", "fields": ["代號", "名稱"], "data": [["8069", "元太"]]}]}
+    result = fetch_tpex_margin_short(date(2026, 6, 15), FakeClient([HttpResponse("mock", 200, json.dumps(payload).encode(), 1)]))
+    assert result.rows == []
+    assert result.data_date == "2026-06-15"
+    assert result.errors
+
+
+def test_single_margin_short_source_failure_does_not_block_other_source() -> None:
+    tpex_payload = {
+        "date": "20260615",
+        "tables": [
+            {
+                "title": "上櫃股票融資融券餘額",
+                "fields": ["代號", "名稱", "前資餘額(張)", "資買", "資賣", "現償", "資餘額", "資屬證金", "資使用率(%)", "資限額", "前券餘額(張)", "券賣", "券買", "券償", "券餘額", "券屬證金", "券使用率(%)", "券限額", "資券相抵(張)", "備註"],
+                "data": [["8069", "元太", "900", "150", "30", "0", "1,020", "0", "0", "9999", "40", "12", "5", "0", "47", "0", "0", "9999", "2", ""]],
+            }
+        ],
+    }
+    listed = fetch_twse_margin_short(date(2026, 6, 15), FakeClient([HttpResponse("mock", None, b"", 1, "URLError: mocked")]))
+    otc = fetch_tpex_margin_short(date(2026, 6, 15), FakeClient([HttpResponse("mock", 200, json.dumps(tpex_payload).encode(), 1)]))
+    assert listed.rows == []
+    assert listed.errors
+    assert otc.ok is True
+    assert otc.rows[0].symbol == "8069"
+
+
+def test_institutional_parser_missing_fields_does_not_fabricate_rows() -> None:
+    payload = {"date": "20260615", "fields": ["證券代號", "證券名稱"], "data": [["2330", "台積電"]]}
+    result = fetch_twse_institutional_trading(date(2026, 6, 15), FakeClient([HttpResponse("mock", 200, json.dumps(payload).encode(), 1)]))
+    assert result.rows == []
+    assert result.data_date == "2026-06-15"
+    assert result.errors
+
+
+def test_institutional_coverage_requires_current_explicit_parsable_data() -> None:
+    sources = {
+        "twse": SourceHealth("TWSE", "", True, 200, "2026-06-15", True, True, True, False, False, True, "主資料源", "", "", 1),
+        "mops": SourceHealth("MOPS", "", True, 200, None, False, False, True, False, False, False, "主資料源", "", "no date", 1),
+    }
+    coverage, _, missing = build_coverage(
+        sources,
+        [sample_record()],
+        [sample_record(symbol="8069")],
+        institutional_rows=[sample_institutional_record()],
+        institutional_is_current=True,
+    )
+    assert coverage["institutional_trading"]["available"] is True
+    assert "institutional_trading" not in missing
+    stale_coverage, _, stale_missing = build_coverage(
+        sources,
+        [sample_record()],
+        [sample_record(symbol="8069")],
+        institutional_rows=[sample_institutional_record()],
+        institutional_is_current=False,
+    )
+    assert stale_coverage["institutional_trading"]["available"] is False
+    assert "institutional_trading" in stale_missing
+
+
+def test_margin_short_coverage_requires_current_explicit_parsable_data() -> None:
+    sources = {
+        "twse": SourceHealth("TWSE", "", True, 200, "2026-06-15", True, True, True, False, False, True, "主資料源", "", "", 1),
+        "mops": SourceHealth("MOPS", "", True, 200, None, False, False, True, False, False, False, "主資料源", "", "no date", 1),
+    }
+    coverage, _, missing = build_coverage(
+        sources,
+        [sample_record()],
+        [sample_record(symbol="8069")],
+        margin_short_rows=[sample_margin_short_record()],
+        margin_short_is_current=True,
+    )
+    assert coverage["margin_short"]["available"] is True
+    assert "margin_short" not in missing
+    stale_coverage, _, stale_missing = build_coverage(
+        sources,
+        [sample_record()],
+        [sample_record(symbol="8069")],
+        margin_short_rows=[sample_margin_short_record()],
+        margin_short_is_current=False,
+    )
+    assert stale_coverage["margin_short"]["available"] is False
+    assert "margin_short" in stale_missing
+
+
+def test_institutional_buy_candidates_sorted_and_scan_eligible_only() -> None:
+    eligible_small = sample_record(symbol="2330", name="台積電", turnover=100000)
+    eligible_big = sample_record(symbol="2317", name="鴻海", turnover=100000)
+    etf = sample_record(symbol="0050", name="元大台灣50", turnover=100000)
+    summary = build_screening_summary(
+        "2026-06-15",
+        "2026-06-15T18:15:00+08:00",
+        [eligible_small, eligible_big, etf],
+        [],
+        {},
+        {},
+        False,
+        [],
+        "low",
+        institutional_rows=[
+            sample_institutional_record(symbol="2330", net_buy=100),
+            sample_institutional_record(symbol="2317", name="鴻海", net_buy=500),
+            sample_institutional_record(symbol="0050", name="元大台灣50", net_buy=999),
+        ],
+    )
+    candidates = summary["screening"]["institutional_buy_candidates"]
+    assert [item["symbol"] for item in candidates] == ["2317", "2330"]
+    assert candidates[0]["institutional_net_buy"] == 500
+    assert "三大法人合計買超" in candidates[0]["reasons"]
+
+
+def test_margin_short_attention_sorted_and_scan_eligible_only() -> None:
+    eligible_small = sample_record(symbol="2330", name="台積電", turnover=100000)
+    eligible_big = sample_record(symbol="2317", name="鴻海", turnover=100000)
+    etf = sample_record(symbol="0050", name="元大台灣50", turnover=100000)
+    summary = build_screening_summary(
+        "2026-06-15",
+        "2026-06-15T18:15:00+08:00",
+        [eligible_small, eligible_big, etf],
+        [],
+        {},
+        {},
+        False,
+        [],
+        "low",
+        margin_short_rows=[
+            sample_margin_short_record(symbol="2330", margin_balance=100, margin_change=10, short_change=3),
+            sample_margin_short_record(symbol="2317", name="鴻海", margin_balance=500, margin_change=50, short_change=30),
+            sample_margin_short_record(symbol="0050", name="元大台灣50", margin_balance=999, margin_change=999, short_change=999),
+        ],
+    )
+    candidates = summary["screening"]["margin_short_attention"]
+    assert [item["symbol"] for item in candidates] == ["2317", "2330"]
+    assert candidates[0]["short_change"] == 30
+    assert "資券變化需人工複核" in candidates[0]["reasons"]
+    assert any("不可單獨視為買賣訊號" in note for note in candidates[0]["risk_notes"])
 
 
 def test_http_client_handles_incomplete_read(monkeypatch) -> None:
