@@ -9,7 +9,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from stock_health.config import SCHEMA_VERSION, TIMEZONE
+from stock_health.config import SCHEMA_VERSION, TIMEZONE, github_raw_url
 from stock_health.coverage import build_coverage
 from stock_health.data_fetcher import (
     fetch_tpex_institutional_trading,
@@ -158,12 +158,12 @@ def main() -> int:
         "manual_review_sources": _sources_by_role(sources, "人工複核源"),
         "not_recommended_sources": _sources_by_role(sources, "不建議自動化"),
         "artifact_urls": {
-            "latest_json": "https://raw.githubusercontent.com/<OWNER>/<REPO>/main/latest.json",
-            "screening_summary": "https://raw.githubusercontent.com/<OWNER>/<REPO>/main/data/latest-screening-summary.json",
-            "market_scan": "https://raw.githubusercontent.com/<OWNER>/<REPO>/main/reports/latest-market-scan.md",
-            "institutional_summary": "https://raw.githubusercontent.com/<OWNER>/<REPO>/main/data/latest-institutional-trading-summary.json",
-            "margin_short_summary": "https://raw.githubusercontent.com/<OWNER>/<REPO>/main/data/latest-margin-short-summary.json",
-            "mops_events": "https://raw.githubusercontent.com/<OWNER>/<REPO>/main/data/latest-mops-events.json",
+            "latest_json": github_raw_url("latest.json"),
+            "screening_summary": github_raw_url("data/latest-screening-summary.json"),
+            "market_scan": github_raw_url("reports/latest-market-scan.md"),
+            "institutional_summary": github_raw_url("data/latest-institutional-trading-summary.json"),
+            "margin_short_summary": github_raw_url("data/latest-margin-short-summary.json"),
+            "mops_events": github_raw_url("data/latest-mops-events.json"),
         },
         "full_market_scan_ready": full_market_scan_ready,
         "missing_sections": missing_sections,

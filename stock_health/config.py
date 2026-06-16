@@ -8,8 +8,12 @@ SCHEMA_VERSION = "1.0"
 HTTP_TIMEOUT_SECONDS = 12
 HTTP_RETRIES = 2
 HTTP_BACKOFF_SECONDS = 1.5
-USER_AGENT = "stock-daily-report/1.0 (+https://github.com/<OWNER>/<REPO>)"
 SCREENING_MAX_CANDIDATES = 50
+GITHUB_OWNER = "Wynnlin329"
+GITHUB_REPO = "stock_daily_report"
+GITHUB_RAW_BRANCH = "codex/stock-health-v1"
+GITHUB_REPO_URL = f"https://github.com/{GITHUB_OWNER}/{GITHUB_REPO}"
+USER_AGENT = f"stock-daily-report/1.0 (+{GITHUB_REPO_URL})"
 
 MIN_DAILY_TURNOVER = 100_000_000
 MIN_AVG_TURNOVER_20D = 50_000_000
@@ -142,6 +146,11 @@ def tpex_margin_short_url(target_date: date) -> str:
 
 def mops_major_events_url() -> str:
     return "https://mops.twse.com.tw/mops/web/ajax_t05sr01_1"
+
+
+def github_raw_url(path: str) -> str:
+    normalized_path = path.strip().lstrip("/")
+    return f"https://raw.githubusercontent.com/{GITHUB_OWNER}/{GITHUB_REPO}/{GITHUB_RAW_BRANCH}/{normalized_path}"
 
 
 def source_configs(target_date: date) -> list[SourceConfig]:

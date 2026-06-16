@@ -269,15 +269,17 @@ Qullamaggie-style candidate 會附上 `mops_event_flag`、`mops_event_count`、`
 
 ## Raw URL
 
-將 repository 建立完成並推到 GitHub 後，把 `<OWNER>` 與 `<REPO>` 換成實際值：
+目前 repository default branch 是 `codex/stock-health-v1`。測試與正式排程階段請使用以下可直接讀取的 Raw URL：
 
 ```text
-https://raw.githubusercontent.com/<OWNER>/<REPO>/main/latest.json
-https://raw.githubusercontent.com/<OWNER>/<REPO>/main/data/latest-screening-summary.json
-https://raw.githubusercontent.com/<OWNER>/<REPO>/main/data/latest-mops-events.json
+https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/latest.json
+https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/latest-screening-summary.json
+https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/latest-mops-events.json
 ```
 
-若使用 PR branch 測試，可暫時把 `main` 換成 branch 名稱。
+程式中的 Raw URL 由 `stock_health/config.py` 的 `GITHUB_OWNER`、`GITHUB_REPO`、`GITHUB_RAW_BRANCH` 與 `github_raw_url()` 集中產生。若未來 repository 合併到 `main` 並改用 `main` 作為正式讀取分支，只需把 `GITHUB_RAW_BRANCH` 改成 `main`，不要在 README、prompt 或 runner 中分散硬編碼。
+
+`<OWNER>/<REPO>/main` 這類 placeholder 只適合專案模板，不是本 repository 目前可用的讀取 URL。
 
 ## ChatGPT 排程讀取方式
 

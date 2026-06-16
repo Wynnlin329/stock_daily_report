@@ -1,6 +1,6 @@
 # 報告日期：2026/06/16（星期二）
 
-- 執行時間：2026-06-16T14:14:44+08:00
+- 執行時間：2026-06-16T14:49:25+08:00
 - 交易日判定：True
 - 最新市場資料日期：2026-06-16
 - 是否足以執行全市場掃描：False
@@ -81,7 +81,7 @@
 
 ## 限制
 
-- TWSE institutional response did not contain a parsable table with required fields ['證券代號', '證券名稱', '三大法人買賣超股數']; stat='查詢日期小於101年05月02日，請重新查詢!'; tables=
+- TWSE institutional response did not contain a parsable table with required fields ['證券代號', '證券名稱', '三大法人買賣超股數']; stat='很抱歉，沒有符合條件的資料!'; tables=
 - TPEx institutional response did not contain a parsable table with required fields ['代號', '名稱', '三大法人買賣超股數合計']; stat='ok'; tables=title='三大法人買賣明細資訊', rows=0, fields_count=24 | title=None, rows=0, fields_count=0
 - TWSE margin short response did not contain a parsable table with required fields ['代號', '名稱', '資券互抵']; stat='很抱歉，沒有符合條件的資料'; tables=
 - TPEx margin short response did not contain a parsable table with required fields ['代號', '名稱', '資餘額', '券餘額']; stat='ok'; tables=title='上櫃股票融資融券餘額', rows=0, fields_count=20
