@@ -63,6 +63,8 @@ data/latest-institutional-trading.csv
 data/latest-institutional-trading-summary.json
 data/latest-margin-short.csv
 data/latest-margin-short-summary.json
+data/latest-mops-events.json
+data/latest-mops-events.csv
 data/latest-screening-summary.json
 reports/latest-market-scan.md
 ```
@@ -235,6 +237,36 @@ offsetting
 
 Qullamaggie-style candidate 會附上可選欄位 `margin_balance`、`margin_change`、`short_balance`、`short_change`、`margin_balance_ratio_20d`、`short_balance_ratio_20d` 與 `margin_short_attention_flag`。資券資料只作為風險資訊，不會改變 breakout、anticipation 等 setup 判定。
 
+### MOPS 重大訊息
+
+重大訊息優先使用 MOPS 公開重大訊息查詢頁面。每日輸出：
+
+```text
+data/latest-mops-events.json
+data/latest-mops-events.csv
+data/mops/YYYY/MM/YYYY-MM-DD-mops-events.json
+data/mops/YYYY/MM/YYYY-MM-DD-mops-events.csv
+```
+
+JSON 欄位包含：
+
+```text
+schema_version, report_date, generated_at, timezone,
+data_date, is_current, event_count, events, errors, limitations
+```
+
+CSV 與 `events` 欄位包含：
+
+```text
+date, time, symbol, name, market, title, category, summary, url, source
+```
+
+第一版分類只用公告標題與摘要的可重現關鍵字：財報、營收、股利、除權息、董事會、併購、處分資產、取得資產、增資、減資、法說會、重大合約、訴訟、注意事項；未命中則為「其他」。若 MOPS 回傳安全頁、無法解析、或沒有明確資料日期，`coverage.material_information.available=false`，不會把請求日期當成資料日期。
+
+`screening.mops_event_candidates` 僅列出有 MOPS 事件且 `scan_eligible=true` 的普通股，並聚合同一代號的 `event_count`、`event_categories`、`event_titles`。重大訊息只作為研究與人工複核清單，不代表利多，也不得自動解讀為方向性訊號。
+
+Qullamaggie-style candidate 會附上 `mops_event_flag`、`mops_event_count`、`mops_event_categories`、`mops_event_titles` 與 `catalyst_tags`。MOPS 事件只作為 catalyst，不會單獨產生 breakout；episodic pivot 仍需符合既有價格、量能與流動性條件。
+
 ## Raw URL
 
 將 repository 建立完成並推到 GitHub 後，把 `<OWNER>` 與 `<REPO>` 換成實際值：
@@ -242,15 +274,18 @@ Qullamaggie-style candidate 會附上可選欄位 `margin_balance`、`margin_cha
 ```text
 https://raw.githubusercontent.com/<OWNER>/<REPO>/main/latest.json
 https://raw.githubusercontent.com/<OWNER>/<REPO>/main/data/latest-screening-summary.json
+https://raw.githubusercontent.com/<OWNER>/<REPO>/main/data/latest-mops-events.json
 ```
 
 若使用 PR branch 測試，可暫時把 `main` 換成 branch 名稱。
 
 ## ChatGPT 排程讀取方式
 
-ChatGPT 排程應讀取 `latest.json` 與 `data/latest-screening-summary.json`。若 `full_market_scan_ready=false`，應先說明缺少的核心資料段落，不得把摘要解讀成完整市場掃描。
+ChatGPT 排程應讀取 `latest.json`、`data/latest-screening-summary.json` 與 `data/latest-mops-events.json`。若 `full_market_scan_ready=false`，應先說明缺少的核心資料段落，不得把摘要解讀成完整市場掃描。
 
 若需要動能候選清單，ChatGPT 應讀取 `data/latest-screening-summary.json` 的 `qullamaggie` 區塊，不應重新爬外部網站。`qullamaggie.top_candidates` 與各 setup 分組都只可作為研究與人工複核清單。
+
+若需要重大事件清單，ChatGPT 應讀取 `data/latest-mops-events.json` 與 `screening.mops_event_candidates`，不得重新爬 MOPS，也不得把重大訊息自動解讀為利多。摘要時應列出公司、分類、標題與需要人工閱讀確認的重點。
 
 ## 第三方網站限制
 

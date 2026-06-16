@@ -218,3 +218,43 @@ class MarginShortFetchResult:
     @property
     def ok(self) -> bool:
         return bool(self.rows)
+
+
+@dataclass
+class MopsEventRecord:
+    date: str
+    time: str | None
+    symbol: str
+    name: str
+    market: str | None
+    title: str
+    category: str | None
+    summary: str | None
+    url: str | None
+    source: str
+
+    def to_csv_row(self) -> dict[str, Any]:
+        return {
+            "date": self.date,
+            "time": self.time or "",
+            "symbol": self.symbol,
+            "name": self.name,
+            "market": self.market or "",
+            "title": self.title,
+            "category": self.category or "",
+            "summary": self.summary or "",
+            "url": self.url or "",
+            "source": self.source,
+        }
+
+
+@dataclass
+class MopsEventFetchResult:
+    rows: list[MopsEventRecord] = field(default_factory=list)
+    data_date: str | None = None
+    errors: list[str] = field(default_factory=list)
+    limitations: list[str] = field(default_factory=list)
+
+    @property
+    def ok(self) -> bool:
+        return self.data_date is not None and not self.errors

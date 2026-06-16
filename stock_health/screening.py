@@ -5,7 +5,7 @@ from statistics import mean
 from typing import Any
 
 from .config import SCHEMA_VERSION, SCREENING_MAX_CANDIDATES, TIMEZONE
-from .models import InstitutionalTradingRecord, MarginShortRecord, OhlcvRecord
+from .models import InstitutionalTradingRecord, MarginShortRecord, MopsEventRecord, OhlcvRecord
 from .qullamaggie import calculate_qullamaggie_signals
 from .universe import build_universe_summary
 
@@ -23,6 +23,7 @@ def build_screening_summary(
     institutional_rows: list[InstitutionalTradingRecord] | None = None,
     margin_short_rows: list[MarginShortRecord] | None = None,
     margin_short_history_rows: dict[str, list[MarginShortRecord]] | None = None,
+    mops_event_rows: list[MopsEventRecord] | None = None,
 ) -> dict[str, Any]:
     all_rows = listed_rows + otc_rows
     eligible_rows = [row for row in all_rows if row.scan_eligible]
@@ -35,6 +36,8 @@ def build_screening_summary(
         symbol: _margin_short_metrics(row, margin_short_history_rows)
         for symbol, row in margin_short_by_symbol.items()
     }
+    mops_event_rows = mops_event_rows or []
+    mops_events_by_symbol = _mops_events_by_symbol(mops_event_rows)
     historical_days = sorted(history_rows)
     has_20d_history = len(historical_days) >= 20
     has_60d_history = len(historical_days) >= 60
@@ -49,12 +52,14 @@ def build_screening_summary(
         limitations.append("資券歷史資料不足 20 個交易日；margin_balance_ratio_20d 與 short_balance_ratio_20d 保留 null")
     margin_short_attention = _margin_short_attention_candidates(eligible_rows, margin_short_metrics_by_symbol)
     margin_short_attention_symbols = {item["symbol"] for item in margin_short_attention}
+    mops_event_candidates = _mops_event_candidates(eligible_rows, mops_events_by_symbol)
     qullamaggie = calculate_qullamaggie_signals(
         eligible_rows,
         history_rows,
         institutional_by_symbol=institutional_by_symbol,
         margin_short_by_symbol=margin_short_metrics_by_symbol,
         margin_short_attention_symbols=margin_short_attention_symbols,
+        mops_events_by_symbol=mops_events_by_symbol,
     )
     limitations.extend(qullamaggie["limitations"])
 
@@ -68,6 +73,7 @@ def build_screening_summary(
             "otc_rows": len(otc_rows),
             "coverage": coverage,
         },
+        "coverage": coverage,
         "historical_data_status": {
             "available_trading_days": len(historical_days),
             "has_20d_history": has_20d_history,
@@ -88,7 +94,7 @@ def build_screening_summary(
             "breakout_candidates": _breakout_candidates(eligible_rows, history_rows, 60) if has_60d_history else [],
             "institutional_buy_candidates": _institutional_buy_candidates(eligible_rows, institutional_by_symbol),
             "margin_short_attention": margin_short_attention,
-            "mops_event_candidates": [],
+            "mops_event_candidates": mops_event_candidates,
             "revenue_financial_candidates": [],
             "manual_review_candidates": [],
         },
@@ -197,6 +203,28 @@ def _margin_short_attention_candidates(
     return candidates[:SCREENING_MAX_CANDIDATES]
 
 
+def _mops_events_by_symbol(rows: list[MopsEventRecord]) -> dict[str, list[MopsEventRecord]]:
+    grouped: dict[str, list[MopsEventRecord]] = defaultdict(list)
+    for row in rows:
+        if row.symbol:
+            grouped[row.symbol].append(row)
+    return grouped
+
+
+def _mops_event_candidates(
+    rows: list[OhlcvRecord],
+    mops_events_by_symbol: dict[str, list[MopsEventRecord]],
+) -> list[dict[str, Any]]:
+    candidates: list[dict[str, Any]] = []
+    for row in rows:
+        events = mops_events_by_symbol.get(row.symbol, [])
+        if not events:
+            continue
+        candidates.append(_candidate(row, ["重大訊息"], mops_events=events))
+    candidates.sort(key=lambda item: (-(item.get("event_count") or 0), item["symbol"]))
+    return candidates[:SCREENING_MAX_CANDIDATES]
+
+
 def _margin_short_metrics(row: MarginShortRecord, history_rows: dict[str, list[MarginShortRecord]]) -> dict[str, Any]:
     history = [
         item
@@ -230,6 +258,7 @@ def _margin_short_sort_key(candidate: dict[str, Any]) -> tuple[int, int, int]:
 def _candidate(row: OhlcvRecord, tags: list[str], **extra: Any) -> dict[str, Any]:
     institutional: InstitutionalTradingRecord | None = extra.get("institutional")
     margin_short: dict[str, Any] | None = extra.get("margin_short")
+    mops_events: list[MopsEventRecord] = extra.get("mops_events") or []
     payload: dict[str, Any] = {
         "symbol": row.symbol,
         "name": row.name,
@@ -254,10 +283,16 @@ def _candidate(row: OhlcvRecord, tags: list[str], **extra: Any) -> dict[str, Any
         "short_change": margin_short.get("short_change") if margin_short else None,
         "margin_balance_ratio_20d": margin_short.get("margin_balance_ratio_20d") if margin_short else None,
         "short_balance_ratio_20d": margin_short.get("short_balance_ratio_20d") if margin_short else None,
+        "event_count": len(mops_events) if mops_events else None,
+        "event_categories": sorted({event.category for event in mops_events if event.category}) if mops_events else [],
+        "event_titles": [event.title for event in mops_events if event.title] if mops_events else [],
         "tags": tags,
         "reasons": _reasons(tags, extra),
         "risk_notes": _risk_notes(tags),
-        "source_refs": [row.source] + ([institutional.source] if institutional else []) + ([margin_short["source"]] if margin_short else []),
+        "source_refs": [row.source]
+        + ([institutional.source] if institutional else [])
+        + ([margin_short["source"]] if margin_short else [])
+        + (["MOPS"] if mops_events else []),
     }
     return payload
 
@@ -284,6 +319,12 @@ def _reasons(tags: list[str], extra: dict[str, Any]) -> list[str]:
         if margin_short.get("short_change") is not None and margin_short["short_change"] > 0:
             reasons.append("融券餘額增加")
         reasons.append("資券變化需人工複核")
+    mops_events: list[MopsEventRecord] = extra.get("mops_events") or []
+    if "重大訊息" in tags and mops_events:
+        reasons.append(f"MOPS 重大訊息 {len(mops_events)} 則")
+        categories = sorted({event.category for event in mops_events if event.category})
+        if categories:
+            reasons.append("事件類別：" + ", ".join(categories))
     for tag in tags:
         if tag.endswith("日突破"):
             reasons.append(f"收盤價創近 {tag.removesuffix('突破')} 新高")
@@ -294,4 +335,6 @@ def _risk_notes(tags: list[str]) -> list[str]:
     notes = ["僅供研究與人工複核，不構成買賣建議"]
     if "資券異常" in tags:
         notes.append("資券變化可能代表籌碼分歧，不可單獨視為買賣訊號")
+    if "重大訊息" in tags:
+        notes.append("重大訊息不等於利多，需人工閱讀公告內容與確認事件性質。")
     return notes

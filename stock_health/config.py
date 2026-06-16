@@ -140,6 +140,10 @@ def tpex_margin_short_url(target_date: date) -> str:
     )
 
 
+def mops_major_events_url() -> str:
+    return "https://mops.twse.com.tw/mops/web/ajax_t05sr01_1"
+
+
 def source_configs(target_date: date) -> list[SourceConfig]:
     return [
         SourceConfig("twse", "TWSE", "主資料源", twse_mi_index_url(target_date), True, schedule_ready=True),

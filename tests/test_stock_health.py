@@ -8,19 +8,25 @@ from pathlib import Path
 
 from stock_health.coverage import build_coverage
 from stock_health.data_fetcher import (
+    classify_mops_event,
     fetch_tpex_institutional_trading,
     fetch_tpex_margin_short,
     fetch_tpex_otc_ohlcv,
+    fetch_mops_events,
     fetch_twse_institutional_trading,
     fetch_twse_listed_ohlcv,
     fetch_twse_margin_short,
+    mops_events_from_csv_text,
+    mops_events_payload,
+    mops_events_to_csv_text,
+    parse_mops_events_html,
     records_from_csv_text,
     records_to_csv_text,
 )
 from stock_health.history_store import build_history_index, history_report_paths, load_history_rows, write_json, write_ohlcv_outputs
 from stock_health.http_client import HttpResponse
 import stock_health.http_client as http_client_module
-from stock_health.models import InstitutionalTradingRecord, MarginShortRecord, OhlcvRecord, SourceHealth
+from stock_health.models import InstitutionalTradingRecord, MarginShortRecord, MopsEventRecord, OhlcvRecord, SourceHealth
 from stock_health.report_writer import build_health_markdown
 from stock_health.screening import build_screening_summary
 from stock_health.source_health import check_all_sources
@@ -33,6 +39,12 @@ class FakeClient:
         self.urls: list[str] = []
 
     def get(self, url: str) -> HttpResponse:
+        self.urls.append(url)
+        if self.responses:
+            return self.responses.pop(0)
+        return HttpResponse(url=url, status=None, body=b"", elapsed_ms=1, error="URLError: mocked failure")
+
+    def post(self, url: str, data: dict[str, str], headers: dict[str, str] | None = None) -> HttpResponse:
         self.urls.append(url)
         if self.responses:
             return self.responses.pop(0)
@@ -113,6 +125,26 @@ def sample_margin_short_record(
         short_change=short_change,
         offsetting=0,
         source="TWSE" if market == "listed" else "TPEx",
+    )
+
+
+def sample_mops_event(
+    symbol: str = "2330",
+    name: str = "台積電",
+    title: str = "董事會決議股利",
+    category: str | None = "股利",
+) -> MopsEventRecord:
+    return MopsEventRecord(
+        date="2026-06-15",
+        time="18:01",
+        symbol=symbol,
+        name=name,
+        market=None,
+        title=title,
+        category=category,
+        summary="重大訊息摘要",
+        url="https://mops.twse.com.tw/mops/web/example",
+        source="MOPS",
     )
 
 
@@ -552,6 +584,59 @@ def test_single_margin_short_source_failure_does_not_block_other_source() -> Non
     assert otc.rows[0].symbol == "8069"
 
 
+def test_mops_event_parser_with_mock_html() -> None:
+    html = """
+    <html><body>
+    <div>資料日期：民國115年06月15日</div>
+    <table>
+      <tr><th>公司代號</th><th>公司名稱</th><th>發言日期</th><th>發言時間</th><th>主旨</th><th>說明</th></tr>
+      <tr><td>2330</td><td>台積電</td><td>115/06/15</td><td>18:01</td><td><a href="/mops/web/t05st01">董事會決議股利</a></td><td>決議現金股利</td></tr>
+    </table>
+    </body></html>
+    """
+    result = fetch_mops_events(date(2026, 6, 15), FakeClient([HttpResponse("mock", 200, html.encode("utf-8"), 1)]))
+    assert result.ok is True
+    assert result.data_date == "2026-06-15"
+    assert result.rows[0].symbol == "2330"
+    assert result.rows[0].category == "股利"
+    assert result.rows[0].url and result.rows[0].url.startswith("https://mops.twse.com.tw")
+
+
+def test_mops_zero_events_with_explicit_date_counts_as_success() -> None:
+    html = "<html><body>資料日期：民國115年06月15日 查無資料</body></html>"
+    result = fetch_mops_events(date(2026, 6, 15), FakeClient([HttpResponse("mock", 200, html.encode("utf-8"), 1)]))
+    payload = mops_events_payload("2026-06-15", "2026-06-15T18:15:00+08:00", result.data_date, result.ok, result.rows, result.errors)
+    assert result.ok is True
+    assert result.rows == []
+    assert payload["event_count"] == 0
+    assert payload["is_current"] is True
+
+
+def test_mops_unknown_data_date_is_not_success() -> None:
+    html = "<html><body><table><tr><th>公司代號</th><th>公司名稱</th><th>主旨</th></tr></table></body></html>"
+    result = fetch_mops_events(date(2026, 6, 15), FakeClient([HttpResponse("mock", 200, html.encode("utf-8"), 1)]))
+    assert result.ok is False
+    assert result.data_date is None
+    assert result.errors
+
+
+def test_mops_event_classification_keywords() -> None:
+    assert classify_mops_event("公告本公司月營收") == "營收"
+    assert classify_mops_event("本公司取得資產") == "取得資產"
+    assert classify_mops_event("召開法說會") == "法說會"
+    assert classify_mops_event("其他公告") == "其他"
+
+
+def test_mops_csv_and_json_outputs_parseable() -> None:
+    event = sample_mops_event()
+    csv_text = mops_events_to_csv_text([event])
+    assert "date,time,symbol,name,market,title,category,summary,url,source" in csv_text.splitlines()[0]
+    rows = mops_events_from_csv_text(csv_text)
+    assert rows[0].symbol == "2330"
+    payload = mops_events_payload("2026-06-15", "2026-06-15T18:15:00+08:00", "2026-06-15", True, rows)
+    assert payload["event_count"] == 1
+
+
 def test_institutional_parser_missing_fields_does_not_fabricate_rows() -> None:
     payload = {"date": "20260615", "fields": ["證券代號", "證券名稱"], "data": [["2330", "台積電"]]}
     result = fetch_twse_institutional_trading(date(2026, 6, 15), FakeClient([HttpResponse("mock", 200, json.dumps(payload).encode(), 1)]))
@@ -583,6 +668,33 @@ def test_institutional_coverage_requires_current_explicit_parsable_data() -> Non
     )
     assert stale_coverage["institutional_trading"]["available"] is False
     assert "institutional_trading" in stale_missing
+
+
+def test_material_information_coverage_requires_explicit_current_mops_query() -> None:
+    sources = {
+        "twse": SourceHealth("TWSE", "", True, 200, "2026-06-15", True, True, True, False, False, True, "主資料源", "", "", 1),
+        "mops": SourceHealth("MOPS", "", True, 200, None, False, False, True, False, False, False, "主資料源", "", "no date", 1),
+    }
+    coverage, _, missing = build_coverage(
+        sources,
+        [sample_record()],
+        [sample_record(symbol="8069")],
+        mops_event_rows=[],
+        mops_events_is_current=True,
+        mops_events_date_explicit=True,
+    )
+    assert coverage["material_information"]["available"] is True
+    assert "material_information" not in missing
+    stale_coverage, _, stale_missing = build_coverage(
+        sources,
+        [sample_record()],
+        [sample_record(symbol="8069")],
+        mops_event_rows=[sample_mops_event()],
+        mops_events_is_current=False,
+        mops_events_date_explicit=False,
+    )
+    assert stale_coverage["material_information"]["available"] is False
+    assert "material_information" in stale_missing
 
 
 def test_margin_short_coverage_requires_current_explicit_parsable_data() -> None:
@@ -661,6 +773,53 @@ def test_margin_short_attention_sorted_and_scan_eligible_only() -> None:
     assert candidates[0]["short_change"] == 30
     assert "資券變化需人工複核" in candidates[0]["reasons"]
     assert any("不可單獨視為買賣訊號" in note for note in candidates[0]["risk_notes"])
+
+
+def test_mops_event_candidates_aggregate_and_scan_eligible_only() -> None:
+    eligible = sample_record(symbol="2330", name="台積電", turnover=100000)
+    etf = sample_record(symbol="0050", name="元大台灣50", turnover=100000)
+    summary = build_screening_summary(
+        "2026-06-15",
+        "2026-06-15T18:15:00+08:00",
+        [eligible, etf],
+        [],
+        {},
+        {},
+        False,
+        [],
+        "low",
+        mops_event_rows=[
+            sample_mops_event(symbol="2330", title="董事會決議股利", category="股利"),
+            sample_mops_event(symbol="2330", title="公告重大合約", category="重大合約"),
+            sample_mops_event(symbol="0050", name="元大台灣50", title="ETF公告", category="其他"),
+        ],
+    )
+    candidates = summary["screening"]["mops_event_candidates"]
+    assert [item["symbol"] for item in candidates] == ["2330"]
+    assert candidates[0]["event_count"] == 2
+    assert candidates[0]["event_categories"] == ["股利", "重大合約"]
+    assert "重大訊息" in candidates[0]["tags"]
+    assert any("需人工閱讀公告內容" in note for note in candidates[0]["risk_notes"])
+
+
+def test_mops_source_failure_does_not_stop_screening_summary() -> None:
+    security_page = "<html>因為安全性考量，您所執行的頁面無法呈現。 FOR SECURITY REASONS</html>"
+    result = fetch_mops_events(date(2026, 6, 15), FakeClient([HttpResponse("mock", 200, security_page.encode("utf-8"), 1)]))
+    summary = build_screening_summary(
+        "2026-06-15",
+        "2026-06-15T18:15:00+08:00",
+        [sample_record()],
+        [],
+        {},
+        {},
+        False,
+        ["material_information"],
+        "low",
+        mops_event_rows=result.rows,
+    )
+    assert result.rows == []
+    assert result.errors
+    assert summary["rankings"]["top_turnover"][0]["symbol"] == "2330"
 
 
 def test_http_client_handles_incomplete_read(monkeypatch) -> None:
