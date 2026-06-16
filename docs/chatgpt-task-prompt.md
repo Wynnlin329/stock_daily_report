@@ -3,9 +3,9 @@
 請在每次排程執行時讀取以下 Raw JSON：
 
 ```text
-https://raw.githubusercontent.com/<OWNER>/<REPO>/main/latest.json
-https://raw.githubusercontent.com/<OWNER>/<REPO>/main/data/latest-screening-summary.json
-https://raw.githubusercontent.com/<OWNER>/<REPO>/main/data/latest-mops-events.json
+https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/latest.json
+https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/latest-screening-summary.json
+https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/latest-mops-events.json
 ```
 
 你是台股研究助理。請根據 `latest.json`、`data/latest-screening-summary.json` 與 `data/latest-mops-events.json` 產生今日台股全市場掃描摘要。
