@@ -263,21 +263,34 @@ date, time, symbol, name, market, title, category, summary, url, source
 
 第一版分類只用公告標題與摘要的可重現關鍵字：財報、營收、股利、除權息、董事會、併購、處分資產、取得資產、增資、減資、法說會、重大合約、訴訟、注意事項；未命中則為「其他」。若 MOPS 回傳安全頁、無法解析、或沒有明確資料日期，`coverage.material_information.available=false`，不會把請求日期當成資料日期。
 
-`screening.mops_event_candidates` 僅列出有 MOPS 事件且 `scan_eligible=true` 的普通股，並聚合同一代號的 `event_count`、`event_categories`、`event_titles`。重大訊息只作為研究與人工複核清單，不代表利多，也不得自動解讀為方向性訊號。
+系統會保留最近 90 個自然日的 MOPS 查詢歷史，供 `mops_event_count_today`、`mops_event_count_7d`、`mops_event_count_30d`、`mops_event_count_90d` 與事件分類統計使用。`screening.mops_event_candidates` 僅列出今日或近 7 日有 MOPS 事件且 `scan_eligible=true` 的普通股。重大訊息只作為研究與人工複核清單，不代表利多，也不得自動解讀為方向性訊號。
 
 Qullamaggie-style candidate 會附上 `mops_event_flag`、`mops_event_count`、`mops_event_categories`、`mops_event_titles` 與 `catalyst_tags`。MOPS 事件只作為 catalyst，不會單獨產生 breakout；episodic pivot 仍需符合既有價格、量能與流動性條件。
 
-## Raw URL
+### 歷史資料窗口
 
-將 repository 建立完成並推到 GitHub 後，把 `<OWNER>` 與 `<REPO>` 換成實際值：
+本專案的歷史窗口固定如下：
 
 ```text
-https://raw.githubusercontent.com/<OWNER>/<REPO>/main/latest.json
-https://raw.githubusercontent.com/<OWNER>/<REPO>/main/data/latest-screening-summary.json
-https://raw.githubusercontent.com/<OWNER>/<REPO>/main/data/latest-mops-events.json
+OHLCV：60 個交易日，用於技術面、突破、量能與 Qullamaggie-style setup。
+法人買賣超：60 個交易日，用於 5D / 20D / 60D 累積買賣超與連買連賣天數。
+融資融券：60 個交易日，用於 5D / 20D / 60D 餘額變化、20D 比例與資券風險複核。
+MOPS 重大訊息：90 個自然日，用於 7D / 30D / 90D 事件統計與 catalyst 標記。
 ```
 
-若使用 PR branch 測試，可暫時把 `main` 換成 branch 名稱。
+法人資料只作為籌碼確認，不是買進訊號。融資融券只作為籌碼與風險複核，不是買賣訊號。MOPS 重大訊息不等於利多，需人工閱讀公告內容確認事件性質。ChatGPT 排程必須尊重 `coverage`、`institutional_data_status`、`margin_short_data_status` 與 `mops_event_data_status`；若資料不可用，不得自行爬外部網站補資料。
+
+## Raw URL
+
+目前 repository default branch 是 `codex/stock-health-v1`。排程請使用以下可直接讀取的 Raw URL：
+
+```text
+https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/latest.json
+https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/latest-screening-summary.json
+https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/latest-mops-events.json
+```
+
+Raw URL 由 `stock_health/config.py` 的 `GITHUB_OWNER`、`GITHUB_REPO`、`GITHUB_RAW_BRANCH` 與 `github_raw_url()` 集中產生。`<OWNER>/<REPO>/main` 這類 placeholder 只適合模板，不是本 repository 目前可用 URL。若未來正式改用 `main`，只需修改 `GITHUB_RAW_BRANCH` 並重產 artifacts。
 
 ## ChatGPT 排程讀取方式
 

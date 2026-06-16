@@ -29,7 +29,10 @@ LOGGER = logging.getLogger("stock_health.bootstrap_history")
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Bootstrap recent Taiwan stock OHLCV history.")
     parser.add_argument("--trading-days", type=int, default=60)
-    parser.add_argument("--max-calendar-days", type=int, default=120)
+    parser.add_argument("--max-calendar-days", type=int, default=180)
+    parser.add_argument("--include-institutional", action="store_true", default=True)
+    parser.add_argument("--include-margin-short", action="store_true", default=True)
+    parser.add_argument("--mops-calendar-days", type=int, default=90)
     parser.add_argument("--sleep-seconds", type=float, default=0.5)
     parser.add_argument("--root", default=".")
     return parser.parse_args()
@@ -59,26 +62,23 @@ def main() -> int:
         LOGGER.info("Fetching %s", target_date)
         listed = fetch_twse_listed_ohlcv(target_date)
         otc = fetch_tpex_otc_ohlcv(target_date)
-        listed_institutional = fetch_twse_institutional_trading(target_date)
-        otc_institutional = fetch_tpex_institutional_trading(target_date)
-        listed_margin_short = fetch_twse_margin_short(target_date)
-        otc_margin_short = fetch_tpex_margin_short(target_date)
-        mops_events = fetch_mops_events(target_date)
+        listed_institutional = fetch_twse_institutional_trading(target_date) if args.include_institutional else None
+        otc_institutional = fetch_tpex_institutional_trading(target_date) if args.include_institutional else None
+        listed_margin_short = fetch_twse_margin_short(target_date) if args.include_margin_short else None
+        otc_margin_short = fetch_tpex_margin_short(target_date) if args.include_margin_short else None
         day = f"{target_date:%Y-%m-%d}"
         if listed.rows:
             listed_days.append(day)
         if otc.rows:
             otc_days.append(day)
-        if listed_institutional.rows:
+        if listed_institutional and listed_institutional.rows:
             listed_institutional_days.append(day)
-        if otc_institutional.rows:
+        if otc_institutional and otc_institutional.rows:
             otc_institutional_days.append(day)
-        if listed_margin_short.rows:
+        if listed_margin_short and listed_margin_short.rows:
             listed_margin_short_days.append(day)
-        if otc_margin_short.rows:
+        if otc_margin_short and otc_margin_short.rows:
             otc_margin_short_days.append(day)
-        if mops_events.ok and mops_events.data_date == day:
-            mops_event_days.append(day)
         if listed.rows or otc.rows:
             write_ohlcv_outputs(root, target_date, listed.rows, otc.rows)
             consecutive_network_failures = 0
@@ -90,16 +90,25 @@ def main() -> int:
             if consecutive_network_failures >= 5:
                 errors.append("連續 5 個交易日皆疑似無法連外，停止 bootstrap 以避免無效重試")
                 break
-        if listed_institutional.rows or otc_institutional.rows:
-            write_institutional_outputs(root, target_date, listed_institutional.rows, otc_institutional.rows)
-        else:
-            errors.extend([f"{day} listed institutional: {err}" for err in listed_institutional.errors])
-            errors.extend([f"{day} otc institutional: {err}" for err in otc_institutional.errors])
-        if listed_margin_short.rows or otc_margin_short.rows:
-            write_margin_short_outputs(root, target_date, listed_margin_short.rows, otc_margin_short.rows)
-        else:
-            errors.extend([f"{day} listed margin_short: {err}" for err in listed_margin_short.errors])
-            errors.extend([f"{day} otc margin_short: {err}" for err in otc_margin_short.errors])
+        if args.include_institutional and listed_institutional and otc_institutional:
+            if listed_institutional.rows or otc_institutional.rows:
+                write_institutional_outputs(root, target_date, listed_institutional.rows, otc_institutional.rows)
+            else:
+                errors.extend([f"{day} listed institutional: {err}" for err in listed_institutional.errors])
+                errors.extend([f"{day} otc institutional: {err}" for err in otc_institutional.errors])
+        if args.include_margin_short and listed_margin_short and otc_margin_short:
+            if listed_margin_short.rows or otc_margin_short.rows:
+                write_margin_short_outputs(root, target_date, listed_margin_short.rows, otc_margin_short.rows)
+            else:
+                errors.extend([f"{day} listed margin_short: {err}" for err in listed_margin_short.errors])
+                errors.extend([f"{day} otc margin_short: {err}" for err in otc_margin_short.errors])
+        if args.sleep_seconds > 0:
+            time.sleep(args.sleep_seconds)
+
+    for target_date in iter_recent_calendar_days(now.date(), args.mops_calendar_days):
+        day = f"{target_date:%Y-%m-%d}"
+        LOGGER.info("Fetching MOPS events %s", target_date)
+        mops_events = fetch_mops_events(target_date)
         mops_summary = mops_events_payload(
             day,
             now.isoformat(timespec="seconds"),
@@ -108,10 +117,16 @@ def main() -> int:
             mops_events.rows,
             mops_events.errors,
             mops_events.limitations,
+            mops_events.status,
         )
         write_mops_event_outputs(root, target_date, mops_summary, mops_events.rows)
-        if not mops_events.ok:
+        if mops_events.ok and mops_events.data_date == day:
+            mops_event_days.append(day)
+        else:
             errors.extend([f"{day} mops events: {err}" for err in mops_events.errors])
+        if mops_events.status == "blocked_or_security_page":
+            errors.append("MOPS 回傳安全頁，停止 MOPS 重大訊息回補以避免持續請求")
+            break
         if args.sleep_seconds > 0:
             time.sleep(args.sleep_seconds)
 
@@ -121,23 +136,14 @@ def main() -> int:
         latest_listed = fetch_twse_listed_ohlcv(latest)
         latest_otc = fetch_tpex_otc_ohlcv(latest)
         write_ohlcv_outputs(root, latest, latest_listed.rows, latest_otc.rows)
-        latest_listed_institutional = fetch_twse_institutional_trading(latest)
-        latest_otc_institutional = fetch_tpex_institutional_trading(latest)
-        write_institutional_outputs(root, latest, latest_listed_institutional.rows, latest_otc_institutional.rows)
-        latest_listed_margin_short = fetch_twse_margin_short(latest)
-        latest_otc_margin_short = fetch_tpex_margin_short(latest)
-        write_margin_short_outputs(root, latest, latest_listed_margin_short.rows, latest_otc_margin_short.rows)
-        latest_mops_events = fetch_mops_events(latest)
-        latest_mops_summary = mops_events_payload(
-            latest.isoformat(),
-            now.isoformat(timespec="seconds"),
-            latest_mops_events.data_date,
-            latest_mops_events.ok and latest_mops_events.data_date == latest.isoformat(),
-            latest_mops_events.rows,
-            latest_mops_events.errors,
-            latest_mops_events.limitations,
-        )
-        write_mops_event_outputs(root, latest, latest_mops_summary, latest_mops_events.rows)
+        if args.include_institutional:
+            latest_listed_institutional = fetch_twse_institutional_trading(latest)
+            latest_otc_institutional = fetch_tpex_institutional_trading(latest)
+            write_institutional_outputs(root, latest, latest_listed_institutional.rows, latest_otc_institutional.rows)
+        if args.include_margin_short:
+            latest_listed_margin_short = fetch_twse_margin_short(latest)
+            latest_otc_margin_short = fetch_tpex_margin_short(latest)
+            write_margin_short_outputs(root, latest, latest_listed_margin_short.rows, latest_otc_margin_short.rows)
 
     index = build_history_index(
         now.isoformat(timespec="seconds"),

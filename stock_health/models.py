@@ -118,6 +118,7 @@ class FetchResult:
     rows: list[OhlcvRecord] = field(default_factory=list)
     data_date: str | None = None
     errors: list[str] = field(default_factory=list)
+    status: str = "source_unavailable"
 
     @property
     def ok(self) -> bool:
@@ -167,6 +168,7 @@ class InstitutionalFetchResult:
     rows: list[InstitutionalTradingRecord] = field(default_factory=list)
     data_date: str | None = None
     errors: list[str] = field(default_factory=list)
+    status: str = "source_unavailable"
 
     @property
     def ok(self) -> bool:
@@ -214,6 +216,7 @@ class MarginShortFetchResult:
     rows: list[MarginShortRecord] = field(default_factory=list)
     data_date: str | None = None
     errors: list[str] = field(default_factory=list)
+    status: str = "source_unavailable"
 
     @property
     def ok(self) -> bool:
@@ -254,7 +257,8 @@ class MopsEventFetchResult:
     data_date: str | None = None
     errors: list[str] = field(default_factory=list)
     limitations: list[str] = field(default_factory=list)
+    status: str = "source_unavailable"
 
     @property
     def ok(self) -> bool:
-        return self.data_date is not None and not self.errors
+        return self.data_date is not None and self.status in {"success", "empty_but_valid"}
