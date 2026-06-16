@@ -5,6 +5,7 @@ import time
 from http.client import IncompleteRead
 from dataclasses import dataclass
 from typing import Mapping
+from urllib.parse import urlencode
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
@@ -45,6 +46,15 @@ class HttpClient:
         self.user_agent = user_agent
 
     def get(self, url: str, headers: Mapping[str, str] | None = None) -> HttpResponse:
+        return self._request("GET", url, headers=headers)
+
+    def post(self, url: str, data: Mapping[str, str], headers: Mapping[str, str] | None = None) -> HttpResponse:
+        request_headers = {"Content-Type": "application/x-www-form-urlencoded"}
+        if headers:
+            request_headers.update(headers)
+        return self._request("POST", url, data=urlencode(data).encode("utf-8"), headers=request_headers)
+
+    def _request(self, method: str, url: str, data: bytes | None = None, headers: Mapping[str, str] | None = None) -> HttpResponse:
         request_headers = {"User-Agent": self.user_agent, "Accept": "*/*"}
         if headers:
             request_headers.update(headers)
@@ -53,7 +63,7 @@ class HttpClient:
         for attempt in range(self.retries + 1):
             started = time.perf_counter()
             try:
-                request = Request(url, headers=request_headers, method="GET")
+                request = Request(url, data=data, headers=request_headers, method=method)
                 with urlopen(request, timeout=self.timeout) as response:
                     body = response.read()
                     elapsed_ms = int((time.perf_counter() - started) * 1000)

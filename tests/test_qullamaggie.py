@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from datetime import date, timedelta
 
-from stock_health.models import InstitutionalTradingRecord, OhlcvRecord
+from stock_health.models import InstitutionalTradingRecord, MopsEventRecord, OhlcvRecord
 from stock_health.qullamaggie import calculate_qullamaggie_signals
 from stock_health.screening import build_screening_summary
 
@@ -48,6 +48,21 @@ def history_for(symbol: str = "2330", days: int = 60, close: float = 95.0, high:
 
 def first_candidate(result: dict, setup_type: str) -> dict:
     return result["candidates"][setup_type][0]
+
+
+def make_mops_event(symbol: str = "2330", title: str = "公告重大合約", category: str = "重大合約") -> MopsEventRecord:
+    return MopsEventRecord(
+        date="2026-06-15",
+        time="18:01",
+        symbol=symbol,
+        name=f"{symbol}公司",
+        market=None,
+        title=title,
+        category=category,
+        summary="重大訊息摘要",
+        url=None,
+        source="MOPS",
+    )
 
 
 def test_qullamaggie_prior_high_uses_history_only_no_lookahead() -> None:
@@ -244,3 +259,33 @@ def test_qullamaggie_candidate_includes_margin_short_fields() -> None:
     assert candidate["margin_short_attention_flag"] is True
     assert "資券異常" in candidate["tags"]
     assert any("籌碼分歧" in note for note in candidate["risk_notes"])
+
+
+def test_qullamaggie_candidate_includes_mops_event_catalyst_fields() -> None:
+    current = make_record(date(2026, 6, 15), close=102.0, high=103.0, low=99.0, volume=3000, turnover=200_000_000)
+    result = calculate_qullamaggie_signals(
+        [current],
+        history_for(),
+        {"listed": [100 + i for i in range(61)]},
+        mops_events_by_symbol={"2330": [make_mops_event(), make_mops_event(title="董事會決議股利", category="股利")]},
+    )
+    candidate = result["top_candidates"][0]
+    assert candidate["mops_event_flag"] is True
+    assert candidate["mops_event_count"] == 2
+    assert candidate["mops_event_categories"] == ["股利", "重大合約"]
+    assert "重大訊息" in candidate["catalyst_tags"]
+    assert "重大訊息:股利" in candidate["catalyst_tags"]
+    assert "MOPS" in candidate["source_refs"]
+
+
+def test_qullamaggie_episodic_pivot_not_created_by_mops_alone() -> None:
+    current = make_record(date(2026, 6, 15), close=96.0, high=97.0, low=95.0, volume=1000, turnover=200_000_000)
+    result = calculate_qullamaggie_signals(
+        [current],
+        history_for(),
+        {"listed": [100 + i for i in range(61)]},
+        mops_events_by_symbol={"2330": [make_mops_event()]},
+    )
+    episodic = result["candidates"]["episodic_pivot"]
+    assert episodic == []
+    assert all(candidate["symbol"] != "2330" for candidate in episodic)

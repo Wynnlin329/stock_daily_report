@@ -15,9 +15,11 @@ from stock_health.data_fetcher import (
     fetch_tpex_institutional_trading,
     fetch_tpex_margin_short,
     fetch_tpex_otc_ohlcv,
+    fetch_mops_events,
     fetch_twse_institutional_trading,
     fetch_twse_listed_ohlcv,
     fetch_twse_margin_short,
+    mops_events_payload,
 )
 from stock_health.history_store import (
     ensure_dirs,
@@ -27,6 +29,7 @@ from stock_health.history_store import (
     write_institutional_outputs,
     write_json,
     write_margin_short_outputs,
+    write_mops_event_outputs,
     write_ohlcv_outputs,
     write_text,
 )
@@ -63,11 +66,24 @@ def main() -> int:
     otc_institutional = fetch_tpex_institutional_trading(report_date)
     listed_margin_short = fetch_twse_margin_short(report_date)
     otc_margin_short = fetch_tpex_margin_short(report_date)
+    mops_events = fetch_mops_events(report_date)
     _apply_ohlcv_source_result(sources["twse"], listed_result, "上市 OHLCV", report_date)
     _apply_ohlcv_source_result(sources["tpex"], otc_result, "上櫃 OHLCV", report_date)
+    _apply_mops_source_result(sources["mops"], mops_events, report_date, market_is_trading_day)
     write_ohlcv_outputs(root, report_date, listed_result.rows, otc_result.rows)
     write_institutional_outputs(root, report_date, listed_institutional.rows, otc_institutional.rows)
     write_margin_short_outputs(root, report_date, listed_margin_short.rows, otc_margin_short.rows)
+    mops_is_current = mops_events.ok and _is_data_current(mops_events.data_date, report_date, market_is_trading_day)
+    mops_summary = mops_events_payload(
+        f"{report_date:%Y-%m-%d}",
+        generated_at,
+        mops_events.data_date,
+        mops_is_current,
+        mops_events.rows,
+        mops_events.errors,
+        mops_events.limitations,
+    )
+    write_mops_event_outputs(root, report_date, mops_summary, mops_events.rows)
 
     history_rows = load_history_rows(root)
     margin_short_history_rows = load_margin_short_history_rows(root)
@@ -93,6 +109,9 @@ def main() -> int:
         institutional_is_current=institutional_is_current,
         margin_short_rows=margin_short_rows,
         margin_short_is_current=margin_short_is_current,
+        mops_event_rows=mops_events.rows,
+        mops_events_is_current=mops_is_current,
+        mops_events_date_explicit=mops_events.data_date is not None,
     )
     institutional_summary = _build_institutional_summary(
         report_date,
@@ -115,6 +134,7 @@ def main() -> int:
         + otc_institutional.errors
         + listed_margin_short.errors
         + otc_margin_short.errors
+        + mops_events.errors
     )
     if not market_is_trading_day:
         errors.append("週末非交易日；未使用官方交易日曆判定國定假日或特殊休市日")
@@ -143,6 +163,7 @@ def main() -> int:
             "market_scan": "https://raw.githubusercontent.com/<OWNER>/<REPO>/main/reports/latest-market-scan.md",
             "institutional_summary": "https://raw.githubusercontent.com/<OWNER>/<REPO>/main/data/latest-institutional-trading-summary.json",
             "margin_short_summary": "https://raw.githubusercontent.com/<OWNER>/<REPO>/main/data/latest-margin-short-summary.json",
+            "mops_events": "https://raw.githubusercontent.com/<OWNER>/<REPO>/main/data/latest-mops-events.json",
         },
         "full_market_scan_ready": full_market_scan_ready,
         "missing_sections": missing_sections,
@@ -162,6 +183,7 @@ def main() -> int:
         institutional_rows=institutional_rows,
         margin_short_rows=margin_short_rows,
         margin_short_history_rows=margin_short_history_rows,
+        mops_event_rows=mops_events.rows,
     )
     latest_md = build_health_markdown(report, report_date)
     market_scan_md = build_market_scan_markdown(summary, report_date)
@@ -171,6 +193,7 @@ def main() -> int:
     write_json(root / "data" / "latest-screening-summary.json", summary)
     write_json(root / "data" / "latest-institutional-trading-summary.json", institutional_summary)
     write_json(root / "data" / "latest-margin-short-summary.json", margin_short_summary)
+    write_json(root / "data" / "latest-mops-events.json", mops_summary)
     write_text(root / "reports" / "latest-market-scan.md", market_scan_md)
     history_json, history_md = history_report_paths(root, report_date)
     write_json(history_json, report)
@@ -198,6 +221,19 @@ def _apply_ohlcv_source_result(source: object, fetch_result: object, label: str,
     source.schedule_ready = False
     source.evidence = f"{label} official endpoint reachable status={source.http_status}, but no parsable OHLCV rows were obtained"
     source.error = "; ".join(fetch_result.errors) if fetch_result.errors else f"{label} unavailable"
+
+
+def _apply_mops_source_result(source: object, fetch_result: object, report_date: date, market_is_trading_day: bool) -> None:
+    source.data_date = fetch_result.data_date
+    source.date_explicit = fetch_result.data_date is not None
+    source.is_current = fetch_result.ok and _is_data_current(fetch_result.data_date, report_date, market_is_trading_day)
+    source.schedule_ready = source.is_current and source.machine_readable
+    if source.is_current:
+        source.evidence = f"MOPS 重大訊息查詢成功，資料日期 {fetch_result.data_date}，事件 {len(fetch_result.rows)} 則"
+        source.error = ""
+        return
+    source.evidence = "MOPS 重大訊息查詢未取得可驗證日期或可解析內容"
+    source.error = "; ".join(fetch_result.errors) if fetch_result.errors else "MOPS material information unavailable"
 
 
 def _build_institutional_summary(

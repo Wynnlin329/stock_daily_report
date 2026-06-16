@@ -1,8 +1,8 @@
 # 報告日期：2026/06/16（星期二）
 
-- 執行時間：2026-06-16T11:03:22+08:00
+- 執行時間：2026-06-16T14:14:44+08:00
 - 交易日判定：True
-- 最新市場資料日期：2026-06-15
+- 最新市場資料日期：2026-06-16
 - 是否足以執行全市場掃描：False
 - 整體信心等級：medium
 
@@ -10,10 +10,10 @@
 
 | 來源 | 角色 | 可連線 | HTTP | 資料日期 | 明確日期 | 當期 | 排程可用 | 錯誤 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| TWSE | 主資料源 | True | 200 |  | False | False | False | TWSE response did not contain a parsable table with required fields ['證券代號', '開盤價', '最高價', '最低價', '收盤價']; stat='很抱歉，沒有符合條件的資料!'; tables= |
+| TWSE | 主資料源 | True | 200 | 2026-06-16 | True | True | True |  |
 | TPEx | 主資料源 | True | 200 | 2026-06-15 | True | False | False |  |
 | data.gov.tw | 主資料源 | True | 200 |  | False | False | False | 未取得明確資料日期；不可判定為當日資料可用 |
-| MOPS | 主資料源 | True | 200 |  | False | False | False | 未取得明確資料日期；不可判定為當日資料可用 |
+| MOPS | 主資料源 | True | 200 |  | False | False | False | MOPS material information response returned security page; no parsable event date |
 | Goodinfo | 候補資料源 | True | 200 |  | False | False | False | 未取得明確資料日期；不可判定為當日資料可用 |
 | Yahoo 奇摩股市 | 催化新聞源 | True | 200 |  | False | False | False | 未取得明確資料日期；不可判定為當日資料可用 |
 | 鉅亨網 Cnyes | 催化新聞源 | True | 200 |  | False | False | False | 未取得明確資料日期；不可判定為當日資料可用 |
@@ -25,7 +25,7 @@
 
 ## 今日可用主資料源
 
-- 無
+- TWSE
 
 ## 今日候補資料源
 
@@ -45,9 +45,8 @@
 
 ## 失敗來源與錯誤
 
-- TWSE：TWSE response did not contain a parsable table with required fields ['證券代號', '開盤價', '最高價', '最低價', '收盤價']; stat='很抱歉，沒有符合條件的資料!'; tables=
 - data.gov.tw：未取得明確資料日期；不可判定為當日資料可用
-- MOPS：未取得明確資料日期；不可判定為當日資料可用
+- MOPS：MOPS material information response returned security page; no parsable event date
 - Goodinfo：未取得明確資料日期；不可判定為當日資料可用
 - Yahoo 奇摩股市：未取得明確資料日期；不可判定為當日資料可用
 - 鉅亨網 Cnyes：未取得明確資料日期；不可判定為當日資料可用
@@ -59,8 +58,8 @@
 
 ## 掃描模組覆蓋狀況
 
-- market_environment：False（TWSE current market environment not verified）
-- listed_ohlcv：False（Listed OHLCV unavailable）
+- market_environment：True（TWSE has explicit current market date）
+- listed_ohlcv：True（1366 listed rows parsed）
 - otc_ohlcv：True（10147 OTC rows parsed）
 - volume_ranking：True（Computed from official OHLCV）
 - turnover_ranking：True（Computed from official OHLCV）
@@ -69,24 +68,22 @@
 - volume_spike_screening：True（20-day volume history available）
 - institutional_trading：False（Institutional trading unavailable or data date not current）
 - margin_short：False（Margin/short data unavailable or data date not current）
-- material_information：False（MOPS material information date not verified）
+- material_information：False（MOPS material information unavailable or data date not verified）
 - revenue_financials：False（First version does not parse revenue or financial statements yet）
 - news_topics：True（At least one catalyst news source reachable）
 - technical_review：False（TradingView/WantGoo/CMoney are manual review sources, not automated signals）
 
 ## 缺少的資料段落
 
-- market_environment
-- listed_ohlcv
 - institutional_trading
 - margin_short
 - material_information
 
 ## 限制
 
-- TWSE response did not contain a parsable table with required fields ['證券代號', '開盤價', '最高價', '最低價', '收盤價']; stat='很抱歉，沒有符合條件的資料!'; tables=
-- TWSE institutional response did not contain a parsable table with required fields ['證券代號', '證券名稱', '三大法人買賣超股數']; stat='很抱歉，沒有符合條件的資料!'; tables=
+- TWSE institutional response did not contain a parsable table with required fields ['證券代號', '證券名稱', '三大法人買賣超股數']; stat='查詢日期小於101年05月02日，請重新查詢!'; tables=
 - TPEx institutional response did not contain a parsable table with required fields ['代號', '名稱', '三大法人買賣超股數合計']; stat='ok'; tables=title='三大法人買賣明細資訊', rows=0, fields_count=24 | title=None, rows=0, fields_count=0
 - TWSE margin short response did not contain a parsable table with required fields ['代號', '名稱', '資券互抵']; stat='很抱歉，沒有符合條件的資料'; tables=
 - TPEx margin short response did not contain a parsable table with required fields ['代號', '名稱', '資餘額', '券餘額']; stat='ok'; tables=title='上櫃股票融資融券餘額', rows=0, fields_count=20
-- 核心資料段落缺失：market_environment, listed_ohlcv, institutional_trading, margin_short, material_information
+- MOPS material information response returned security page; no parsable event date
+- 核心資料段落缺失：institutional_trading, margin_short, material_information

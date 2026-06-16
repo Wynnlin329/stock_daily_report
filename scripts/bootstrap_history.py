@@ -14,11 +14,13 @@ from stock_health.data_fetcher import (
     fetch_tpex_institutional_trading,
     fetch_tpex_margin_short,
     fetch_tpex_otc_ohlcv,
+    fetch_mops_events,
     fetch_twse_institutional_trading,
     fetch_twse_listed_ohlcv,
     fetch_twse_margin_short,
+    mops_events_payload,
 )
-from stock_health.history_store import build_history_index, ensure_dirs, write_institutional_outputs, write_json, write_margin_short_outputs, write_ohlcv_outputs
+from stock_health.history_store import build_history_index, ensure_dirs, write_institutional_outputs, write_json, write_margin_short_outputs, write_mops_event_outputs, write_ohlcv_outputs
 from stock_health.trading_calendar import ensure_taipei, is_trading_day, iter_recent_calendar_days
 
 LOGGER = logging.getLogger("stock_health.bootstrap_history")
@@ -45,6 +47,7 @@ def main() -> int:
     otc_institutional_days: list[str] = []
     listed_margin_short_days: list[str] = []
     otc_margin_short_days: list[str] = []
+    mops_event_days: list[str] = []
     errors: list[str] = []
     consecutive_network_failures = 0
 
@@ -60,6 +63,7 @@ def main() -> int:
         otc_institutional = fetch_tpex_institutional_trading(target_date)
         listed_margin_short = fetch_twse_margin_short(target_date)
         otc_margin_short = fetch_tpex_margin_short(target_date)
+        mops_events = fetch_mops_events(target_date)
         day = f"{target_date:%Y-%m-%d}"
         if listed.rows:
             listed_days.append(day)
@@ -73,6 +77,8 @@ def main() -> int:
             listed_margin_short_days.append(day)
         if otc_margin_short.rows:
             otc_margin_short_days.append(day)
+        if mops_events.ok and mops_events.data_date == day:
+            mops_event_days.append(day)
         if listed.rows or otc.rows:
             write_ohlcv_outputs(root, target_date, listed.rows, otc.rows)
             consecutive_network_failures = 0
@@ -94,6 +100,18 @@ def main() -> int:
         else:
             errors.extend([f"{day} listed margin_short: {err}" for err in listed_margin_short.errors])
             errors.extend([f"{day} otc margin_short: {err}" for err in otc_margin_short.errors])
+        mops_summary = mops_events_payload(
+            day,
+            now.isoformat(timespec="seconds"),
+            mops_events.data_date,
+            mops_events.ok and mops_events.data_date == day,
+            mops_events.rows,
+            mops_events.errors,
+            mops_events.limitations,
+        )
+        write_mops_event_outputs(root, target_date, mops_summary, mops_events.rows)
+        if not mops_events.ok:
+            errors.extend([f"{day} mops events: {err}" for err in mops_events.errors])
         if args.sleep_seconds > 0:
             time.sleep(args.sleep_seconds)
 
@@ -109,6 +127,17 @@ def main() -> int:
         latest_listed_margin_short = fetch_twse_margin_short(latest)
         latest_otc_margin_short = fetch_tpex_margin_short(latest)
         write_margin_short_outputs(root, latest, latest_listed_margin_short.rows, latest_otc_margin_short.rows)
+        latest_mops_events = fetch_mops_events(latest)
+        latest_mops_summary = mops_events_payload(
+            latest.isoformat(),
+            now.isoformat(timespec="seconds"),
+            latest_mops_events.data_date,
+            latest_mops_events.ok and latest_mops_events.data_date == latest.isoformat(),
+            latest_mops_events.rows,
+            latest_mops_events.errors,
+            latest_mops_events.limitations,
+        )
+        write_mops_event_outputs(root, latest, latest_mops_summary, latest_mops_events.rows)
 
     index = build_history_index(
         now.isoformat(timespec="seconds"),
@@ -120,6 +149,7 @@ def main() -> int:
         otc_institutional_days,
         listed_margin_short_days,
         otc_margin_short_days,
+        mops_event_days,
     )
     write_json(root / "data" / "history-index.json", index)
     LOGGER.info("Available trading days: %s", index["available_trading_days"])
