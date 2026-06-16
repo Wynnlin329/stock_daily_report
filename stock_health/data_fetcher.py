@@ -29,6 +29,17 @@ CSV_FIELDS = [
     "turnover",
     "transactions",
     "source",
+    "security_type",
+    "is_common_stock",
+    "is_etf",
+    "is_warrant",
+    "is_bond_etf",
+    "is_leveraged_inverse",
+    "is_etn",
+    "is_preferred_stock",
+    "is_dr",
+    "scan_eligible",
+    "exclude_reason",
 ]
 
 
@@ -50,6 +61,10 @@ def _to_float(value: Any) -> float | None:
 def _to_int(value: Any) -> int | None:
     number = _to_float(value)
     return int(number) if number is not None else None
+
+
+def _to_bool(value: Any) -> bool:
+    return str(value).strip().lower() in {"1", "true", "yes", "y"}
 
 
 def _row_value(row: list[Any], fields: list[str], candidates: list[str]) -> Any:
@@ -280,22 +295,39 @@ def records_from_csv_text(text: str) -> list[OhlcvRecord]:
     reader = csv.DictReader(io.StringIO(text))
     records: list[OhlcvRecord] = []
     for row in reader:
-        records.append(
-            OhlcvRecord(
-                date=row.get("date", ""),
-                symbol=row.get("symbol", ""),
-                name=row.get("name", ""),
-                market=row.get("market", ""),
-                open=_to_float(row.get("open")),
-                high=_to_float(row.get("high")),
-                low=_to_float(row.get("low")),
-                close=_to_float(row.get("close")),
-                change=_to_float(row.get("change")),
-                change_pct=_to_float(row.get("change_pct")),
-                volume=_to_int(row.get("volume")),
-                turnover=_to_int(row.get("turnover")),
-                transactions=_to_int(row.get("transactions")),
-                source=row.get("source", ""),
+        kwargs: dict[str, Any] = {
+            "date": row.get("date", ""),
+            "symbol": row.get("symbol", ""),
+            "name": row.get("name", ""),
+            "market": row.get("market", ""),
+            "open": _to_float(row.get("open")),
+            "high": _to_float(row.get("high")),
+            "low": _to_float(row.get("low")),
+            "close": _to_float(row.get("close")),
+            "change": _to_float(row.get("change")),
+            "change_pct": _to_float(row.get("change_pct")),
+            "volume": _to_int(row.get("volume")),
+            "turnover": _to_int(row.get("turnover")),
+            "transactions": _to_int(row.get("transactions")),
+            "source": row.get("source", ""),
+        }
+        if row.get("security_type"):
+            kwargs.update(
+                {
+                    "security_type": row.get("security_type", ""),
+                    "is_common_stock": _to_bool(row.get("is_common_stock")),
+                    "is_etf": _to_bool(row.get("is_etf")),
+                    "is_warrant": _to_bool(row.get("is_warrant")),
+                    "is_bond_etf": _to_bool(row.get("is_bond_etf")),
+                    "is_leveraged_inverse": _to_bool(row.get("is_leveraged_inverse")),
+                    "is_etn": _to_bool(row.get("is_etn")),
+                    "is_preferred_stock": _to_bool(row.get("is_preferred_stock")),
+                    "is_dr": _to_bool(row.get("is_dr")),
+                    "scan_eligible": _to_bool(row.get("scan_eligible")),
+                    "exclude_reason": row.get("exclude_reason", ""),
+                }
             )
+        records.append(
+            OhlcvRecord(**kwargs)
         )
     return records

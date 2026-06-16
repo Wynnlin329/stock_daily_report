@@ -98,9 +98,27 @@ error, response_time_ms
 
 若歷史資料不足，系統不會產生 20 日均量、60 日突破或爆量倍數等長週期訊號，並會在 `historical_data_status` 與 `limitations` 中標示。
 
+### 普通股 Universe 過濾
+
+OHLCV CSV 會保留 TWSE / TPEx 原始行情中可解析的各類商品列，並額外輸出以下標準化欄位：
+
+```text
+security_type, is_common_stock, is_etf, is_warrant,
+is_bond_etf, is_leveraged_inverse, is_etn,
+is_preferred_stock, is_dr, scan_eligible, exclude_reason
+```
+
+第一版 universe 過濾採用保守的 symbol 與 name 規則。名稱包含 ETF / ETN、主要 ETF 發行商、台灣50、高股息、美債、公司債、金融債、投資級、非投等、正2、反1、期貨、黃金、原油或「債」等關鍵字時，會標示為 ETF / 債券 ETF / 槓反商品並排除。代號長度大於 4 且含英文字母，或名稱包含購、售、牛、熊、認購、認售時，會標示為權證並排除。DR 第一版保守排除；KY 不會只因名稱包含 KY 被排除。
+
+`scan_eligible=true` 代表該列符合第一版普通股條件：4 位數字代號、不是 ETF / 權證 / ETN / 債券 ETF / 槓反 / 特別股 / DR，且 close、volume、turnover 皆大於 0。`rankings`、漲停初篩、爆量、突破與 Qullamaggie-style 候選清單預設只使用 `scan_eligible=true` 的普通股 universe。
+
+這套規則可能誤殺少數普通股，例如名稱碰到 ETF 發行商或「債」等保守關鍵字。日後若接入官方證券分類表，應以官方分類改善本層規則。若要分析 ETF，應新增獨立 ETF 掃描模式，不要混入普通股掃描。
+
 ### Qullamaggie-style 動能掃描
 
 `latest-screening-summary.json` 另包含 `qullamaggie` 區塊。這是以 Qullamaggie 常見公開動能交易框架為靈感的可重現欄位計算，僅供研究與人工複核，不代表 Qullamaggie 本人選股，也不輸出買賣建議。
+
+Qullamaggie-style 動能掃描僅處理 `scan_eligible=true` 的普通股。ETF、權證、槓反、債券 ETF、ETN、DR 等仍可保存在原始 OHLCV CSV，但不會進入 `qullamaggie.candidates` 或 `qullamaggie.top_candidates`。
 
 主要門檻集中在 `stock_health/config.py`：
 

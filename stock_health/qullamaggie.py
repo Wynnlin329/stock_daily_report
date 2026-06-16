@@ -37,13 +37,14 @@ def calculate_qullamaggie_signals(
     benchmark_history = benchmark_history or {}
     catalyst_symbols = catalyst_symbols or {}
     market_regime = calculate_market_regime(benchmark_history)
-    limitations: list[str] = []
+    eligible_rows = [row for row in current_rows if row.scan_eligible]
+    limitations: list[str] = ["Qullamaggie-style 掃描僅針對 scan_eligible=true 的普通股 universe。"]
     if market_regime["status"] == "insufficient_data":
         limitations.append("TAIEX 或 OTC 指數歷史不足；market_regime 與相對強弱可能無法完整計算")
 
     candidates = [
         _calculate_candidate(row, history_rows, benchmark_history, market_regime, catalyst_symbols)
-        for row in current_rows
+        for row in eligible_rows
     ]
     _apply_relative_strength_ranks(candidates)
 
@@ -62,7 +63,7 @@ def calculate_qullamaggie_signals(
     if any(candidate["setup_type"] == "insufficient_data" for candidate in candidates):
         limitations.append("部分個股歷史或必要欄位不足，已歸類為 insufficient_data")
     if not candidates:
-        limitations.append("今日 OHLCV 不足，無法產生 Qullamaggie-style 候選清單")
+        limitations.append("今日 scan_eligible=true 的 OHLCV 不足，無法產生 Qullamaggie-style 候選清單")
 
     return {
         "market_regime": market_regime,
@@ -264,6 +265,8 @@ def _calculate_metrics(
         "symbol": row.symbol,
         "name": row.name,
         "market": row.market,
+        "security_type": row.security_type,
+        "scan_eligible": row.scan_eligible,
         "history_days": len(history),
         "close": current_close,
         "high": row.high,
@@ -323,6 +326,8 @@ def _candidate_payload(metrics: dict[str, Any]) -> dict[str, Any]:
         "symbol",
         "name",
         "market",
+        "security_type",
+        "scan_eligible",
         "setup_type",
         "qullamaggie_score",
         "score_breakdown",
@@ -406,7 +411,7 @@ def _history_for_symbol_before_date(history_rows: dict[str, list[OhlcvRecord]], 
     records: list[OhlcvRecord] = []
     for day in sorted(history_rows):
         for row in history_rows[day]:
-            if row.symbol == symbol and row.date < current_date:
+            if row.symbol == symbol and row.date < current_date and row.scan_eligible:
                 records.append(row)
     return records
 
