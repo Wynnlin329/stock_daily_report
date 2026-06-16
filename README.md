@@ -59,6 +59,8 @@ history/YYYY/MM/YYYY-MM-DD.json
 history/YYYY/MM/YYYY-MM-DD.md
 data/latest-listed-ohlcv.csv
 data/latest-otc-ohlcv.csv
+data/latest-institutional-trading.csv
+data/latest-institutional-trading-summary.json
 data/latest-screening-summary.json
 reports/latest-market-scan.md
 ```
@@ -165,6 +167,39 @@ breakout, episodic_pivot, anticipation, extended_watch, failed_breakout, insuffi
 少於 60 個交易日：不計算 60 日新高、60 日相對強弱，也不宣稱完整 Qullamaggie-style 訊號。
 缺少 TAIEX/OTC 指數歷史：market_regime 為 insufficient_data，相對強弱欄位保留 null。
 ```
+
+### 法人買賣超
+
+法人買賣超優先使用官方公開資料來源：
+
+```text
+上市：TWSE 三大法人買賣超日報
+上櫃：TPEx 三大法人買賣明細資訊
+```
+
+每日輸出：
+
+```text
+data/latest-institutional-trading.csv
+data/latest-institutional-trading-summary.json
+data/institutional/YYYY/MM/YYYY-MM-DD-listed-institutional.csv
+data/institutional/YYYY/MM/YYYY-MM-DD-otc-institutional.csv
+```
+
+標準化欄位包含：
+
+```text
+foreign_buy, foreign_sell, foreign_net_buy,
+investment_trust_buy, investment_trust_sell, investment_trust_net_buy,
+dealer_buy, dealer_sell, dealer_net_buy,
+institutional_net_buy
+```
+
+`institutional_net_buy` 是外資、投信與自營商買賣超合計。若官方欄位缺失，系統不會補值；summary 會在 `errors` 或 `limitations` 標示資料不足。
+
+`screening.institutional_buy_candidates` 僅列出 `scan_eligible=true` 且 `institutional_net_buy > 0` 的普通股，依三大法人合計買超排序，最多 50 檔。這只作為研究與人工複核清單，不是買進訊號，也不輸出目標價或停損價。若法人資料缺失，`coverage.institutional_trading.available` 會保持 false。
+
+Qullamaggie-style candidate 會附上可選欄位 `foreign_net_buy`、`investment_trust_net_buy`、`dealer_net_buy`、`institutional_net_buy` 與 `institutional_confirmation`。法人買超只作為確認資訊與 tag，不會單獨產生 breakout 或其他技術 setup。
 
 ## Raw URL
 

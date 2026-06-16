@@ -23,7 +23,7 @@ from .config import (
     QULLAMAGGIE_SCORE_WEIGHTS,
     QULLAMAGGIE_SETUP_TYPES,
 )
-from .models import OhlcvRecord
+from .models import InstitutionalTradingRecord, OhlcvRecord
 
 BenchmarkHistory = dict[str, list[float]]
 
@@ -33,9 +33,11 @@ def calculate_qullamaggie_signals(
     history_rows: dict[str, list[OhlcvRecord]],
     benchmark_history: BenchmarkHistory | None = None,
     catalyst_symbols: dict[str, set[str]] | None = None,
+    institutional_by_symbol: dict[str, InstitutionalTradingRecord] | None = None,
 ) -> dict[str, Any]:
     benchmark_history = benchmark_history or {}
     catalyst_symbols = catalyst_symbols or {}
+    institutional_by_symbol = institutional_by_symbol or {}
     market_regime = calculate_market_regime(benchmark_history)
     eligible_rows = [row for row in current_rows if row.scan_eligible]
     limitations: list[str] = ["Qullamaggie-style 掃描僅針對 scan_eligible=true 的普通股 universe。"]
@@ -43,7 +45,7 @@ def calculate_qullamaggie_signals(
         limitations.append("TAIEX 或 OTC 指數歷史不足；market_regime 與相對強弱可能無法完整計算")
 
     candidates = [
-        _calculate_candidate(row, history_rows, benchmark_history, market_regime, catalyst_symbols)
+        _calculate_candidate(row, history_rows, benchmark_history, market_regime, catalyst_symbols, institutional_by_symbol)
         for row in eligible_rows
     ]
     _apply_relative_strength_ranks(candidates)
@@ -212,9 +214,10 @@ def _calculate_candidate(
     benchmark_history: BenchmarkHistory,
     market_regime: dict[str, Any],
     catalyst_symbols: dict[str, set[str]],
+    institutional_by_symbol: dict[str, InstitutionalTradingRecord],
 ) -> dict[str, Any]:
     history = _history_for_symbol_before_date(history_rows, row.symbol, row.date)
-    metrics = _calculate_metrics(row, history, benchmark_history, catalyst_symbols)
+    metrics = _calculate_metrics(row, history, benchmark_history, catalyst_symbols, institutional_by_symbol.get(row.symbol))
     metrics["setup_type"] = classify_setup_type(metrics)
     score, breakdown = score_qullamaggie_candidate(metrics, market_regime)
     metrics["qullamaggie_score"] = score
@@ -231,6 +234,7 @@ def _calculate_metrics(
     history: list[OhlcvRecord],
     benchmark_history: BenchmarkHistory,
     catalyst_symbols: dict[str, set[str]],
+    institutional: InstitutionalTradingRecord | None = None,
 ) -> dict[str, Any]:
     closes = [item.close for item in history if item.close is not None]
     highs = [item.high for item in history if item.high is not None]
@@ -274,6 +278,12 @@ def _calculate_metrics(
         "change_pct": row.change_pct,
         "volume": row.volume,
         "turnover": row.turnover,
+        "foreign_net_buy": institutional.foreign_net_buy if institutional else None,
+        "investment_trust_net_buy": institutional.investment_trust_net_buy if institutional else None,
+        "dealer_net_buy": institutional.dealer_net_buy if institutional else None,
+        "institutional_net_buy": institutional.institutional_net_buy if institutional else None,
+        "institutional_confirmation": bool(institutional and institutional.institutional_net_buy is not None and institutional.institutional_net_buy > 0),
+        "institutional_source": institutional.source if institutional else None,
         "ma10": _pct(ma10),
         "ma20": _pct(ma20),
         "ma50": _pct(ma50),
@@ -335,6 +345,11 @@ def _candidate_payload(metrics: dict[str, Any]) -> dict[str, Any]:
         "change_pct",
         "volume",
         "turnover",
+        "foreign_net_buy",
+        "investment_trust_net_buy",
+        "dealer_net_buy",
+        "institutional_net_buy",
+        "institutional_confirmation",
         "ma10",
         "ma20",
         "ma50",
@@ -384,7 +399,10 @@ def _candidate_payload(metrics: dict[str, Any]) -> dict[str, Any]:
         "risk_notes",
         "source_refs",
     ]
-    return {key: metrics.get(key) for key in keys}
+    payload = {key: metrics.get(key) for key in keys}
+    if metrics.get("institutional_source"):
+        payload["source_refs"] = list(dict.fromkeys([*(payload.get("source_refs") or []), metrics["institutional_source"]]))
+    return payload
 
 
 def _apply_relative_strength_ranks(candidates: list[dict[str, Any]]) -> None:
@@ -558,6 +576,12 @@ def _tags(metrics: dict[str, Any]) -> list[str]:
         tags.append("60日新高")
     if metrics["breakout_volume_confirmed"]:
         tags.append("量能確認")
+    if metrics.get("institutional_confirmation"):
+        tags.append("法人買超")
+    if metrics.get("foreign_net_buy") is not None and metrics["foreign_net_buy"] > 0:
+        tags.append("外資買超")
+    if metrics.get("investment_trust_net_buy") is not None and metrics["investment_trust_net_buy"] > 0:
+        tags.append("投信買超")
     tags.extend(metrics["catalyst_tags"])
     return tags
 

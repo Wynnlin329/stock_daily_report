@@ -5,7 +5,7 @@ from statistics import mean
 from typing import Any
 
 from .config import SCHEMA_VERSION, SCREENING_MAX_CANDIDATES, TIMEZONE
-from .models import OhlcvRecord
+from .models import InstitutionalTradingRecord, OhlcvRecord
 from .qullamaggie import calculate_qullamaggie_signals
 from .universe import build_universe_summary
 
@@ -20,9 +20,12 @@ def build_screening_summary(
     full_market_scan_ready: bool,
     missing_sections: list[str],
     overall_confidence: str,
+    institutional_rows: list[InstitutionalTradingRecord] | None = None,
 ) -> dict[str, Any]:
     all_rows = listed_rows + otc_rows
     eligible_rows = [row for row in all_rows if row.scan_eligible]
+    institutional_rows = institutional_rows or []
+    institutional_by_symbol = {row.symbol: row for row in institutional_rows}
     historical_days = sorted(history_rows)
     has_20d_history = len(historical_days) >= 20
     has_60d_history = len(historical_days) >= 60
@@ -33,7 +36,7 @@ def build_screening_summary(
         limitations.append("歷史資料不足 60 個交易日；未產生 60 日突破訊號")
     if missing_sections:
         limitations.append("核心資料段落缺失：" + ", ".join(missing_sections))
-    qullamaggie = calculate_qullamaggie_signals(eligible_rows, history_rows)
+    qullamaggie = calculate_qullamaggie_signals(eligible_rows, history_rows, institutional_by_symbol=institutional_by_symbol)
     limitations.extend(qullamaggie["limitations"])
 
     return {
@@ -64,7 +67,7 @@ def build_screening_summary(
             "limit_up": [_candidate(row, ["漲停初篩"]) for row in eligible_rows if row.change_pct is not None and row.change_pct >= 9.5][:SCREENING_MAX_CANDIDATES],
             "volume_spike": _volume_spike_candidates(eligible_rows, history_rows) if has_20d_history else [],
             "breakout_candidates": _breakout_candidates(eligible_rows, history_rows, 60) if has_60d_history else [],
-            "institutional_buy_candidates": [],
+            "institutional_buy_candidates": _institutional_buy_candidates(eligible_rows, institutional_by_symbol),
             "margin_short_attention": [],
             "mops_event_candidates": [],
             "revenue_financial_candidates": [],
@@ -124,7 +127,22 @@ def _breakout_candidates(rows: list[OhlcvRecord], history_rows: dict[str, list[O
     return candidates[:SCREENING_MAX_CANDIDATES]
 
 
+def _institutional_buy_candidates(
+    rows: list[OhlcvRecord],
+    institutional_by_symbol: dict[str, InstitutionalTradingRecord],
+) -> list[dict[str, Any]]:
+    candidates: list[dict[str, Any]] = []
+    for row in rows:
+        institutional = institutional_by_symbol.get(row.symbol)
+        if institutional is None or institutional.institutional_net_buy is None or institutional.institutional_net_buy <= 0:
+            continue
+        candidates.append(_candidate(row, ["法人買超"], institutional=institutional))
+    candidates.sort(key=lambda item: item.get("institutional_net_buy") or 0, reverse=True)
+    return candidates[:SCREENING_MAX_CANDIDATES]
+
+
 def _candidate(row: OhlcvRecord, tags: list[str], **extra: Any) -> dict[str, Any]:
+    institutional: InstitutionalTradingRecord | None = extra.get("institutional")
     payload: dict[str, Any] = {
         "symbol": row.symbol,
         "name": row.name,
@@ -139,12 +157,15 @@ def _candidate(row: OhlcvRecord, tags: list[str], **extra: Any) -> dict[str, Any
         "volume_ratio_20d": extra.get("volume_ratio_20d"),
         "new_high_20d": extra.get("new_high_20d", False),
         "new_high_60d": extra.get("new_high_60d", False),
-        "institutional_net_buy": None,
+        "foreign_net_buy": institutional.foreign_net_buy if institutional else None,
+        "investment_trust_net_buy": institutional.investment_trust_net_buy if institutional else None,
+        "dealer_net_buy": institutional.dealer_net_buy if institutional else None,
+        "institutional_net_buy": institutional.institutional_net_buy if institutional else None,
         "margin_change": None,
         "tags": tags,
         "reasons": _reasons(tags, extra),
         "risk_notes": ["僅供研究與人工複核，不構成買賣建議"],
-        "source_refs": [row.source],
+        "source_refs": [row.source] + ([institutional.source] if institutional else []),
     }
     return payload
 
@@ -155,6 +176,15 @@ def _reasons(tags: list[str], extra: dict[str, Any]) -> list[str]:
         reasons.append("漲幅接近或達到台股一般漲停幅度")
     if "量增" in tags:
         reasons.append(f"成交量高於 20 日均量 {extra.get('volume_ratio_20d')} 倍")
+    institutional: InstitutionalTradingRecord | None = extra.get("institutional")
+    if "法人買超" in tags and institutional:
+        reasons.append("三大法人合計買超")
+        if institutional.foreign_net_buy is not None and institutional.foreign_net_buy > 0:
+            reasons.append("外資買超")
+        if institutional.investment_trust_net_buy is not None and institutional.investment_trust_net_buy > 0:
+            reasons.append("投信買超")
+        if institutional.dealer_net_buy is not None and institutional.dealer_net_buy > 0:
+            reasons.append("自營商買超")
     for tag in tags:
         if tag.endswith("日突破"):
             reasons.append(f"收盤價創近 {tag.removesuffix('突破')} 新高")

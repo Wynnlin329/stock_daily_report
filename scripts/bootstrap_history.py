@@ -10,8 +10,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from stock_health.data_fetcher import fetch_tpex_otc_ohlcv, fetch_twse_listed_ohlcv
-from stock_health.history_store import build_history_index, ensure_dirs, write_json, write_ohlcv_outputs
+from stock_health.data_fetcher import fetch_tpex_institutional_trading, fetch_tpex_otc_ohlcv, fetch_twse_institutional_trading, fetch_twse_listed_ohlcv
+from stock_health.history_store import build_history_index, ensure_dirs, write_institutional_outputs, write_json, write_ohlcv_outputs
 from stock_health.trading_calendar import ensure_taipei, is_trading_day, iter_recent_calendar_days
 
 LOGGER = logging.getLogger("stock_health.bootstrap_history")
@@ -34,6 +34,8 @@ def main() -> int:
     now = ensure_taipei()
     listed_days: list[str] = []
     otc_days: list[str] = []
+    listed_institutional_days: list[str] = []
+    otc_institutional_days: list[str] = []
     errors: list[str] = []
     consecutive_network_failures = 0
 
@@ -45,11 +47,17 @@ def main() -> int:
         LOGGER.info("Fetching %s", target_date)
         listed = fetch_twse_listed_ohlcv(target_date)
         otc = fetch_tpex_otc_ohlcv(target_date)
+        listed_institutional = fetch_twse_institutional_trading(target_date)
+        otc_institutional = fetch_tpex_institutional_trading(target_date)
         day = f"{target_date:%Y-%m-%d}"
         if listed.rows:
             listed_days.append(day)
         if otc.rows:
             otc_days.append(day)
+        if listed_institutional.rows:
+            listed_institutional_days.append(day)
+        if otc_institutional.rows:
+            otc_institutional_days.append(day)
         if listed.rows or otc.rows:
             write_ohlcv_outputs(root, target_date, listed.rows, otc.rows)
             consecutive_network_failures = 0
@@ -61,6 +69,11 @@ def main() -> int:
             if consecutive_network_failures >= 5:
                 errors.append("連續 5 個交易日皆疑似無法連外，停止 bootstrap 以避免無效重試")
                 break
+        if listed_institutional.rows or otc_institutional.rows:
+            write_institutional_outputs(root, target_date, listed_institutional.rows, otc_institutional.rows)
+        else:
+            errors.extend([f"{day} listed institutional: {err}" for err in listed_institutional.errors])
+            errors.extend([f"{day} otc institutional: {err}" for err in otc_institutional.errors])
         if args.sleep_seconds > 0:
             time.sleep(args.sleep_seconds)
 
@@ -70,8 +83,19 @@ def main() -> int:
         latest_listed = fetch_twse_listed_ohlcv(latest)
         latest_otc = fetch_tpex_otc_ohlcv(latest)
         write_ohlcv_outputs(root, latest, latest_listed.rows, latest_otc.rows)
+        latest_listed_institutional = fetch_twse_institutional_trading(latest)
+        latest_otc_institutional = fetch_tpex_institutional_trading(latest)
+        write_institutional_outputs(root, latest, latest_listed_institutional.rows, latest_otc_institutional.rows)
 
-    index = build_history_index(now.isoformat(timespec="seconds"), args.trading_days, listed_days, otc_days, errors)
+    index = build_history_index(
+        now.isoformat(timespec="seconds"),
+        args.trading_days,
+        listed_days,
+        otc_days,
+        errors,
+        listed_institutional_days,
+        otc_institutional_days,
+    )
     write_json(root / "data" / "history-index.json", index)
     LOGGER.info("Available trading days: %s", index["available_trading_days"])
     return 0

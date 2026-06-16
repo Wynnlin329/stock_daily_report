@@ -8,9 +8,9 @@ import re
 from datetime import date
 from typing import Any
 
-from .config import tpex_daily_url, twse_mi_index_url
+from .config import tpex_daily_url, tpex_institutional_url, twse_institutional_url, twse_mi_index_url
 from .http_client import HttpClient
-from .models import FetchResult, OhlcvRecord
+from .models import FetchResult, InstitutionalFetchResult, InstitutionalTradingRecord, OhlcvRecord
 
 LOGGER = logging.getLogger(__name__)
 
@@ -42,6 +42,24 @@ CSV_FIELDS = [
     "exclude_reason",
 ]
 
+INSTITUTIONAL_CSV_FIELDS = [
+    "date",
+    "symbol",
+    "name",
+    "market",
+    "foreign_buy",
+    "foreign_sell",
+    "foreign_net_buy",
+    "investment_trust_buy",
+    "investment_trust_sell",
+    "investment_trust_net_buy",
+    "dealer_buy",
+    "dealer_sell",
+    "dealer_net_buy",
+    "institutional_net_buy",
+    "source",
+]
+
 
 def _clean_text(value: Any) -> str:
     return str(value).replace(",", "").replace("--", "").replace("X", "").strip()
@@ -61,6 +79,12 @@ def _to_float(value: Any) -> float | None:
 def _to_int(value: Any) -> int | None:
     number = _to_float(value)
     return int(number) if number is not None else None
+
+
+def _sum_ints(*values: int | None) -> int | None:
+    if all(value is None for value in values):
+        return None
+    return sum(value or 0 for value in values)
 
 
 def _to_bool(value: Any) -> bool:
@@ -210,6 +234,114 @@ def _normalize_tpex_row(target_date: date, fields: list[str], row: list[Any]) ->
     )
 
 
+def fetch_twse_institutional_trading(target_date: date, client: HttpClient | None = None) -> InstitutionalFetchResult:
+    client = client or HttpClient()
+    response = client.get(twse_institutional_url(target_date))
+    if response.status != 200:
+        return InstitutionalFetchResult(errors=[response.error or f"TWSE institutional HTTP status {response.status}"])
+    try:
+        payload = _parse_json(response.text)
+    except json.JSONDecodeError as exc:
+        return InstitutionalFetchResult(errors=[f"TWSE institutional JSON parse failed: {exc}"])
+
+    fields = [str(item).strip() for item in payload.get("fields", [])]
+    rows = payload.get("data", [])
+    data_date = _extract_payload_date(payload)
+    required = ["證券代號", "證券名稱", "三大法人買賣超股數"]
+    if not fields or not rows or not _has_required_fields(fields, required):
+        return InstitutionalFetchResult(
+            data_date=data_date,
+            errors=[_table_error("TWSE institutional", payload, required)],
+        )
+    records = [_normalize_twse_institutional_row(target_date, fields, row) for row in rows]
+    return InstitutionalFetchResult(rows=[record for record in records if record.symbol], data_date=data_date or f"{target_date:%Y-%m-%d}")
+
+
+def fetch_tpex_institutional_trading(target_date: date, client: HttpClient | None = None) -> InstitutionalFetchResult:
+    client = client or HttpClient()
+    response = client.get(tpex_institutional_url(target_date))
+    if response.status != 200:
+        return InstitutionalFetchResult(errors=[response.error or f"TPEx institutional HTTP status {response.status}"])
+    try:
+        payload = _parse_json(response.text)
+    except json.JSONDecodeError as exc:
+        return InstitutionalFetchResult(errors=[f"TPEx institutional JSON parse failed: {exc}"])
+
+    fields, rows = _extract_table(
+        payload,
+        required_fields=["代號", "名稱", "三大法人買賣超股數合計"],
+        title_keywords=["三大法人買賣明細"],
+    )
+    data_date = _extract_payload_date(payload)
+    if not fields or not rows:
+        return InstitutionalFetchResult(
+            data_date=data_date,
+            errors=[_table_error("TPEx institutional", payload, ["代號", "名稱", "三大法人買賣超股數合計"])],
+        )
+    records = [_normalize_tpex_institutional_row(target_date, row) for row in rows]
+    return InstitutionalFetchResult(rows=[record for record in records if record.symbol], data_date=data_date or f"{target_date:%Y-%m-%d}")
+
+
+def _normalize_twse_institutional_row(target_date: date, fields: list[str], row: list[Any]) -> InstitutionalTradingRecord:
+    foreign_buy = _sum_ints(
+        _to_int(_row_value(row, fields, ["外陸資買進股數(不含外資自營商)"])),
+        _to_int(_row_value(row, fields, ["外資自營商買進股數"])),
+    )
+    foreign_sell = _sum_ints(
+        _to_int(_row_value(row, fields, ["外陸資賣出股數(不含外資自營商)"])),
+        _to_int(_row_value(row, fields, ["外資自營商賣出股數"])),
+    )
+    foreign_net_buy = _sum_ints(
+        _to_int(_row_value(row, fields, ["外陸資買賣超股數(不含外資自營商)"])),
+        _to_int(_row_value(row, fields, ["外資自營商買賣超股數"])),
+    )
+    dealer_buy = _sum_ints(
+        _to_int(_row_value(row, fields, ["自營商買進股數(自行買賣)"])),
+        _to_int(_row_value(row, fields, ["自營商買進股數(避險)"])),
+    )
+    dealer_sell = _sum_ints(
+        _to_int(_row_value(row, fields, ["自營商賣出股數(自行買賣)"])),
+        _to_int(_row_value(row, fields, ["自營商賣出股數(避險)"])),
+    )
+    return InstitutionalTradingRecord(
+        date=f"{target_date:%Y-%m-%d}",
+        symbol=str(_row_value(row, fields, ["證券代號"])).strip(),
+        name=str(_row_value(row, fields, ["證券名稱"])).strip(),
+        market="listed",
+        foreign_buy=foreign_buy,
+        foreign_sell=foreign_sell,
+        foreign_net_buy=foreign_net_buy,
+        investment_trust_buy=_to_int(_row_value(row, fields, ["投信買進股數"])),
+        investment_trust_sell=_to_int(_row_value(row, fields, ["投信賣出股數"])),
+        investment_trust_net_buy=_to_int(_row_value(row, fields, ["投信買賣超股數"])),
+        dealer_buy=dealer_buy,
+        dealer_sell=dealer_sell,
+        dealer_net_buy=_to_int(_row_value(row, fields, ["自營商買賣超股數"])),
+        institutional_net_buy=_to_int(_row_value(row, fields, ["三大法人買賣超股數"])),
+        source="TWSE",
+    )
+
+
+def _normalize_tpex_institutional_row(target_date: date, row: list[Any]) -> InstitutionalTradingRecord:
+    return InstitutionalTradingRecord(
+        date=f"{target_date:%Y-%m-%d}",
+        symbol=str(row[0]).strip() if len(row) > 0 else "",
+        name=str(row[1]).strip() if len(row) > 1 else "",
+        market="otc",
+        foreign_buy=_to_int(row[8] if len(row) > 8 else None),
+        foreign_sell=_to_int(row[9] if len(row) > 9 else None),
+        foreign_net_buy=_to_int(row[10] if len(row) > 10 else None),
+        investment_trust_buy=_to_int(row[11] if len(row) > 11 else None),
+        investment_trust_sell=_to_int(row[12] if len(row) > 12 else None),
+        investment_trust_net_buy=_to_int(row[13] if len(row) > 13 else None),
+        dealer_buy=_to_int(row[20] if len(row) > 20 else None),
+        dealer_sell=_to_int(row[21] if len(row) > 21 else None),
+        dealer_net_buy=_to_int(row[22] if len(row) > 22 else None),
+        institutional_net_buy=_to_int(row[23] if len(row) > 23 else None),
+        source="TPEx",
+    )
+
+
 def _extract_table(
     payload: dict[str, Any],
     required_fields: list[str],
@@ -273,11 +405,11 @@ def _table_error(source: str, payload: dict[str, Any], required_fields: list[str
             continue
         fields = table.get("fields") or []
         table_summaries.append(
-            f"title={table.get('title')!r}, rows={len(table.get('data') or [])}, fields={','.join(str(field) for field in fields[:8])}"
+            f"title={table.get('title')!r}, rows={len(table.get('data') or [])}, fields_count={len(fields)}"
         )
     stat = payload.get("stat", "")
     return (
-        f"{source} response did not contain a parsable OHLCV table with required fields "
+        f"{source} response did not contain a parsable table with required fields "
         f"{required_fields}; stat={stat!r}; tables={' | '.join(table_summaries[:5])}"
     )
 
@@ -329,5 +461,40 @@ def records_from_csv_text(text: str) -> list[OhlcvRecord]:
             )
         records.append(
             OhlcvRecord(**kwargs)
+        )
+    return records
+
+
+def institutional_records_to_csv_text(records: list[InstitutionalTradingRecord]) -> str:
+    output = io.StringIO()
+    writer = csv.DictWriter(output, fieldnames=INSTITUTIONAL_CSV_FIELDS, lineterminator="\n")
+    writer.writeheader()
+    for record in records:
+        writer.writerow(record.to_csv_row())
+    return output.getvalue()
+
+
+def institutional_records_from_csv_text(text: str) -> list[InstitutionalTradingRecord]:
+    reader = csv.DictReader(io.StringIO(text))
+    records: list[InstitutionalTradingRecord] = []
+    for row in reader:
+        records.append(
+            InstitutionalTradingRecord(
+                date=row.get("date", ""),
+                symbol=row.get("symbol", ""),
+                name=row.get("name", ""),
+                market=row.get("market", ""),
+                foreign_buy=_to_int(row.get("foreign_buy")),
+                foreign_sell=_to_int(row.get("foreign_sell")),
+                foreign_net_buy=_to_int(row.get("foreign_net_buy")),
+                investment_trust_buy=_to_int(row.get("investment_trust_buy")),
+                investment_trust_sell=_to_int(row.get("investment_trust_sell")),
+                investment_trust_net_buy=_to_int(row.get("investment_trust_net_buy")),
+                dealer_buy=_to_int(row.get("dealer_buy")),
+                dealer_sell=_to_int(row.get("dealer_sell")),
+                dealer_net_buy=_to_int(row.get("dealer_net_buy")),
+                institutional_net_buy=_to_int(row.get("institutional_net_buy")),
+                source=row.get("source", ""),
+            )
         )
     return records

@@ -24,6 +24,8 @@ https://raw.githubusercontent.com/<OWNER>/<REPO>/main/data/latest-screening-summ
 11. 第一版 universe 過濾是保守規則；Qullamaggie-style 與選股掃描只摘要 `scan_eligible=true` 的普通股。
 12. ETF、權證、槓反、債券 ETF、ETN、DR 等可存在於原始 OHLCV，但不得混入普通股排行、初篩或 Qullamaggie-style 候選清單。
 13. 若未來要分析 ETF，應使用獨立 ETF 掃描模式，不要把 ETF 結論混入普通股掃描。
+14. 法人買賣超只使用 TWSE / TPEx 官方公開資料；若 `coverage.institutional_trading.available=false` 或 `data/latest-institutional-trading-summary.json` 顯示資料不足，必須清楚標示不可解讀。
+15. `institutional_buy_candidates` 只作為研究與人工複核清單，不得把法人買超視為買進訊號，也不得輸出目標價或停損價。
 
 輸出格式：
 
@@ -35,8 +37,9 @@ https://raw.githubusercontent.com/<OWNER>/<REPO>/main/data/latest-screening-summ
 5. 漲幅與漲停初篩
 6. 量增與突破候選
 7. Qullamaggie-style 動能候選與限制
-8. 重大事件與人工複核清單
-9. 今日不應解讀或需要補資料的段落
+8. 法人買賣超候選與資料限制
+9. 重大事件與人工複核清單
+10. 今日不應解讀或需要補資料的段落
 ```
 
 Qullamaggie-style 區塊摘要時請包含：
@@ -55,4 +58,13 @@ Universe 摘要時請包含：
 - universe_summary.scan_eligible_rows
 - universe_summary.excluded_rows
 - universe_summary.excluded_by_type
+```
+
+法人買賣超摘要時請包含：
+
+```text
+- coverage.institutional_trading.available
+- data/latest-institutional-trading-summary.json 的 listed_rows、otc_rows、data_date、is_current
+- screening.institutional_buy_candidates 前 10 名的 symbol、name、foreign_net_buy、investment_trust_net_buy、dealer_net_buy、institutional_net_buy、reasons、risk_notes
+- 若資料缺失，列出 errors 與 limitations，不得自行補值
 ```

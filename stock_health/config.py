@@ -108,6 +108,22 @@ def tpex_daily_url(target_date: date) -> str:
     )
 
 
+def twse_institutional_url(target_date: date) -> str:
+    return (
+        "https://www.twse.com.tw/rwd/zh/fund/T86"
+        f"?date={target_date:%Y%m%d}&selectType=ALL&response=json"
+    )
+
+
+def tpex_institutional_url(target_date: date) -> str:
+    roc_year = target_date.year - 1911
+    roc_date = f"{roc_year}/{target_date:%m/%d}"
+    return (
+        "https://www.tpex.org.tw/web/stock/3insti/daily_trade/"
+        f"3itrade_hedge_result.php?l=zh-tw&o=json&se=EW&t=D&d={roc_date}"
+    )
+
+
 def source_configs(target_date: date) -> list[SourceConfig]:
     return [
         SourceConfig("twse", "TWSE", "主資料源", twse_mi_index_url(target_date), True, schedule_ready=True),

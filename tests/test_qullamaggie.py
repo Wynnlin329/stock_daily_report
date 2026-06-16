@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from datetime import date, timedelta
 
-from stock_health.models import OhlcvRecord
+from stock_health.models import InstitutionalTradingRecord, OhlcvRecord
 from stock_health.qullamaggie import calculate_qullamaggie_signals
 from stock_health.screening import build_screening_summary
 
@@ -185,3 +185,35 @@ def test_qullamaggie_candidates_exclude_scan_ineligible_rows() -> None:
     assert all(candidate["symbol"] != "0050" for candidate in all_candidates)
     assert all(candidate["symbol"] != "0050" for candidate in result["top_candidates"])
     assert any("scan_eligible=true" in limitation for limitation in result["limitations"])
+
+
+def test_qullamaggie_candidate_includes_institutional_confirmation() -> None:
+    current = make_record(date(2026, 6, 15), close=102.0, high=103.0, low=99.0, volume=3000, turnover=200_000_000)
+    institutional = InstitutionalTradingRecord(
+        date="2026-06-15",
+        symbol="2330",
+        name="2330公司",
+        market="listed",
+        foreign_buy=None,
+        foreign_sell=None,
+        foreign_net_buy=1000,
+        investment_trust_buy=None,
+        investment_trust_sell=None,
+        investment_trust_net_buy=500,
+        dealer_buy=None,
+        dealer_sell=None,
+        dealer_net_buy=-100,
+        institutional_net_buy=1400,
+        source="TWSE",
+    )
+    result = calculate_qullamaggie_signals(
+        [current],
+        history_for(),
+        {"listed": [100 + i for i in range(61)]},
+        institutional_by_symbol={"2330": institutional},
+    )
+    candidate = result["top_candidates"][0]
+    assert candidate["institutional_confirmation"] is True
+    assert candidate["institutional_net_buy"] == 1400
+    assert "法人買超" in candidate["tags"]
+    assert "TWSE" in candidate["source_refs"]
