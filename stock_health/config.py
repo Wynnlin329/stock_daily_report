@@ -156,6 +156,10 @@ def mops_current_day_events_url() -> str:
     return "https://mopsov.twse.com.tw/mops/web/t05st02"
 
 
+def mops_historical_events_url() -> str:
+    return "https://mopsov.twse.com.tw/mops/web/ajax_t05st01"
+
+
 def github_raw_url(path: str) -> str:
     normalized_path = path.strip().lstrip("/")
     return f"https://raw.githubusercontent.com/{GITHUB_OWNER}/{GITHUB_REPO}/{GITHUB_RAW_BRANCH}/{normalized_path}"

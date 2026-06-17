@@ -16,6 +16,7 @@ from stock_health.data_fetcher import (
     fetch_tpex_margin_short,
     fetch_tpex_otc_ohlcv,
     fetch_mops_events,
+    fetch_mops_historical_events,
     fetch_mops_realtime_events,
     fetch_twse_institutional_trading,
     fetch_twse_listed_ohlcv,
@@ -41,6 +42,7 @@ class FakeClient:
     def __init__(self, responses: list[HttpResponse] | None = None) -> None:
         self.responses = responses or []
         self.urls: list[str] = []
+        self.post_data: list[dict[str, str]] = []
 
     def get(self, url: str) -> HttpResponse:
         self.urls.append(url)
@@ -50,6 +52,7 @@ class FakeClient:
 
     def post(self, url: str, data: dict[str, str], headers: dict[str, str] | None = None) -> HttpResponse:
         self.urls.append(url)
+        self.post_data.append(data)
         if self.responses:
             return self.responses.pop(0)
         return HttpResponse(url=url, status=None, body=b"", elapsed_ms=1, error="URLError: mocked failure")
@@ -689,6 +692,39 @@ def test_mops_event_parser_with_mock_html() -> None:
     assert result.rows[0].source == "MOPSOV:t05sr01_1"
 
 
+def test_mops_historical_events_uses_t05st01_post() -> None:
+    html = """
+    <html><body>
+    <table>
+      <tr><th>公司代號</th><th>公司名稱</th><th>發言日期</th><th>發言時間</th><th>主旨</th><th>詳細資料</th></tr>
+      <tr><td>6443</td><td>元晶</td><td>115/06/17</td><td>14:48:45</td><td>公告本公司重大合約</td><td></td></tr>
+    </table>
+    </body></html>
+    """
+    client = FakeClient([HttpResponse("mock", 200, html.encode("utf-8"), 1)])
+    result = fetch_mops_historical_events(date(2026, 6, 17), client)
+    assert result.ok is True
+    assert result.status == "success"
+    assert result.data_date == "2026-06-17"
+    assert result.rows[0].symbol == "6443"
+    assert result.rows[0].source == "MOPSOV:t05st01"
+    assert client.urls == ["https://mopsov.twse.com.tw/mops/web/ajax_t05st01"]
+    assert client.post_data[0]["co_id"] == ""
+    assert client.post_data[0]["year"] == "115"
+    assert client.post_data[0]["month"] == "06"
+    assert client.post_data[0]["b_date"] == "17"
+    assert client.post_data[0]["e_date"] == "17"
+
+
+def test_mops_historical_no_data_is_empty_but_valid() -> None:
+    html = "<html><body><h3>資料庫中查無需求資料</h3></body></html>"
+    result = fetch_mops_historical_events(date(2026, 6, 17), FakeClient([HttpResponse("mock", 200, html.encode("utf-8"), 1)]))
+    assert result.ok is True
+    assert result.status == "empty_but_valid"
+    assert result.data_date == "2026-06-17"
+    assert result.rows == []
+
+
 def test_mops_zero_events_with_explicit_date_counts_as_success() -> None:
     html = """
     <html><body>
@@ -726,15 +762,15 @@ def test_bootstrap_mops_backfill_stops_on_security_page(monkeypatch, tmp_path: P
 
     calls: list[str] = []
 
-    def fake_fetch_mops_events(target_date: date) -> MopsEventFetchResult:
+    def fake_fetch_mops_historical_events(target_date: date) -> MopsEventFetchResult:
         calls.append(target_date.isoformat())
         return MopsEventFetchResult(
             errors=["security page"],
             status="blocked_or_security_page",
-            source_url="https://mopsov.twse.com.tw/mops/web/t05sr01_1",
+            source_url="https://mopsov.twse.com.tw/mops/web/ajax_t05st01",
         )
 
-    monkeypatch.setattr(bootstrap_history, "fetch_mops_events", fake_fetch_mops_events)
+    monkeypatch.setattr(bootstrap_history, "fetch_mops_historical_events", fake_fetch_mops_historical_events)
     monkeypatch.setattr(
         sys,
         "argv",
