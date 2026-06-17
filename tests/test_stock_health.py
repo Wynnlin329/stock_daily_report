@@ -187,6 +187,42 @@ def test_latest_json_required_fields_parseable(tmp_path: Path) -> None:
     assert set(payload).issubset(loaded)
 
 
+def test_github_raw_url_uses_current_default_branch() -> None:
+    assert github_raw_url("latest.json") == (
+        "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/"
+        "codex/stock-health-v1/latest.json"
+    )
+    assert github_raw_url("/data/latest-screening-summary.json") == (
+        "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/"
+        "codex/stock-health-v1/data/latest-screening-summary.json"
+    )
+
+
+def test_latest_artifact_urls_do_not_use_template_or_main_branch() -> None:
+    root = Path(__file__).resolve().parents[1]
+    payload = json.loads((root / "latest.json").read_text(encoding="utf-8"))
+    serialized = json.dumps(payload.get("artifact_urls", {}), ensure_ascii=False)
+    assert "<OWNER>" not in serialized
+    assert "<REPO>" not in serialized
+    assert "/main/" not in serialized
+    assert payload["artifact_urls"]["latest_json"] == github_raw_url("latest.json")
+    assert payload["artifact_urls"]["screening_summary"] == github_raw_url("data/latest-screening-summary.json")
+
+
+def test_docs_do_not_publish_main_branch_raw_urls_for_current_repo() -> None:
+    root = Path(__file__).resolve().parents[1]
+    docs_text = "\n".join(
+        [
+            (root / "README.md").read_text(encoding="utf-8"),
+            (root / "docs" / "chatgpt-task-prompt.md").read_text(encoding="utf-8"),
+        ]
+    )
+    assert "raw.githubusercontent.com/<OWNER>/<REPO>/main" not in docs_text
+    assert "raw.githubusercontent.com/Wynnlin329/stock_daily_report/main" not in docs_text
+    assert github_raw_url("latest.json") in docs_text
+    assert github_raw_url("data/latest-screening-summary.json") in docs_text
+
+
 def test_source_failure_does_not_stop_whole_flow() -> None:
     responses = [
         HttpResponse(url="mock", status=200, body=b'{"date":"20260615"}', elapsed_ms=2),
