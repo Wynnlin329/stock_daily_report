@@ -81,13 +81,27 @@ reports/latest-market-scan.md
 
 ```text
 schema_version, report_date, generated_at, timezone,
-market_is_trading_day, latest_market_data_date,
+market_is_trading_day, latest_market_data_date, data_freshness,
 sources, coverage, main_sources, backup_sources,
 catalyst_news_sources, manual_review_sources,
 not_recommended_sources, artifact_urls,
-full_market_scan_ready, missing_sections,
+full_market_scan_ready, scan_readiness, missing_sections,
 overall_confidence, errors
 ```
+
+`data_freshness` 會標示 `report_date`、`latest_market_data_date` 與 `is_latest_trading_data_current`。當盤後資料尚未完整發布時，`full_market_scan_ready` 可維持 false，且 `scan_readiness.can_generate_new_paper_trade_candidate=false`。
+
+`scan_readiness` 將「能否執行技術掃描」與「是否可產生新的模擬候選」分開：
+
+```text
+can_run_technical_scan, can_run_qullamaggie_scan,
+can_generate_new_paper_trade_candidate,
+can_use_institutional_confirmation,
+can_use_margin_short_risk,
+can_use_mops_catalyst, reasons
+```
+
+MOPS、法人或資券資料不可用不會阻止技術掃描或 Qullamaggie-style 掃描；但 OHLCV 或 60 日歷史不足、盤後最新交易日資料尚未完整、或 market_regime 不足時，不得產生新的模擬買進候選。
 
 每個來源至少包含：
 
@@ -101,6 +115,8 @@ error, response_time_ms
 ## latest-screening-summary.json schema
 
 `data/latest-screening-summary.json` 是 ChatGPT 後續排程的主要輸入。它包含資料品質、歷史資料狀態、市場統計、成交量/成交金額/漲幅排行、初步篩選清單、coverage、缺失項目與限制。
+
+`historical_data_status`、`institutional_data_status`、`margin_short_data_status` 與 `mops_event_data_status` 皆以 `data/history-index.json` 為準。`history-index.json` 由 `data/market/`、`data/institutional/`、`data/margin_short/` 與 `data/mops/` 的實際檔案掃描重建，避免單一 backfill 清空其他 section。
 
 若歷史資料不足，系統不會產生 20 日均量、60 日突破或爆量倍數等長週期訊號，並會在 `historical_data_status` 與 `limitations` 中標示。
 
@@ -294,6 +310,7 @@ MOPS 重大訊息：每日累積，手動 backfill 可用 `t05st01` 低頻回補
 https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/latest.json
 https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/latest-screening-summary.json
 https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/latest-mops-events.json
+https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/history-index.json
 ```
 
 Raw URL 由 `stock_health/config.py` 的 `GITHUB_OWNER`、`GITHUB_REPO`、`GITHUB_RAW_BRANCH` 與 `github_raw_url()` 集中產生。`<OWNER>/<REPO>/main` 這類 placeholder 只適合模板，不是本 repository 目前可用 URL。若未來正式改用 `main`，只需修改 `GITHUB_RAW_BRANCH` 並重產 artifacts。

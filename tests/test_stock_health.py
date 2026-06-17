@@ -28,7 +28,17 @@ from stock_health.data_fetcher import (
     records_from_csv_text,
     records_to_csv_text,
 )
-from stock_health.history_store import build_history_index, history_report_paths, load_history_rows, write_json, write_ohlcv_outputs
+from stock_health.history_store import (
+    build_history_index,
+    history_report_paths,
+    load_history_rows,
+    rebuild_history_index_from_files,
+    write_institutional_outputs,
+    write_json,
+    write_margin_short_outputs,
+    write_mops_event_outputs,
+    write_ohlcv_outputs,
+)
 from stock_health.http_client import HttpResponse
 import stock_health.http_client as http_client_module
 from stock_health.models import InstitutionalTradingRecord, MarginShortRecord, MopsEventFetchResult, MopsEventRecord, OhlcvRecord, SourceHealth
@@ -83,6 +93,14 @@ def sample_record(
     )
 
 
+def sample_record_for_date(target_date: date, symbol: str = "2330", market: str = "listed") -> OhlcvRecord:
+    row = sample_record(symbol=symbol, name="台積電" if symbol == "2330" else "測試股")
+    row.date = target_date.isoformat()
+    row.market = market
+    row.source = "TWSE" if market == "listed" else "TPEx"
+    return row
+
+
 def sample_institutional_record(
     symbol: str = "2330",
     name: str = "台積電",
@@ -106,6 +124,12 @@ def sample_institutional_record(
         institutional_net_buy=net_buy,
         source="TWSE" if market == "listed" else "TPEx",
     )
+
+
+def sample_institutional_for_date(target_date: date, symbol: str = "2330", market: str = "listed") -> InstitutionalTradingRecord:
+    row = sample_institutional_record(symbol=symbol, market=market)
+    row.date = target_date.isoformat()
+    return row
 
 
 def sample_margin_short_record(
@@ -133,6 +157,12 @@ def sample_margin_short_record(
         offsetting=0,
         source="TWSE" if market == "listed" else "TPEx",
     )
+
+
+def sample_margin_short_for_date(target_date: date, symbol: str = "2330", market: str = "listed") -> MarginShortRecord:
+    row = sample_margin_short_record(symbol=symbol, market=market)
+    row.date = target_date.isoformat()
+    return row
 
 
 def sample_mops_event(
@@ -283,6 +313,109 @@ def test_history_index_chip_and_mops_flags() -> None:
     assert len(index["common_margin_short_days"]) == 60
 
 
+def test_rebuild_history_index_from_files_scans_all_sections(tmp_path: Path) -> None:
+    days = [date(2026, 6, 15), date(2026, 6, 16)]
+    for target_date in days:
+        write_ohlcv_outputs(
+            tmp_path,
+            target_date,
+            [sample_record_for_date(target_date, "2330", "listed")],
+            [sample_record_for_date(target_date, "8069", "otc")],
+        )
+        write_institutional_outputs(
+            tmp_path,
+            target_date,
+            [sample_institutional_for_date(target_date, "2330", "listed")],
+            [sample_institutional_for_date(target_date, "8069", "otc")],
+        )
+        write_margin_short_outputs(
+            tmp_path,
+            target_date,
+            [sample_margin_short_for_date(target_date, "2330", "listed")],
+            [sample_margin_short_for_date(target_date, "8069", "otc")],
+        )
+        mops_event = sample_mops_event(symbol="2330")
+        mops_event.date = target_date.isoformat()
+        write_mops_event_outputs(
+            tmp_path,
+            target_date,
+            mops_events_payload(
+                target_date.isoformat(),
+                "2026-06-16T18:15:00+08:00",
+                target_date.isoformat(),
+                True,
+                [mops_event],
+                status="success",
+                source_url="mock",
+            ),
+            [mops_event],
+        )
+
+    index = rebuild_history_index_from_files(tmp_path, "2026-06-16T18:15:00+08:00", 60)
+    assert index["common_ohlcv_days"] == ["2026-06-15", "2026-06-16"]
+    assert index["available_trading_days"] == 2
+    assert index["common_institutional_days"] == ["2026-06-15", "2026-06-16"]
+    assert index["common_margin_short_days"] == ["2026-06-15", "2026-06-16"]
+    assert index["mops_event_days"] == ["2026-06-15", "2026-06-16"]
+
+
+def test_mops_backfill_does_not_clear_existing_ohlcv_history(monkeypatch, tmp_path: Path) -> None:
+    import scripts.bootstrap_history as bootstrap_history
+
+    for target_date in [date(2026, 6, 15), date(2026, 6, 16)]:
+        write_ohlcv_outputs(
+            tmp_path,
+            target_date,
+            [sample_record_for_date(target_date, "2330", "listed")],
+            [sample_record_for_date(target_date, "8069", "otc")],
+        )
+
+    def fake_fetch_mops_historical_events(target_date: date) -> MopsEventFetchResult:
+        return MopsEventFetchResult(data_date=target_date.isoformat(), status="empty_but_valid", source_url="mock")
+
+    monkeypatch.setattr(bootstrap_history, "ensure_taipei", lambda: datetime(2026, 6, 17, 18, 15, tzinfo=TAIPEI))
+    monkeypatch.setattr(bootstrap_history, "fetch_mops_historical_events", fake_fetch_mops_historical_events)
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "bootstrap_history.py",
+            "--root",
+            str(tmp_path),
+            "--trading-days",
+            "0",
+            "--max-calendar-days",
+            "0",
+            "--include-mops-backfill",
+            "--mops-calendar-days",
+            "1",
+            "--mops-max-dates-per-run",
+            "1",
+            "--sleep-seconds",
+            "0",
+        ],
+    )
+    assert bootstrap_history.main() == 0
+    index = json.load(open(tmp_path / "data" / "history-index.json", encoding="utf-8"))
+    assert index["available_trading_days"] == 2
+    assert index["common_ohlcv_days"] == ["2026-06-15", "2026-06-16"]
+    assert index["mops_event_days"] == ["2026-06-17"]
+
+
+def test_history_index_rebuild_ignores_failed_empty_sections(tmp_path: Path) -> None:
+    write_ohlcv_outputs(
+        tmp_path,
+        date(2026, 6, 16),
+        [sample_record_for_date(date(2026, 6, 16), "2330", "listed")],
+        [sample_record_for_date(date(2026, 6, 16), "8069", "otc")],
+    )
+    write_institutional_outputs(tmp_path, date(2026, 6, 17), [], [])
+    index = rebuild_history_index_from_files(tmp_path, "2026-06-17T18:15:00+08:00", 60)
+    assert index["available_trading_days"] == 1
+    assert index["common_ohlcv_days"] == ["2026-06-16"]
+    assert index["common_institutional_days"] == []
+
+
 def test_github_raw_url_uses_current_default_branch() -> None:
     assert github_raw_url("latest.json") == "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/latest.json"
     assert github_raw_url("data/latest-screening-summary.json") == "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/latest-screening-summary.json"
@@ -305,6 +438,93 @@ def test_screening_does_not_fake_history_signals() -> None:
     assert summary["historical_data_status"]["has_20d_history"] is False
     assert summary["historical_data_status"]["has_60d_history"] is False
     assert summary["limitations"]
+
+
+def test_screening_statuses_follow_history_index() -> None:
+    history_index = build_history_index(
+        "2026-06-15T18:15:00+08:00",
+        60,
+        [f"2026-05-{i:02d}" for i in range(1, 21)],
+        [f"2026-05-{i:02d}" for i in range(1, 21)],
+        [],
+        [f"2026-05-{i:02d}" for i in range(1, 6)],
+        [f"2026-05-{i:02d}" for i in range(1, 6)],
+        [f"2026-05-{i:02d}" for i in range(1, 6)],
+        [f"2026-05-{i:02d}" for i in range(1, 6)],
+        [f"2026-06-{i:02d}" for i in range(1, 16)],
+    )
+    summary = build_screening_summary(
+        "2026-06-15",
+        "2026-06-15T18:15:00+08:00",
+        [sample_record()],
+        [sample_record(symbol="8069")],
+        {},
+        {},
+        False,
+        [],
+        "low",
+        history_index=history_index,
+    )
+    assert summary["historical_data_status"]["available_trading_days"] == history_index["available_trading_days"]
+    assert summary["historical_data_status"]["has_20d_history"] == history_index["has_20d_history"]
+    assert summary["institutional_data_status"]["has_5d_history"] == history_index["has_institutional_5d_history"]
+    assert summary["margin_short_data_status"]["has_5d_history"] == history_index["has_margin_short_5d_history"]
+    assert summary["mops_event_data_status"]["available_calendar_days"] == len(history_index["mops_event_days"])
+
+
+def test_scan_readiness_separates_optional_data_sources() -> None:
+    from scripts.run_health_check import _build_scan_readiness
+
+    coverage = {
+        "listed_ohlcv": {"available": True},
+        "otc_ohlcv": {"available": True},
+        "market_environment": {"available": True},
+        "institutional_trading": {"available": False},
+        "margin_short": {"available": False},
+        "material_information": {"available": False},
+    }
+    summary = {
+        "historical_data_status": {"has_20d_history": True, "has_60d_history": True},
+        "institutional_data_status": {"latest_available": False},
+        "margin_short_data_status": {"latest_available": False},
+        "mops_event_data_status": {"latest_available": False},
+        "qullamaggie": {"market_regime": {"status": "uptrend"}},
+    }
+    readiness = _build_scan_readiness(coverage, summary, {"is_latest_trading_data_current": True})
+    assert readiness["can_run_technical_scan"] is True
+    assert readiness["can_run_qullamaggie_scan"] is True
+    assert readiness["can_generate_new_paper_trade_candidate"] is True
+    assert readiness["can_use_institutional_confirmation"] is False
+    assert readiness["can_use_margin_short_risk"] is False
+    assert readiness["can_use_mops_catalyst"] is False
+
+
+def test_scan_readiness_blocks_new_candidate_when_ohlcv_stale() -> None:
+    from scripts.run_health_check import _build_scan_readiness
+
+    coverage = {
+        "listed_ohlcv": {"available": True},
+        "otc_ohlcv": {"available": True},
+        "market_environment": {"available": True},
+        "institutional_trading": {"available": True},
+        "margin_short": {"available": True},
+        "material_information": {"available": True},
+    }
+    summary = {
+        "historical_data_status": {"has_20d_history": True, "has_60d_history": True},
+        "institutional_data_status": {"latest_available": True},
+        "margin_short_data_status": {"latest_available": True},
+        "mops_event_data_status": {"latest_available": True},
+        "qullamaggie": {"market_regime": {"status": "uptrend"}},
+    }
+    readiness = _build_scan_readiness(
+        coverage,
+        summary,
+        {"is_latest_trading_data_current": False, "reason": "Current trading day OHLCV not fully available yet"},
+    )
+    assert readiness["can_run_qullamaggie_scan"] is True
+    assert readiness["can_generate_new_paper_trade_candidate"] is False
+    assert "Current trading day OHLCV not fully available yet" in readiness["reasons"]
 
 
 def test_screening_candidate_lists_are_capped() -> None:

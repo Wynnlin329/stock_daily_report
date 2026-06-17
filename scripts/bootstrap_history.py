@@ -22,7 +22,7 @@ from stock_health.data_fetcher import (
     fetch_twse_margin_short,
     mops_events_payload,
 )
-from stock_health.history_store import build_history_index, ensure_dirs, load_mops_event_history_payloads, mops_event_history_paths, write_institutional_outputs, write_json, write_margin_short_outputs, write_mops_event_outputs, write_ohlcv_outputs
+from stock_health.history_store import ensure_dirs, load_mops_event_history_payloads, mops_event_history_paths, rebuild_history_index_from_files, write_json, write_institutional_outputs, write_margin_short_outputs, write_mops_event_outputs, write_ohlcv_outputs
 from stock_health.trading_calendar import ensure_taipei, is_trading_day, iter_recent_calendar_days
 
 LOGGER = logging.getLogger("stock_health.bootstrap_history")
@@ -167,24 +167,11 @@ def main() -> int:
             latest_otc_margin_short = fetch_tpex_margin_short(latest)
             write_margin_short_outputs(root, latest, latest_listed_margin_short.rows, latest_otc_margin_short.rows)
 
-    existing_mops_payloads = load_mops_event_history_payloads(root)
-    mops_event_days = sorted(
-        day
-        for day, payload in existing_mops_payloads.items()
-        if payload.get("status") in {"success", "empty_but_valid"} and payload.get("data_date") == day
-    )
-
-    index = build_history_index(
+    index = rebuild_history_index_from_files(
+        root,
         now.isoformat(timespec="seconds"),
         args.trading_days,
-        listed_days,
-        otc_days,
         errors,
-        listed_institutional_days,
-        otc_institutional_days,
-        listed_margin_short_days,
-        otc_margin_short_days,
-        mops_event_days,
         mops_backfill_mode,
     )
     write_json(root / "data" / "history-index.json", index)
