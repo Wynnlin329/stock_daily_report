@@ -28,6 +28,7 @@ def build_screening_summary(
     mops_event_rows: list[MopsEventRecord] | None = None,
     mops_event_history_payloads: dict[str, dict[str, Any]] | None = None,
     mops_events_status: str = "source_unavailable",
+    history_index: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     all_rows = listed_rows + otc_rows
     eligible_rows = [row for row in all_rows if row.scan_eligible]
@@ -55,9 +56,10 @@ def build_screening_summary(
         symbol: [event for event in metrics["events_7d"]]
         for symbol, metrics in mops_event_metrics_by_symbol.items()
     }
+    history_index = history_index or {}
     historical_days = sorted(history_rows)
-    has_20d_history = len(historical_days) >= 20
-    has_60d_history = len(historical_days) >= 60
+    has_20d_history = bool(history_index.get("has_20d_history", len(historical_days) >= 20))
+    has_60d_history = bool(history_index.get("has_60d_history", len(historical_days) >= 60))
     limitations: list[str] = []
     if not has_20d_history:
         limitations.append("歷史資料不足 20 個交易日；未產生 20 日均量、爆量倍數或 20 日突破訊號")
@@ -69,9 +71,10 @@ def build_screening_summary(
         limitations.append("MOPS 重大訊息不可用，未納入事件催化判斷。")
     if margin_short_rows and len(margin_short_history_rows) < 20:
         limitations.append("資券歷史資料不足 20 個交易日；margin_balance_ratio_20d 與 short_balance_ratio_20d 保留 null")
-    institutional_status = _institutional_data_status(institutional_rows, institutional_history_rows)
-    margin_short_status = _margin_short_data_status(margin_short_rows, margin_short_history_rows)
-    mops_event_status = _mops_event_data_status(report_date, mops_event_history_payloads, mops_events_status)
+    historical_status = _historical_data_status(history_index, historical_days)
+    institutional_status = _institutional_data_status(institutional_rows, institutional_history_rows, history_index)
+    margin_short_status = _margin_short_data_status(margin_short_rows, margin_short_history_rows, history_index)
+    mops_event_status = _mops_event_data_status(report_date, mops_event_history_payloads, mops_events_status, history_index)
     margin_short_attention = _margin_short_attention_candidates(eligible_rows, margin_short_metrics_by_symbol)
     margin_short_attention_symbols = {item["symbol"] for item in margin_short_attention}
     mops_event_candidates = _mops_event_candidates(eligible_rows, mops_event_metrics_by_symbol)
@@ -97,13 +100,7 @@ def build_screening_summary(
             "coverage": coverage,
         },
         "coverage": coverage,
-        "historical_data_status": {
-            "available_trading_days": len(historical_days),
-            "has_20d_history": has_20d_history,
-            "has_60d_history": has_60d_history,
-            "start_date": historical_days[0] if historical_days else None,
-            "end_date": historical_days[-1] if historical_days else None,
-        },
+        "historical_data_status": historical_status,
         "institutional_data_status": institutional_status,
         "margin_short_data_status": margin_short_status,
         "mops_event_data_status": mops_event_status,
@@ -143,11 +140,24 @@ def _market_summary(rows: list[OhlcvRecord]) -> dict[str, Any]:
     }
 
 
+def _historical_data_status(history_index: dict[str, Any], history_days: list[str]) -> dict[str, Any]:
+    common_days = list(history_index.get("common_ohlcv_days") or history_days)
+    return {
+        "available_trading_days": int(history_index.get("available_trading_days", len(common_days))),
+        "has_20d_history": bool(history_index.get("has_20d_history", len(common_days) >= 20)),
+        "has_60d_history": bool(history_index.get("has_60d_history", len(common_days) >= 60)),
+        "start_date": history_index.get("start_date") or (common_days[0] if common_days else None),
+        "end_date": history_index.get("end_date") or (common_days[-1] if common_days else None),
+    }
+
+
 def _institutional_data_status(
     current_rows: list[InstitutionalTradingRecord],
     history_rows: dict[str, list[InstitutionalTradingRecord]],
+    history_index: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
-    days = sorted(history_rows)
+    history_index = history_index or {}
+    days = list(history_index.get("common_institutional_days") or sorted(history_rows))
     limitations: list[str] = []
     if len(days) < 5:
         limitations.append("法人歷史資料不足 5 個交易日")
@@ -158,11 +168,11 @@ def _institutional_data_status(
     if current_rows and any(_has_partial_institutional(row) for row in current_rows):
         limitations.append("部分法人拆分欄位缺失，institutional_partial=true")
     return {
-        "latest_available": bool(current_rows),
+        "latest_available": bool(history_index.get("has_institutional_latest", bool(current_rows))),
         "available_trading_days": len(days),
-        "has_5d_history": len(days) >= 5,
-        "has_20d_history": len(days) >= 20,
-        "has_60d_history": len(days) >= 60,
+        "has_5d_history": bool(history_index.get("has_institutional_5d_history", len(days) >= 5)),
+        "has_20d_history": bool(history_index.get("has_institutional_20d_history", len(days) >= 20)),
+        "has_60d_history": bool(history_index.get("has_institutional_60d_history", len(days) >= 60)),
         "limitations": limitations,
     }
 
@@ -170,30 +180,41 @@ def _institutional_data_status(
 def _margin_short_data_status(
     current_rows: list[MarginShortRecord],
     history_rows: dict[str, list[MarginShortRecord]],
+    history_index: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
-    days = sorted(history_rows)
+    history_index = history_index or {}
+    days = list(history_index.get("common_margin_short_days") or sorted(history_rows))
     limitations: list[str] = []
     if len(days) < 20:
         limitations.append("資券歷史資料不足 20 個交易日，無法計算 20 日資券比例")
     if len(days) < 60:
         limitations.append("資券歷史資料不足 60 個交易日，無法計算 60 日資券變化")
     return {
-        "latest_available": bool(current_rows),
+        "latest_available": bool(history_index.get("has_margin_short_latest", bool(current_rows))),
         "available_trading_days": len(days),
-        "has_5d_history": len(days) >= 5,
-        "has_20d_history": len(days) >= 20,
-        "has_60d_history": len(days) >= 60,
+        "has_5d_history": bool(history_index.get("has_margin_short_5d_history", len(days) >= 5)),
+        "has_20d_history": bool(history_index.get("has_margin_short_20d_history", len(days) >= 20)),
+        "has_60d_history": bool(history_index.get("has_margin_short_60d_history", len(days) >= 60)),
         "limitations": limitations,
     }
 
 
-def _mops_event_data_status(report_date: str, history_payloads: dict[str, dict[str, Any]], current_status: str = "source_unavailable") -> dict[str, Any]:
+def _mops_event_data_status(
+    report_date: str,
+    history_payloads: dict[str, dict[str, Any]],
+    current_status: str = "source_unavailable",
+    history_index: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    history_index = history_index or {}
     end_date = date.fromisoformat(report_date)
     verified_days = {
         day
         for day, payload in history_payloads.items()
-        if payload.get("status") in {"success", "empty_but_valid"} and payload.get("data_date")
+        if payload.get("status") in {"success", "empty_but_valid"} and payload.get("data_date") == day
     }
+    index_days = set(history_index.get("mops_event_days") or [])
+    if index_days:
+        verified_days = index_days
     limitations: list[str] = []
     if current_status not in {"success", "empty_but_valid"}:
         limitations.append("MOPS 重大訊息不可用，未納入事件催化判斷。")
@@ -205,11 +226,11 @@ def _mops_event_data_status(report_date: str, history_payloads: dict[str, dict[s
         limitations.append("MOPS 重大訊息歷史不足 90 個自然日")
         limitations.append("MOPS 事件歷史採每日累積，目前尚未滿 90 自然日。")
     return {
-        "latest_available": report_date in verified_days,
+        "latest_available": bool(history_index.get("has_mops_event_latest", report_date in verified_days)),
         "available_calendar_days": len(verified_days),
-        "has_7d_history": all((end_date - timedelta(days=offset)).isoformat() in verified_days for offset in range(7)),
-        "has_30d_history": all((end_date - timedelta(days=offset)).isoformat() in verified_days for offset in range(30)),
-        "has_90d_history": all((end_date - timedelta(days=offset)).isoformat() in verified_days for offset in range(90)),
+        "has_7d_history": bool(history_index.get("has_mops_event_7d_history", all((end_date - timedelta(days=offset)).isoformat() in verified_days for offset in range(7)))),
+        "has_30d_history": bool(history_index.get("has_mops_event_30d_history", all((end_date - timedelta(days=offset)).isoformat() in verified_days for offset in range(30)))),
+        "has_90d_history": bool(history_index.get("has_mops_event_90d_history", all((end_date - timedelta(days=offset)).isoformat() in verified_days for offset in range(90)))),
         "limitations": limitations,
     }
 

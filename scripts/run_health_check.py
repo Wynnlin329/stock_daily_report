@@ -28,6 +28,7 @@ from stock_health.history_store import (
     load_institutional_history_rows,
     load_margin_short_history_rows,
     load_mops_event_history_payloads,
+    rebuild_history_index_from_files,
     write_institutional_outputs,
     write_json,
     write_margin_short_outputs,
@@ -93,8 +94,10 @@ def main() -> int:
     institutional_history_rows = load_institutional_history_rows(root)
     margin_short_history_rows = load_margin_short_history_rows(root)
     mops_event_history_payloads = load_mops_event_history_payloads(root)
-    has_20d_history = len(history_rows) >= 20
-    has_60d_history = len(history_rows) >= 60
+    history_index = rebuild_history_index_from_files(root, generated_at, 60)
+    write_json(root / "data" / "history-index.json", history_index)
+    has_20d_history = bool(history_index.get("has_20d_history"))
+    has_60d_history = bool(history_index.get("has_60d_history"))
     institutional_rows = listed_institutional.rows + otc_institutional.rows
     institutional_is_current = any(
         _is_data_current(result.data_date, report_date, market_is_trading_day) and bool(result.rows)
@@ -151,34 +154,17 @@ def main() -> int:
         errors.append("核心資料段落缺失：" + ", ".join(missing_sections))
     overall_confidence = "high" if full_market_scan_ready else ("medium" if (listed_result.rows or otc_result.rows) else "low")
     latest_market_data_date = max([value for value in [listed_result.data_date, otc_result.data_date] if value], default=None)
-
-    report = {
-        "schema_version": SCHEMA_VERSION,
-        "report_date": f"{report_date:%Y-%m-%d}",
-        "generated_at": generated_at,
-        "timezone": TIMEZONE,
-        "market_is_trading_day": market_is_trading_day,
-        "latest_market_data_date": latest_market_data_date,
-        "sources": {key: value.to_dict() for key, value in sources.items()},
-        "coverage": coverage,
-        "main_sources": _sources_by_role(sources, "主資料源"),
-        "backup_sources": _sources_by_role(sources, "候補資料源"),
-        "catalyst_news_sources": _sources_by_role(sources, "催化新聞源"),
-        "manual_review_sources": _sources_by_role(sources, "人工複核源"),
-        "not_recommended_sources": _sources_by_role(sources, "不建議自動化"),
-        "artifact_urls": {
-            "latest_json": github_raw_url("latest.json"),
-            "screening_summary": github_raw_url("data/latest-screening-summary.json"),
-            "market_scan": github_raw_url("reports/latest-market-scan.md"),
-            "institutional_summary": github_raw_url("data/latest-institutional-trading-summary.json"),
-            "margin_short_summary": github_raw_url("data/latest-margin-short-summary.json"),
-            "mops_events": github_raw_url("data/latest-mops-events.json"),
-        },
-        "full_market_scan_ready": full_market_scan_ready,
-        "missing_sections": missing_sections,
-        "overall_confidence": overall_confidence,
-        "errors": errors,
+    data_freshness = _build_data_freshness(report_date, latest_market_data_date, market_is_trading_day)
+    artifact_urls = {
+        "latest_json": github_raw_url("latest.json"),
+        "screening_summary": github_raw_url("data/latest-screening-summary.json"),
+        "institutional_summary": github_raw_url("data/latest-institutional-trading-summary.json"),
+        "margin_short_summary": github_raw_url("data/latest-margin-short-summary.json"),
+        "mops_events": github_raw_url("data/latest-mops-events.json"),
+        "history_index": github_raw_url("data/history-index.json"),
+        "market_scan": github_raw_url("reports/latest-market-scan.md"),
     }
+
     summary = build_screening_summary(
         f"{report_date:%Y-%m-%d}",
         generated_at,
@@ -196,7 +182,32 @@ def main() -> int:
         mops_event_rows=mops_events.rows,
         mops_event_history_payloads=mops_event_history_payloads,
         mops_events_status=mops_events.status,
+        history_index=history_index,
     )
+    scan_readiness = _build_scan_readiness(coverage, summary, data_freshness)
+
+    report = {
+        "schema_version": SCHEMA_VERSION,
+        "report_date": f"{report_date:%Y-%m-%d}",
+        "generated_at": generated_at,
+        "timezone": TIMEZONE,
+        "market_is_trading_day": market_is_trading_day,
+        "latest_market_data_date": latest_market_data_date,
+        "data_freshness": data_freshness,
+        "sources": {key: value.to_dict() for key, value in sources.items()},
+        "coverage": coverage,
+        "main_sources": _sources_by_role(sources, "主資料源"),
+        "backup_sources": _sources_by_role(sources, "候補資料源"),
+        "catalyst_news_sources": _sources_by_role(sources, "催化新聞源"),
+        "manual_review_sources": _sources_by_role(sources, "人工複核源"),
+        "not_recommended_sources": _sources_by_role(sources, "不建議自動化"),
+        "artifact_urls": artifact_urls,
+        "full_market_scan_ready": full_market_scan_ready,
+        "scan_readiness": scan_readiness,
+        "missing_sections": missing_sections,
+        "overall_confidence": overall_confidence,
+        "errors": errors,
+    }
     latest_md = build_health_markdown(report, report_date)
     market_scan_md = build_market_scan_markdown(summary, report_date)
 
@@ -223,6 +234,83 @@ def _merge_statuses(statuses: list[str]) -> str:
         if status in statuses:
             return status
     return statuses[0] if statuses else "source_unavailable"
+
+
+def _build_data_freshness(report_date: date, latest_market_data_date: str | None, market_is_trading_day: bool) -> dict[str, object]:
+    is_current = _is_data_current(latest_market_data_date, report_date, market_is_trading_day)
+    reason = "Latest trading data is current"
+    if not is_current:
+        reason = "Current trading day OHLCV not fully available yet" if market_is_trading_day else "Latest market data date is not available"
+    return {
+        "report_date": f"{report_date:%Y-%m-%d}",
+        "latest_market_data_date": latest_market_data_date,
+        "is_latest_trading_data_current": is_current,
+        "reason": reason,
+    }
+
+
+def _build_scan_readiness(
+    coverage: dict[str, dict[str, object]],
+    summary: dict[str, object],
+    data_freshness: dict[str, object],
+) -> dict[str, object]:
+    historical_status = summary.get("historical_data_status", {})
+    institutional_status = summary.get("institutional_data_status", {})
+    margin_short_status = summary.get("margin_short_data_status", {})
+    mops_event_status = summary.get("mops_event_data_status", {})
+    qullamaggie = summary.get("qullamaggie", {})
+    market_regime = qullamaggie.get("market_regime", {}) if isinstance(qullamaggie, dict) else {}
+
+    can_run_technical_scan = (
+        bool(coverage.get("listed_ohlcv", {}).get("available"))
+        and bool(coverage.get("otc_ohlcv", {}).get("available"))
+        and bool(historical_status.get("has_20d_history"))
+    )
+    can_run_qullamaggie_scan = can_run_technical_scan and bool(historical_status.get("has_60d_history"))
+    can_generate_new_paper_trade_candidate = (
+        can_run_qullamaggie_scan
+        and bool(coverage.get("market_environment", {}).get("available"))
+        and market_regime.get("status") != "insufficient_data"
+        and bool(data_freshness.get("is_latest_trading_data_current"))
+    )
+    can_use_institutional_confirmation = (
+        bool(coverage.get("institutional_trading", {}).get("available"))
+        and bool(institutional_status.get("latest_available"))
+    )
+    can_use_margin_short_risk = (
+        bool(coverage.get("margin_short", {}).get("available"))
+        and bool(margin_short_status.get("latest_available"))
+    )
+    can_use_mops_catalyst = (
+        bool(coverage.get("material_information", {}).get("available"))
+        and bool(mops_event_status.get("latest_available"))
+    )
+
+    reasons: list[str] = []
+    if not bool(coverage.get("listed_ohlcv", {}).get("available")):
+        reasons.append("listed_ohlcv unavailable")
+    if not bool(coverage.get("otc_ohlcv", {}).get("available")):
+        reasons.append("otc_ohlcv unavailable")
+    if not bool(historical_status.get("has_20d_history")):
+        reasons.append("requires at least 20 common OHLCV trading days")
+    if not bool(historical_status.get("has_60d_history")):
+        reasons.append("requires at least 60 common OHLCV trading days for Qullamaggie-style scan")
+    if not bool(coverage.get("market_environment", {}).get("available")):
+        reasons.append("market_environment unavailable")
+    if market_regime.get("status") == "insufficient_data":
+        reasons.append("Qullamaggie market_regime is insufficient_data")
+    if not bool(data_freshness.get("is_latest_trading_data_current")):
+        reasons.append(str(data_freshness.get("reason") or "latest trading data is not current"))
+
+    return {
+        "can_run_technical_scan": can_run_technical_scan,
+        "can_run_qullamaggie_scan": can_run_qullamaggie_scan,
+        "can_generate_new_paper_trade_candidate": can_generate_new_paper_trade_candidate,
+        "can_use_institutional_confirmation": can_use_institutional_confirmation,
+        "can_use_margin_short_risk": can_use_margin_short_risk,
+        "can_use_mops_catalyst": can_use_mops_catalyst,
+        "reasons": reasons,
+    }
 
 
 def _apply_ohlcv_source_result(source: object, fetch_result: object, label: str, report_date: date) -> None:

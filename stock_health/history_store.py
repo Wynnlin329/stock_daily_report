@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import json
-from datetime import date
+from datetime import date, timedelta
 from pathlib import Path
 from typing import Any
 
@@ -171,6 +171,84 @@ def load_mops_event_history_payloads(root: Path) -> dict[str, dict[str, Any]]:
     return payloads
 
 
+def rebuild_history_index_from_files(
+    root: Path,
+    generated_at: str,
+    target_trading_days: int,
+    errors: list[str] | None = None,
+    mops_backfill_mode: str = "forward_accumulation",
+) -> dict[str, Any]:
+    listed_days, otc_days = _market_history_days(root)
+    listed_institutional_days, otc_institutional_days = _paired_csv_history_days(
+        root / "data" / "institutional",
+        "-listed-institutional.csv",
+        "-otc-institutional.csv",
+        institutional_records_from_csv_text,
+    )
+    listed_margin_short_days, otc_margin_short_days = _paired_csv_history_days(
+        root / "data" / "margin_short",
+        "-listed-margin-short.csv",
+        "-otc-margin-short.csv",
+        margin_short_records_from_csv_text,
+    )
+    mops_event_days = sorted(
+        day
+        for day, payload in load_mops_event_history_payloads(root).items()
+        if payload.get("status") in {"success", "empty_but_valid"} and payload.get("data_date") == day
+    )
+    return build_history_index(
+        generated_at,
+        target_trading_days,
+        listed_days,
+        otc_days,
+        errors or [],
+        listed_institutional_days,
+        otc_institutional_days,
+        listed_margin_short_days,
+        otc_margin_short_days,
+        mops_event_days,
+        mops_backfill_mode,
+    )
+
+
+def _market_history_days(root: Path) -> tuple[list[str], list[str]]:
+    market_dir = root / "data" / "market"
+    if not market_dir.exists():
+        return [], []
+    listed_days: list[str] = []
+    otc_days: list[str] = []
+    for path in sorted(market_dir.glob("*/*/*-listed-ohlcv.csv")):
+        day = path.name.removesuffix("-listed-ohlcv.csv")
+        if records_from_csv_text(path.read_text(encoding="utf-8")):
+            listed_days.append(day)
+    for path in sorted(market_dir.glob("*/*/*-otc-ohlcv.csv")):
+        day = path.name.removesuffix("-otc-ohlcv.csv")
+        if records_from_csv_text(path.read_text(encoding="utf-8")):
+            otc_days.append(day)
+    return listed_days, otc_days
+
+
+def _paired_csv_history_days(
+    folder: Path,
+    listed_suffix: str,
+    otc_suffix: str,
+    parser: Any,
+) -> tuple[list[str], list[str]]:
+    if not folder.exists():
+        return [], []
+    listed_days: list[str] = []
+    otc_days: list[str] = []
+    for path in sorted(folder.glob(f"*/*/*{listed_suffix}")):
+        day = path.name.removesuffix(listed_suffix)
+        if parser(path.read_text(encoding="utf-8")):
+            listed_days.append(day)
+    for path in sorted(folder.glob(f"*/*/*{otc_suffix}")):
+        day = path.name.removesuffix(otc_suffix)
+        if parser(path.read_text(encoding="utf-8")):
+            otc_days.append(day)
+    return listed_days, otc_days
+
+
 def build_history_index(
     generated_at: str,
     target_trading_days: int,
@@ -195,9 +273,11 @@ def build_history_index(
     common_institutional_days = sorted(set(listed_institutional_days) & set(otc_institutional_days))
     margin_short_days = sorted(set(listed_margin_short_days) | set(otc_margin_short_days))
     common_margin_short_days = sorted(set(listed_margin_short_days) & set(otc_margin_short_days))
-    latest_reference_day = max(all_days or institutional_days or margin_short_days or mops_event_days, default=None)
+    latest_reference_day = common_days[-1] if common_days else max(institutional_days or margin_short_days or mops_event_days, default=None)
     missing_dates = [day for day in all_days if day not in common_days]
     sorted_mops_days = sorted(mops_event_days)
+    mops_event_day_set = set(sorted_mops_days)
+    latest_mops_day = date.fromisoformat(sorted_mops_days[-1]) if sorted_mops_days else None
     return {
         "schema_version": SCHEMA_VERSION,
         "generated_at": generated_at,
@@ -208,6 +288,7 @@ def build_history_index(
         "end_date": common_days[-1] if common_days else None,
         "listed_ohlcv_days": sorted(listed_days),
         "otc_ohlcv_days": sorted(otc_days),
+        "common_ohlcv_days": common_days,
         "listed_institutional_days": sorted(listed_institutional_days),
         "otc_institutional_days": sorted(otc_institutional_days),
         "common_institutional_days": common_institutional_days,
@@ -220,19 +301,25 @@ def build_history_index(
         "errors": errors,
         "has_20d_history": len(common_days) >= 20,
         "has_60d_history": len(common_days) >= 60,
-        "has_institutional_history": bool(institutional_days and institutional_days[-1] == latest_reference_day),
-        "has_margin_short_history": bool(margin_short_days and margin_short_days[-1] == latest_reference_day),
+        "has_institutional_history": bool(common_institutional_days and common_institutional_days[-1] == latest_reference_day),
+        "has_margin_short_history": bool(common_margin_short_days and common_margin_short_days[-1] == latest_reference_day),
         "has_mops_event_history": bool(sorted_mops_days and sorted_mops_days[-1] == latest_reference_day),
-        "has_institutional_latest": bool(latest_reference_day and latest_reference_day in institutional_days),
+        "has_institutional_latest": bool(latest_reference_day and latest_reference_day in common_institutional_days),
         "has_institutional_5d_history": len(common_institutional_days) >= 5,
         "has_institutional_20d_history": len(common_institutional_days) >= 20,
         "has_institutional_60d_history": len(common_institutional_days) >= 60,
-        "has_margin_short_latest": bool(latest_reference_day and latest_reference_day in margin_short_days),
+        "has_margin_short_latest": bool(latest_reference_day and latest_reference_day in common_margin_short_days),
         "has_margin_short_5d_history": len(common_margin_short_days) >= 5,
         "has_margin_short_20d_history": len(common_margin_short_days) >= 20,
         "has_margin_short_60d_history": len(common_margin_short_days) >= 60,
         "has_mops_event_latest": bool(latest_reference_day and latest_reference_day in sorted_mops_days),
-        "has_mops_event_7d_history": len(sorted_mops_days[-7:]) >= 7,
-        "has_mops_event_30d_history": len(sorted_mops_days[-30:]) >= 30,
-        "has_mops_event_90d_history": len(sorted_mops_days[-90:]) >= 90,
+        "has_mops_event_7d_history": _has_recent_calendar_days(latest_mops_day, mops_event_day_set, 7),
+        "has_mops_event_30d_history": _has_recent_calendar_days(latest_mops_day, mops_event_day_set, 30),
+        "has_mops_event_90d_history": _has_recent_calendar_days(latest_mops_day, mops_event_day_set, 90),
     }
+
+
+def _has_recent_calendar_days(latest_day: date | None, available_days: set[str], required_days: int) -> bool:
+    if latest_day is None:
+        return False
+    return all((latest_day - timedelta(days=offset)).isoformat() in available_days for offset in range(required_days))
