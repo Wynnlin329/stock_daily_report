@@ -25,7 +25,9 @@ from stock_health.history_store import (
     ensure_dirs,
     history_report_paths,
     load_history_rows,
+    load_institutional_history_rows,
     load_margin_short_history_rows,
+    load_mops_event_history_payloads,
     write_institutional_outputs,
     write_json,
     write_margin_short_outputs,
@@ -82,11 +84,14 @@ def main() -> int:
         mops_events.rows,
         mops_events.errors,
         mops_events.limitations,
+        mops_events.status,
     )
     write_mops_event_outputs(root, report_date, mops_summary, mops_events.rows)
 
     history_rows = load_history_rows(root)
+    institutional_history_rows = load_institutional_history_rows(root)
     margin_short_history_rows = load_margin_short_history_rows(root)
+    mops_event_history_payloads = load_mops_event_history_payloads(root)
     has_20d_history = len(history_rows) >= 20
     has_60d_history = len(history_rows) >= 60
     institutional_rows = listed_institutional.rows + otc_institutional.rows
@@ -107,11 +112,14 @@ def main() -> int:
         has_60d_history=has_60d_history,
         institutional_rows=institutional_rows,
         institutional_is_current=institutional_is_current,
+        institutional_status=_merge_statuses([getattr(listed_institutional, "status", "source_unavailable"), getattr(otc_institutional, "status", "source_unavailable")]),
         margin_short_rows=margin_short_rows,
         margin_short_is_current=margin_short_is_current,
+        margin_short_status=_merge_statuses([getattr(listed_margin_short, "status", "source_unavailable"), getattr(otc_margin_short, "status", "source_unavailable")]),
         mops_event_rows=mops_events.rows,
         mops_events_is_current=mops_is_current,
         mops_events_date_explicit=mops_events.data_date is not None,
+        mops_events_status=mops_events.status,
     )
     institutional_summary = _build_institutional_summary(
         report_date,
@@ -181,9 +189,11 @@ def main() -> int:
         missing_sections,
         overall_confidence,
         institutional_rows=institutional_rows,
+        institutional_history_rows=institutional_history_rows,
         margin_short_rows=margin_short_rows,
         margin_short_history_rows=margin_short_history_rows,
         mops_event_rows=mops_events.rows,
+        mops_event_history_payloads=mops_event_history_payloads,
     )
     latest_md = build_health_markdown(report, report_date)
     market_scan_md = build_market_scan_markdown(summary, report_date)
@@ -204,6 +214,13 @@ def main() -> int:
 
 def _sources_by_role(sources: dict[str, object], role: str) -> list[str]:
     return [source.name for source in sources.values() if source.role == role and source.schedule_ready]
+
+
+def _merge_statuses(statuses: list[str]) -> str:
+    for status in ("success", "empty_but_valid", "not_yet_published", "blocked_or_security_page", "parser_error", "source_unavailable"):
+        if status in statuses:
+            return status
+    return statuses[0] if statuses else "source_unavailable"
 
 
 def _apply_ohlcv_source_result(source: object, fetch_result: object, label: str, report_date: date) -> None:
@@ -259,6 +276,7 @@ def _build_institutional_summary(
         "otc_rows": len(otc_result.rows),
         "data_date": max(data_dates) if data_dates else None,
         "is_current": any(_is_data_current(result.data_date, report_date, market_is_trading_day) and bool(result.rows) for result in (listed_result, otc_result)),
+        "status": _merge_statuses([getattr(listed_result, "status", "source_unavailable"), getattr(otc_result, "status", "source_unavailable")]),
         "sources": {
             "twse": _institutional_source_summary(listed_result, report_date, market_is_trading_day),
             "tpex": _institutional_source_summary(otc_result, report_date, market_is_trading_day),
@@ -291,6 +309,7 @@ def _build_margin_short_summary(
         "otc_rows": len(otc_result.rows),
         "data_date": max(data_dates) if data_dates else None,
         "is_current": any(_is_data_current(result.data_date, report_date, market_is_trading_day) and bool(result.rows) for result in (listed_result, otc_result)),
+        "status": _merge_statuses([getattr(listed_result, "status", "source_unavailable"), getattr(otc_result, "status", "source_unavailable")]),
         "sources": {
             "twse": _source_summary(listed_result, report_date, market_is_trading_day),
             "tpex": _source_summary(otc_result, report_date, market_is_trading_day),
@@ -309,6 +328,7 @@ def _source_summary(result: object, report_date: date, market_is_trading_day: bo
         "rows": len(result.rows),
         "data_date": result.data_date,
         "is_current": _is_data_current(result.data_date, report_date, market_is_trading_day) and bool(result.rows),
+        "status": getattr(result, "status", "source_unavailable"),
         "errors": result.errors,
     }
 

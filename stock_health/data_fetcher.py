@@ -33,6 +33,14 @@ from .models import (
 
 LOGGER = logging.getLogger(__name__)
 
+STATUS_SUCCESS = "success"
+STATUS_EMPTY_BUT_VALID = "empty_but_valid"
+STATUS_NOT_YET_PUBLISHED = "not_yet_published"
+STATUS_SOURCE_UNAVAILABLE = "source_unavailable"
+STATUS_PARSER_ERROR = "parser_error"
+STATUS_BLOCKED_OR_SECURITY_PAGE = "blocked_or_security_page"
+STATUS_NON_TRADING_DAY = "non_trading_day"
+
 CSV_FIELDS = [
     "date",
     "symbol",
@@ -310,34 +318,43 @@ def fetch_twse_institutional_trading(target_date: date, client: HttpClient | Non
     client = client or HttpClient()
     response = client.get(twse_institutional_url(target_date))
     if response.status != 200:
-        return InstitutionalFetchResult(errors=[response.error or f"TWSE institutional HTTP status {response.status}"])
+        return InstitutionalFetchResult(errors=[response.error or f"TWSE institutional HTTP status {response.status}"], status=STATUS_SOURCE_UNAVAILABLE)
+    if _looks_like_mops_security_page(response.text):
+        return InstitutionalFetchResult(errors=["TWSE institutional response returned security page"], status=STATUS_BLOCKED_OR_SECURITY_PAGE)
     try:
         payload = _parse_json(response.text)
     except json.JSONDecodeError as exc:
-        return InstitutionalFetchResult(errors=[f"TWSE institutional JSON parse failed: {exc}"])
+        return InstitutionalFetchResult(errors=[f"TWSE institutional JSON parse failed: {exc}"], status=STATUS_PARSER_ERROR)
 
     fields = [str(item).strip() for item in payload.get("fields", [])]
     rows = payload.get("data", [])
     data_date = _extract_payload_date(payload)
     required = ["證券代號", "證券名稱", "三大法人買賣超股數"]
-    if not fields or not rows or not _has_required_fields(fields, required):
+    if fields and _has_required_fields(fields, required) and not rows:
+        return InstitutionalFetchResult(data_date=data_date, status=_empty_payload_status(payload))
+    if not fields and _payload_has_no_data(payload):
+        return InstitutionalFetchResult(data_date=data_date, status=_empty_payload_status(payload))
+    if not fields or not _has_required_fields(fields, required):
         return InstitutionalFetchResult(
             data_date=data_date,
             errors=[_table_error("TWSE institutional", payload, required)],
+            status=STATUS_PARSER_ERROR,
         )
     records = [_normalize_twse_institutional_row(target_date, fields, row) for row in rows]
-    return InstitutionalFetchResult(rows=[record for record in records if record.symbol], data_date=data_date or f"{target_date:%Y-%m-%d}")
+    return InstitutionalFetchResult(rows=[record for record in records if record.symbol], data_date=data_date or f"{target_date:%Y-%m-%d}", status=STATUS_SUCCESS)
 
 
 def fetch_tpex_institutional_trading(target_date: date, client: HttpClient | None = None) -> InstitutionalFetchResult:
     client = client or HttpClient()
     response = client.get(tpex_institutional_url(target_date))
     if response.status != 200:
-        return InstitutionalFetchResult(errors=[response.error or f"TPEx institutional HTTP status {response.status}"])
+        return InstitutionalFetchResult(errors=[response.error or f"TPEx institutional HTTP status {response.status}"], status=STATUS_SOURCE_UNAVAILABLE)
+    if _looks_like_mops_security_page(response.text):
+        return InstitutionalFetchResult(errors=["TPEx institutional response returned security page"], status=STATUS_BLOCKED_OR_SECURITY_PAGE)
     try:
         payload = _parse_json(response.text)
     except json.JSONDecodeError as exc:
-        return InstitutionalFetchResult(errors=[f"TPEx institutional JSON parse failed: {exc}"])
+        return InstitutionalFetchResult(errors=[f"TPEx institutional JSON parse failed: {exc}"], status=STATUS_PARSER_ERROR)
 
     fields, rows = _extract_table(
         payload,
@@ -345,24 +362,31 @@ def fetch_tpex_institutional_trading(target_date: date, client: HttpClient | Non
         title_keywords=["三大法人買賣明細"],
     )
     data_date = _extract_payload_date(payload)
-    if not fields or not rows:
+    if fields and not rows:
+        return InstitutionalFetchResult(data_date=data_date, status=_empty_payload_status(payload))
+    if not fields and _payload_has_no_data(payload):
+        return InstitutionalFetchResult(data_date=data_date, status=_empty_payload_status(payload))
+    if not fields:
         return InstitutionalFetchResult(
             data_date=data_date,
             errors=[_table_error("TPEx institutional", payload, ["代號", "名稱", "三大法人買賣超股數合計"])],
+            status=STATUS_PARSER_ERROR,
         )
     records = [_normalize_tpex_institutional_row(target_date, row) for row in rows]
-    return InstitutionalFetchResult(rows=[record for record in records if record.symbol], data_date=data_date or f"{target_date:%Y-%m-%d}")
+    return InstitutionalFetchResult(rows=[record for record in records if record.symbol], data_date=data_date or f"{target_date:%Y-%m-%d}", status=STATUS_SUCCESS)
 
 
 def fetch_twse_margin_short(target_date: date, client: HttpClient | None = None) -> MarginShortFetchResult:
     client = client or HttpClient()
     response = client.get(twse_margin_short_url(target_date))
     if response.status != 200:
-        return MarginShortFetchResult(errors=[response.error or f"TWSE margin short HTTP status {response.status}"])
+        return MarginShortFetchResult(errors=[response.error or f"TWSE margin short HTTP status {response.status}"], status=STATUS_SOURCE_UNAVAILABLE)
+    if _looks_like_mops_security_page(response.text):
+        return MarginShortFetchResult(errors=["TWSE margin short response returned security page"], status=STATUS_BLOCKED_OR_SECURITY_PAGE)
     try:
         payload = _parse_json(response.text)
     except json.JSONDecodeError as exc:
-        return MarginShortFetchResult(errors=[f"TWSE margin short JSON parse failed: {exc}"])
+        return MarginShortFetchResult(errors=[f"TWSE margin short JSON parse failed: {exc}"], status=STATUS_PARSER_ERROR)
 
     fields, rows = _extract_table(
         payload,
@@ -370,24 +394,31 @@ def fetch_twse_margin_short(target_date: date, client: HttpClient | None = None)
         title_keywords=["融資融券彙總"],
     )
     data_date = _extract_payload_date(payload)
-    if not fields or not rows:
+    if fields and not rows:
+        return MarginShortFetchResult(data_date=data_date, status=_empty_payload_status(payload))
+    if not fields and _payload_has_no_data(payload):
+        return MarginShortFetchResult(data_date=data_date, status=_empty_payload_status(payload))
+    if not fields:
         return MarginShortFetchResult(
             data_date=data_date,
             errors=[_table_error("TWSE margin short", payload, ["代號", "名稱", "資券互抵"])],
+            status=STATUS_PARSER_ERROR,
         )
     records = [_normalize_twse_margin_short_row(target_date, row) for row in rows]
-    return MarginShortFetchResult(rows=[record for record in records if record.symbol and record.symbol.isdigit()], data_date=data_date or f"{target_date:%Y-%m-%d}")
+    return MarginShortFetchResult(rows=[record for record in records if record.symbol and record.symbol.isdigit()], data_date=data_date or f"{target_date:%Y-%m-%d}", status=STATUS_SUCCESS)
 
 
 def fetch_tpex_margin_short(target_date: date, client: HttpClient | None = None) -> MarginShortFetchResult:
     client = client or HttpClient()
     response = client.get(tpex_margin_short_url(target_date))
     if response.status != 200:
-        return MarginShortFetchResult(errors=[response.error or f"TPEx margin short HTTP status {response.status}"])
+        return MarginShortFetchResult(errors=[response.error or f"TPEx margin short HTTP status {response.status}"], status=STATUS_SOURCE_UNAVAILABLE)
+    if _looks_like_mops_security_page(response.text):
+        return MarginShortFetchResult(errors=["TPEx margin short response returned security page"], status=STATUS_BLOCKED_OR_SECURITY_PAGE)
     try:
         payload = _parse_json(response.text)
     except json.JSONDecodeError as exc:
-        return MarginShortFetchResult(errors=[f"TPEx margin short JSON parse failed: {exc}"])
+        return MarginShortFetchResult(errors=[f"TPEx margin short JSON parse failed: {exc}"], status=STATUS_PARSER_ERROR)
 
     fields, rows = _extract_table(
         payload,
@@ -395,13 +426,18 @@ def fetch_tpex_margin_short(target_date: date, client: HttpClient | None = None)
         title_keywords=["融資融券餘額"],
     )
     data_date = _extract_payload_date(payload)
-    if not fields or not rows:
+    if fields and not rows:
+        return MarginShortFetchResult(data_date=data_date, status=_empty_payload_status(payload))
+    if not fields and _payload_has_no_data(payload):
+        return MarginShortFetchResult(data_date=data_date, status=_empty_payload_status(payload))
+    if not fields:
         return MarginShortFetchResult(
             data_date=data_date,
             errors=[_table_error("TPEx margin short", payload, ["代號", "名稱", "資餘額", "券餘額"])],
+            status=STATUS_PARSER_ERROR,
         )
     records = [_normalize_tpex_margin_short_row(target_date, fields, row) for row in rows]
-    return MarginShortFetchResult(rows=[record for record in records if record.symbol], data_date=data_date or f"{target_date:%Y-%m-%d}")
+    return MarginShortFetchResult(rows=[record for record in records if record.symbol], data_date=data_date or f"{target_date:%Y-%m-%d}", status=STATUS_SUCCESS)
 
 
 def fetch_mops_events(target_date: date, client: HttpClient | None = None) -> MopsEventFetchResult:
@@ -425,11 +461,11 @@ def fetch_mops_events(target_date: date, client: HttpClient | None = None) -> Mo
         },
     )
     if response.status != 200:
-        return MopsEventFetchResult(errors=[response.error or f"MOPS material information HTTP status {response.status}"])
+        return MopsEventFetchResult(errors=[response.error or f"MOPS material information HTTP status {response.status}"], status=STATUS_SOURCE_UNAVAILABLE)
 
     text = response.text
     if _looks_like_mops_security_page(text):
-        return MopsEventFetchResult(errors=["MOPS material information response returned security page; no parsable event date"])
+        return MopsEventFetchResult(errors=["MOPS material information response returned security page; no parsable event date"], status=STATUS_BLOCKED_OR_SECURITY_PAGE)
 
     events, parser_errors = parse_mops_events_html(text)
     data_date = _extract_mops_data_date(text, events)
@@ -438,7 +474,14 @@ def fetch_mops_events(target_date: date, client: HttpClient | None = None) -> Mo
         errors.append("MOPS material information response did not expose an explicit data date")
     if not events and data_date and not _looks_like_no_mops_events(text):
         errors.append("MOPS material information response date was explicit but no parsable event rows or no-data marker were found")
-    return MopsEventFetchResult(rows=events, data_date=data_date, errors=errors)
+    if errors:
+        return MopsEventFetchResult(rows=events, data_date=data_date, errors=errors, status=STATUS_PARSER_ERROR)
+    return MopsEventFetchResult(
+        rows=events,
+        data_date=data_date,
+        errors=[],
+        status=STATUS_SUCCESS if events else STATUS_EMPTY_BUT_VALID,
+    )
 
 
 def parse_mops_events_html(text: str) -> tuple[list[MopsEventRecord], list[str]]:
@@ -519,6 +562,18 @@ def _looks_like_mops_security_page(text: str) -> bool:
 
 def _looks_like_no_mops_events(text: str) -> bool:
     return any(marker in text for marker in ["查無資料", "無符合條件", "無重大訊息", "無資料"])
+
+
+def _empty_payload_status(payload: dict[str, Any]) -> str:
+    text = json.dumps(payload, ensure_ascii=False)
+    if any(marker in text for marker in ["尚未", "未公告", "暫無", "not yet"]):
+        return STATUS_NOT_YET_PUBLISHED
+    return STATUS_EMPTY_BUT_VALID
+
+
+def _payload_has_no_data(payload: dict[str, Any]) -> bool:
+    text = json.dumps(payload, ensure_ascii=False)
+    return any(marker in text for marker in ["沒有符合條件", "查無資料", "無資料", "no data"])
 
 
 def _mops_header_index(table: list[list[dict[str, str]]]) -> int | None:
@@ -723,7 +778,7 @@ def _extract_table(
         fields = [str(item).strip() for item in table.get("fields", [])]
         rows = table.get("data", [])
         title = str(table.get("title") or "")
-        if not fields or not rows:
+        if not fields:
             continue
         if not _has_required_fields(fields, required_fields):
             continue
@@ -736,7 +791,7 @@ def _extract_table(
             continue
         fields = [str(item).strip() for item in table.get("fields", [])]
         rows = table.get("data", [])
-        if fields and rows and _has_required_fields(fields, required_fields):
+        if fields and _has_required_fields(fields, required_fields):
             return fields, rows
 
     if legacy_field_keys or legacy_data_keys:
@@ -747,7 +802,7 @@ def _extract_table(
             if candidate_rows:
                 rows = candidate_rows
                 break
-        if fields and rows and _has_required_fields(fields, required_fields):
+        if fields and _has_required_fields(fields, required_fields):
             return fields, rows
 
     for key, value in payload.items():
@@ -756,7 +811,7 @@ def _extract_table(
         fields = [str(item).strip() for item in value]
         data_key = "data" + key.removeprefix("fields")
         rows = payload.get(data_key, [])
-        if fields and rows and _has_required_fields(fields, required_fields):
+        if fields and _has_required_fields(fields, required_fields):
             return fields, rows
     return None, []
 
@@ -939,6 +994,7 @@ def mops_events_payload(
     events: list[MopsEventRecord],
     errors: list[str] | None = None,
     limitations: list[str] | None = None,
+    status: str = STATUS_SOURCE_UNAVAILABLE,
 ) -> dict[str, Any]:
     return {
         "schema_version": "1.0",
@@ -963,6 +1019,7 @@ def mops_events_payload(
             }
             for event in events
         ],
+        "status": status,
         "errors": errors or [],
         "limitations": limitations or [],
     }

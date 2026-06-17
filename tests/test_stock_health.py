@@ -254,6 +254,33 @@ def test_history_index_flags() -> None:
     assert index["has_60d_history"] is False
 
 
+def test_history_index_chip_and_mops_flags() -> None:
+    trading_days = [f"2026-04-{i:02d}" for i in range(1, 31)] + [f"2026-05-{i:02d}" for i in range(1, 31)]
+    mops_days = [f"2026-03-{i:02d}" for i in range(1, 32)] + [f"2026-04-{i:02d}" for i in range(1, 31)] + [f"2026-05-{i:02d}" for i in range(1, 30)]
+    index = build_history_index(
+        "2026-06-15T18:15:00+08:00",
+        60,
+        trading_days,
+        trading_days,
+        [],
+        trading_days,
+        trading_days,
+        trading_days,
+        trading_days,
+        mops_days,
+    )
+    assert index["has_institutional_60d_history"] is True
+    assert index["has_margin_short_60d_history"] is True
+    assert index["has_mops_event_90d_history"] is True
+    assert len(index["common_institutional_days"]) == 60
+    assert len(index["common_margin_short_days"]) == 60
+
+
+def test_github_raw_url_uses_current_default_branch() -> None:
+    assert github_raw_url("latest.json") == "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/latest.json"
+    assert github_raw_url("data/latest-screening-summary.json") == "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/latest-screening-summary.json"
+
+
 def test_screening_does_not_fake_history_signals() -> None:
     summary = build_screening_summary(
         "2026-06-15",
@@ -602,6 +629,24 @@ def test_margin_short_parser_missing_fields_does_not_fabricate_rows() -> None:
     assert result.errors
 
 
+def test_margin_short_empty_rows_with_valid_fields_is_not_parser_error() -> None:
+    payload = {
+        "date": "20260615",
+        "tables": [
+            {
+                "title": "上櫃股票融資融券餘額",
+                "fields": ["代號", "名稱", "前資餘額(張)", "資買", "資賣", "現償", "資餘額", "資屬證金", "資使用率(%)", "資限額", "前券餘額(張)", "券賣", "券買", "券償", "券餘額", "券屬證金", "券使用率(%)", "券限額", "資券相抵(張)", "備註"],
+                "data": [],
+            }
+        ],
+    }
+    result = fetch_tpex_margin_short(date(2026, 6, 15), FakeClient([HttpResponse("mock", 200, json.dumps(payload).encode(), 1)]))
+    assert result.rows == []
+    assert result.errors == []
+    assert result.data_date == "2026-06-15"
+    assert result.status == "empty_but_valid"
+
+
 def test_single_margin_short_source_failure_does_not_block_other_source() -> None:
     tpex_payload = {
         "date": "20260615",
@@ -837,6 +882,72 @@ def test_mops_event_candidates_aggregate_and_scan_eligible_only() -> None:
     assert candidates[0]["event_categories"] == ["股利", "重大合約"]
     assert "重大訊息" in candidates[0]["tags"]
     assert any("需人工閱讀公告內容" in note for note in candidates[0]["risk_notes"])
+
+
+def test_screening_adds_institutional_margin_and_mops_history_metrics() -> None:
+    current = sample_record(symbol="2330", name="台積電", turnover=200000000)
+    institutional_history: dict[str, list[InstitutionalTradingRecord]] = {}
+    margin_history: dict[str, list[MarginShortRecord]] = {}
+    mops_history: dict[str, dict[str, object]] = {}
+    for index in range(1, 61):
+        day = f"2026-04-{index:02d}" if index <= 30 else f"2026-05-{index - 30:02d}"
+        inst = sample_institutional_record(symbol="2330", net_buy=100)
+        inst.date = day
+        inst.foreign_net_buy = 10
+        inst.investment_trust_net_buy = 5
+        inst.dealer_net_buy = 1
+        inst.institutional_net_buy = 16
+        institutional_history[day] = [inst]
+        margin = sample_margin_short_record(symbol="2330", margin_balance=1000 + index, short_balance=100 + index)
+        margin.date = day
+        margin_history[day] = [margin]
+    for index in range(1, 91):
+        day = date(2026, 3, 18).toordinal() + index
+        iso = date.fromordinal(day).isoformat()
+        mops_history[iso] = {
+            "status": "empty_but_valid",
+            "data_date": iso,
+            "events": [],
+        }
+    mops_history["2026-06-15"] = {
+        "status": "success",
+        "data_date": "2026-06-15",
+        "events": [sample_mops_event(symbol="2330").__dict__],
+    }
+    current_inst = sample_institutional_record(symbol="2330", net_buy=200)
+    current_margin = sample_margin_short_record(symbol="2330", margin_balance=2000, short_balance=400)
+    summary = build_screening_summary(
+        "2026-06-15",
+        "2026-06-15T18:15:00+08:00",
+        [current],
+        [],
+        {},
+        {},
+        False,
+        [],
+        "low",
+        institutional_rows=[current_inst],
+        institutional_history_rows=institutional_history,
+        margin_short_rows=[current_margin],
+        margin_short_history_rows=margin_history,
+        mops_event_history_payloads=mops_history,
+    )
+    inst_candidate = summary["screening"]["institutional_buy_candidates"][0]
+    assert inst_candidate["institutional_net_buy_5d"] == 264
+    assert inst_candidate["foreign_consecutive_buy_days"] == 61
+    assert inst_candidate["investment_trust_consecutive_buy_days"] == 61
+    assert inst_candidate["institutional_confirmation"] is True
+    margin_candidate = summary["screening"]["margin_short_attention"][0]
+    assert margin_candidate["margin_balance_5d_change"] == 944
+    assert margin_candidate["short_margin_ratio"] == 0.2
+    mops_candidate = summary["screening"]["mops_event_candidates"][0]
+    assert mops_candidate["mops_event_count_7d"] == 1
+    assert mops_candidate["mops_event_count_30d"] == 1
+    assert mops_candidate["mops_event_count_90d"] == 1
+    assert mops_candidate["mops_event_flag"] is True
+    assert summary["institutional_data_status"]["has_60d_history"] is True
+    assert summary["margin_short_data_status"]["has_60d_history"] is True
+    assert summary["mops_event_data_status"]["latest_available"] is True
 
 
 def test_mops_source_failure_does_not_stop_screening_summary() -> None:

@@ -7,6 +7,14 @@ on:
         description: "Number of trading days to backfill"
         required: false
         default: "60"
+      max_calendar_days:
+        description: "Maximum natural days to scan backward"
+        required: false
+        default: "180"
+      mops_calendar_days:
+        description: "Number of natural days to backfill MOPS events"
+        required: false
+        default: "90"
 
 permissions:
   contents: write
@@ -31,13 +39,19 @@ jobs:
         run: python -m pytest -q
 
       - name: Bootstrap history
-        run: python scripts/bootstrap_history.py --trading-days "${{ inputs.trading_days }}"
+        run: |
+          python scripts/bootstrap_history.py \
+            --trading-days "${{ inputs.trading_days }}" \
+            --max-calendar-days "${{ inputs.max_calendar_days }}" \
+            --include-institutional \
+            --include-margin-short \
+            --mops-calendar-days "${{ inputs.mops_calendar_days }}"
 
       - name: Commit generated history
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/history-index.json data/latest-listed-ohlcv.csv data/latest-otc-ohlcv.csv data/latest-institutional-trading.csv data/latest-margin-short.csv data/latest-mops-events.json data/latest-mops-events.csv data/market/ data/institutional/ data/margin_short/ data/mops/
+          git add data/history-index.json data/latest-listed-ohlcv.csv data/latest-otc-ohlcv.csv data/latest-institutional-trading.csv data/latest-institutional-trading-summary.json data/latest-margin-short.csv data/latest-margin-short-summary.json data/latest-mops-events.json data/latest-mops-events.csv data/market/ data/institutional/ data/margin_short/ data/mops/
           if git diff --cached --quiet; then
             echo "No generated history changes to commit."
             exit 0

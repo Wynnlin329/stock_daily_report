@@ -34,16 +34,20 @@ def calculate_qullamaggie_signals(
     benchmark_history: BenchmarkHistory | None = None,
     catalyst_symbols: dict[str, set[str]] | None = None,
     institutional_by_symbol: dict[str, InstitutionalTradingRecord] | None = None,
+    institutional_metrics_by_symbol: dict[str, dict[str, Any]] | None = None,
     margin_short_by_symbol: dict[str, dict[str, Any]] | None = None,
     margin_short_attention_symbols: set[str] | None = None,
     mops_events_by_symbol: dict[str, list[MopsEventRecord]] | None = None,
+    mops_event_metrics_by_symbol: dict[str, dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
     benchmark_history = benchmark_history or {}
     catalyst_symbols = catalyst_symbols or {}
     institutional_by_symbol = institutional_by_symbol or {}
+    institutional_metrics_by_symbol = institutional_metrics_by_symbol or {}
     margin_short_by_symbol = margin_short_by_symbol or {}
     margin_short_attention_symbols = margin_short_attention_symbols or set()
     mops_events_by_symbol = mops_events_by_symbol or {}
+    mops_event_metrics_by_symbol = mops_event_metrics_by_symbol or {}
     market_regime = calculate_market_regime(benchmark_history)
     eligible_rows = [row for row in current_rows if row.scan_eligible]
     limitations: list[str] = ["Qullamaggie-style 掃描僅針對 scan_eligible=true 的普通股 universe。"]
@@ -58,9 +62,11 @@ def calculate_qullamaggie_signals(
             market_regime,
             catalyst_symbols,
             institutional_by_symbol,
+            institutional_metrics_by_symbol,
             margin_short_by_symbol,
             margin_short_attention_symbols,
             mops_events_by_symbol,
+            mops_event_metrics_by_symbol,
         )
         for row in eligible_rows
     ]
@@ -231,9 +237,11 @@ def _calculate_candidate(
     market_regime: dict[str, Any],
     catalyst_symbols: dict[str, set[str]],
     institutional_by_symbol: dict[str, InstitutionalTradingRecord],
+    institutional_metrics_by_symbol: dict[str, dict[str, Any]],
     margin_short_by_symbol: dict[str, dict[str, Any]],
     margin_short_attention_symbols: set[str],
     mops_events_by_symbol: dict[str, list[MopsEventRecord]],
+    mops_event_metrics_by_symbol: dict[str, dict[str, Any]],
 ) -> dict[str, Any]:
     history = _history_for_symbol_before_date(history_rows, row.symbol, row.date)
     metrics = _calculate_metrics(
@@ -242,9 +250,11 @@ def _calculate_candidate(
         benchmark_history,
         catalyst_symbols,
         institutional_by_symbol.get(row.symbol),
+        institutional_metrics_by_symbol.get(row.symbol, {}),
         margin_short_by_symbol.get(row.symbol),
         row.symbol in margin_short_attention_symbols,
         mops_events_by_symbol.get(row.symbol, []),
+        mops_event_metrics_by_symbol.get(row.symbol, {}),
     )
     metrics["setup_type"] = classify_setup_type(metrics)
     score, breakdown = score_qullamaggie_candidate(metrics, market_regime)
@@ -263,11 +273,15 @@ def _calculate_metrics(
     benchmark_history: BenchmarkHistory,
     catalyst_symbols: dict[str, set[str]],
     institutional: InstitutionalTradingRecord | None = None,
+    institutional_metrics: dict[str, Any] | None = None,
     margin_short: dict[str, Any] | None = None,
     margin_short_attention_flag: bool = False,
     mops_events: list[MopsEventRecord] | None = None,
+    mops_event_metrics: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
+    institutional_metrics = institutional_metrics or {}
     mops_events = mops_events or []
+    mops_event_metrics = mops_event_metrics or {}
     closes = [item.close for item in history if item.close is not None]
     highs = [item.high for item in history if item.high is not None]
     lows = [item.low for item in history if item.low is not None]
@@ -295,9 +309,9 @@ def _calculate_metrics(
     distance_to_pivot_pct = _relative_pct(current_close, pivot_price)
     risk_to_stop_pct = _relative_pct(current_close, stop_reference)
     volume_ratio_20d = row.volume / avg_volume_20d if row.volume is not None and avg_volume_20d else None
-    mops_event_flag = bool(mops_events) or row.symbol in catalyst_symbols.get("mops", set())
-    mops_event_categories = sorted({event.category for event in mops_events if event.category})
-    mops_event_titles = [event.title for event in mops_events if event.title]
+    mops_event_flag = bool(mops_event_metrics.get("mops_event_flag")) or bool(mops_events) or row.symbol in catalyst_symbols.get("mops", set())
+    mops_event_categories = mops_event_metrics.get("mops_event_categories_7d") or sorted({event.category for event in mops_events if event.category})
+    mops_event_titles = mops_event_metrics.get("mops_recent_event_titles") or [event.title for event in mops_events if event.title]
     catalyst_tags = _catalyst_tags(row.symbol, catalyst_symbols, mops_event_categories, bool(mops_events))
 
     return {
@@ -317,7 +331,15 @@ def _calculate_metrics(
         "investment_trust_net_buy": institutional.investment_trust_net_buy if institutional else None,
         "dealer_net_buy": institutional.dealer_net_buy if institutional else None,
         "institutional_net_buy": institutional.institutional_net_buy if institutional else None,
-        "institutional_confirmation": bool(institutional and institutional.institutional_net_buy is not None and institutional.institutional_net_buy > 0),
+        "institutional_net_buy_5d": institutional_metrics.get("institutional_net_buy_5d"),
+        "institutional_net_buy_20d": institutional_metrics.get("institutional_net_buy_20d"),
+        "institutional_net_buy_60d": institutional_metrics.get("institutional_net_buy_60d"),
+        "foreign_consecutive_buy_days": institutional_metrics.get("foreign_consecutive_buy_days"),
+        "investment_trust_consecutive_buy_days": institutional_metrics.get("investment_trust_consecutive_buy_days"),
+        "institutional_consecutive_buy_days": institutional_metrics.get("institutional_consecutive_buy_days"),
+        "institutional_confirmation": bool(institutional_metrics.get("institutional_confirmation"))
+        if institutional_metrics
+        else bool(institutional and institutional.institutional_net_buy is not None and institutional.institutional_net_buy > 0),
         "institutional_source": institutional.source if institutional else None,
         "margin_balance": margin_short.get("margin_balance") if margin_short else None,
         "margin_change": margin_short.get("margin_change") if margin_short else None,
@@ -325,7 +347,9 @@ def _calculate_metrics(
         "short_change": margin_short.get("short_change") if margin_short else None,
         "margin_balance_ratio_20d": margin_short.get("margin_balance_ratio_20d") if margin_short else None,
         "short_balance_ratio_20d": margin_short.get("short_balance_ratio_20d") if margin_short else None,
+        "short_margin_ratio": margin_short.get("short_margin_ratio") if margin_short else None,
         "margin_short_attention_flag": margin_short_attention_flag,
+        "margin_short_risk_notes": margin_short.get("margin_short_risk_notes") if margin_short else [],
         "margin_short_source": margin_short.get("source") if margin_short else None,
         "ma10": _pct(ma10),
         "ma20": _pct(ma20),
@@ -368,7 +392,11 @@ def _calculate_metrics(
         "stop_reference": stop_reference,
         "risk_to_stop_pct": risk_to_stop_pct,
         "mops_event_flag": mops_event_flag,
-        "mops_event_count": len(mops_events),
+        "mops_event_count": mops_event_metrics.get("mops_event_count_7d", len(mops_events)),
+        "mops_event_count_today": mops_event_metrics.get("mops_event_count_today", 0),
+        "mops_event_count_7d": mops_event_metrics.get("mops_event_count_7d", len(mops_events)),
+        "mops_event_count_30d": mops_event_metrics.get("mops_event_count_30d", 0),
+        "mops_event_count_90d": mops_event_metrics.get("mops_event_count_90d", 0),
         "mops_event_categories": mops_event_categories,
         "mops_event_titles": mops_event_titles,
         "revenue_financial_flag": row.symbol in catalyst_symbols.get("revenue_financials", set()),
@@ -395,6 +423,12 @@ def _candidate_payload(metrics: dict[str, Any]) -> dict[str, Any]:
         "investment_trust_net_buy",
         "dealer_net_buy",
         "institutional_net_buy",
+        "institutional_net_buy_5d",
+        "institutional_net_buy_20d",
+        "institutional_net_buy_60d",
+        "foreign_consecutive_buy_days",
+        "investment_trust_consecutive_buy_days",
+        "institutional_consecutive_buy_days",
         "institutional_confirmation",
         "margin_balance",
         "margin_change",
@@ -402,7 +436,9 @@ def _candidate_payload(metrics: dict[str, Any]) -> dict[str, Any]:
         "short_change",
         "margin_balance_ratio_20d",
         "short_balance_ratio_20d",
+        "short_margin_ratio",
         "margin_short_attention_flag",
+        "margin_short_risk_notes",
         "ma10",
         "ma20",
         "ma50",
@@ -445,6 +481,10 @@ def _candidate_payload(metrics: dict[str, Any]) -> dict[str, Any]:
         "risk_to_stop_pct",
         "mops_event_flag",
         "mops_event_count",
+        "mops_event_count_today",
+        "mops_event_count_7d",
+        "mops_event_count_30d",
+        "mops_event_count_90d",
         "mops_event_categories",
         "mops_event_titles",
         "revenue_financial_flag",
