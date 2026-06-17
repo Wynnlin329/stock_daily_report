@@ -1,6 +1,6 @@
 # 報告日期：2026/06/17（星期三）
 
-- 執行時間：2026-06-17T10:15:27+08:00
+- 執行時間：2026-06-17T10:31:35+08:00
 - 交易日判定：True
 - 最新市場資料日期：2026-06-16
 - 是否足以執行全市場掃描：False
@@ -68,7 +68,7 @@
 - volume_spike_screening：True（20-day volume history available）
 - institutional_trading：False（empty_but_valid）
 - margin_short：False（empty_but_valid）
-- material_information：True（MOPS material information query verified with 7 events）
+- material_information：True（MOPS material information query verified with 8 events）
 - revenue_financials：False（First version does not parse revenue or financial statements yet）
 - news_topics：True（At least one catalyst news source reachable）
 - technical_review：False（TradingView/WantGoo/CMoney are manual review sources, not automated signals）
