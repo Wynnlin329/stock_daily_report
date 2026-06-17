@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import logging
 import sys
 import time
@@ -21,7 +22,7 @@ from stock_health.data_fetcher import (
     fetch_twse_margin_short,
     mops_events_payload,
 )
-from stock_health.history_store import build_history_index, ensure_dirs, load_mops_event_history_payloads, write_institutional_outputs, write_json, write_margin_short_outputs, write_mops_event_outputs, write_ohlcv_outputs
+from stock_health.history_store import build_history_index, ensure_dirs, load_mops_event_history_payloads, mops_event_history_paths, write_institutional_outputs, write_json, write_margin_short_outputs, write_mops_event_outputs, write_ohlcv_outputs
 from stock_health.trading_calendar import ensure_taipei, is_trading_day, iter_recent_calendar_days
 
 LOGGER = logging.getLogger("stock_health.bootstrap_history")
@@ -111,7 +112,14 @@ def main() -> int:
     mops_backfill_mode = "manual_backfill" if args.include_mops_backfill else "forward_accumulation"
     mops_days_to_fetch = [now.date()]
     if args.include_mops_backfill:
-        mops_days_to_fetch = list(iter_recent_calendar_days(now.date(), args.mops_calendar_days))[: max(args.mops_max_dates_per_run, 1)]
+        mops_days_to_fetch = []
+        for target_date in iter_recent_calendar_days(now.date(), args.mops_calendar_days):
+            if _has_complete_mops_history(root, target_date):
+                LOGGER.info("Skipping MOPS events %s; already complete", target_date)
+                continue
+            mops_days_to_fetch.append(target_date)
+            if len(mops_days_to_fetch) >= max(args.mops_max_dates_per_run, 1):
+                break
 
     mops_fetcher = fetch_mops_historical_events if args.include_mops_backfill else fetch_mops_events
     for target_date in mops_days_to_fetch:
@@ -140,6 +148,9 @@ def main() -> int:
             break
         if args.sleep_seconds > 0:
             time.sleep(args.sleep_seconds)
+
+    if args.include_mops_backfill:
+        _refresh_latest_mops_outputs(root)
 
     common_days = sorted(set(listed_days) & set(otc_days))
     if common_days:
@@ -184,6 +195,35 @@ def main() -> int:
 def _looks_like_network_unavailable(errors: list[str]) -> bool:
     text = "\n".join(errors).lower()
     return any(marker in text for marker in ["urlerror", "timed out", "name or service", "temporary failure", "network is unreachable"])
+
+
+def _has_complete_mops_history(root: Path, target_date: date) -> bool:
+    history_json, _ = mops_event_history_paths(root, target_date)
+    day = f"{target_date:%Y-%m-%d}"
+    if not history_json.exists():
+        return False
+    try:
+        payload = json.loads(history_json.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return False
+    return payload.get("status") in {"success", "empty_but_valid"} and payload.get("data_date") == day
+
+
+def _refresh_latest_mops_outputs(root: Path) -> None:
+    payloads = load_mops_event_history_payloads(root)
+    complete_days = sorted(
+        day
+        for day, payload in payloads.items()
+        if payload.get("status") in {"success", "empty_but_valid"} and payload.get("data_date") == day
+    )
+    if not complete_days:
+        return
+    latest_day = date.fromisoformat(complete_days[-1])
+    history_json, history_csv = mops_event_history_paths(root, latest_day)
+    if history_json.exists():
+        (root / "data" / "latest-mops-events.json").write_text(history_json.read_text(encoding="utf-8"), encoding="utf-8")
+    if history_csv.exists():
+        (root / "data" / "latest-mops-events.csv").write_text(history_csv.read_text(encoding="utf-8"), encoding="utf-8")
 
 
 if __name__ == "__main__":

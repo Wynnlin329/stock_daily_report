@@ -795,6 +795,58 @@ def test_bootstrap_mops_backfill_stops_on_security_page(monkeypatch, tmp_path: P
     assert index["mops_backfill_mode"] == "disabled_due_to_security_page"
 
 
+def test_bootstrap_mops_backfill_skips_completed_days(monkeypatch, tmp_path: Path) -> None:
+    import scripts.bootstrap_history as bootstrap_history
+
+    completed = tmp_path / "data" / "mops" / "2026" / "06" / "2026-06-17-mops-events.json"
+    write_json(
+        completed,
+        {
+            "report_date": "2026-06-17",
+            "data_date": "2026-06-17",
+            "status": "success",
+            "event_count": 1,
+        },
+    )
+    calls: list[str] = []
+
+    def fake_fetch_mops_historical_events(target_date: date) -> MopsEventFetchResult:
+        day = target_date.isoformat()
+        calls.append(day)
+        return MopsEventFetchResult(
+            data_date=day,
+            status="empty_but_valid",
+            source_url="https://mopsov.twse.com.tw/mops/web/ajax_t05st01",
+        )
+
+    monkeypatch.setattr(bootstrap_history, "ensure_taipei", lambda: datetime(2026, 6, 17, 18, 15, tzinfo=TAIPEI))
+    monkeypatch.setattr(bootstrap_history, "fetch_mops_historical_events", fake_fetch_mops_historical_events)
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "bootstrap_history.py",
+            "--root",
+            str(tmp_path),
+            "--trading-days",
+            "0",
+            "--max-calendar-days",
+            "0",
+            "--include-mops-backfill",
+            "--mops-calendar-days",
+            "3",
+            "--mops-max-dates-per-run",
+            "2",
+            "--sleep-seconds",
+            "0",
+        ],
+    )
+    assert bootstrap_history.main() == 0
+    assert calls == ["2026-06-16", "2026-06-15"]
+    latest = json.load(open(tmp_path / "data" / "latest-mops-events.json", encoding="utf-8"))
+    assert latest["report_date"] == "2026-06-17"
+
+
 def test_mops_current_day_query_form_is_not_parser_error() -> None:
     html = "<html><body><input type='hidden' name='funcName' value='t05st02'>公司代號 查詢</body></html>"
     result = fetch_mops_current_day_events(date(2026, 6, 16), FakeClient([HttpResponse("mock", 200, html.encode("utf-8"), 1)]))
