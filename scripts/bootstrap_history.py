@@ -15,6 +15,7 @@ from stock_health.data_fetcher import (
     fetch_tpex_margin_short,
     fetch_tpex_otc_ohlcv,
     fetch_mops_events,
+    fetch_mops_historical_events,
     fetch_twse_institutional_trading,
     fetch_twse_listed_ohlcv,
     fetch_twse_margin_short,
@@ -112,10 +113,11 @@ def main() -> int:
     if args.include_mops_backfill:
         mops_days_to_fetch = list(iter_recent_calendar_days(now.date(), args.mops_calendar_days))[: max(args.mops_max_dates_per_run, 1)]
 
+    mops_fetcher = fetch_mops_historical_events if args.include_mops_backfill else fetch_mops_events
     for target_date in mops_days_to_fetch:
         day = f"{target_date:%Y-%m-%d}"
         LOGGER.info("Fetching MOPS events %s", target_date)
-        mops_events = fetch_mops_events(target_date)
+        mops_events = mops_fetcher(target_date)
         mops_summary = mops_events_payload(
             day,
             now.isoformat(timespec="seconds"),

@@ -31,7 +31,7 @@ https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-heal
 17. `margin_short_attention` 只作為籌碼與風險複核，不得把融資或融券變化單獨視為買賣訊號。
 18. 重大訊息只讀取 `data/latest-mops-events.json` 與 `screening.mops_event_candidates`，不得重新爬 MOPS。
 19. `mops_event_candidates` 只作為事件人工複核清單；重大訊息不等於利多，不得自行判斷方向、目標價或停損價。
-20. OHLCV 與技術面使用 60 個交易日歷史；法人買賣超與融資融券也使用 60 個交易日歷史；MOPS 重大訊息採每日累積，最多使用近 90 個自然日歷史。
+20. OHLCV 與技術面使用 60 個交易日歷史；法人買賣超與融資融券也使用 60 個交易日歷史；MOPS 重大訊息預設採每日累積，手動 backfill 可用 MOPSOV `t05st01` 歷史查詢低頻回補，最多使用近 90 個自然日歷史。
 21. 必須尊重 `institutional_data_status`、`margin_short_data_status` 與 `mops_event_data_status`；資料不可用時不得自行爬外部網站補資料。
 22. 目前可用 Raw URL 不得使用 `<OWNER>/<REPO>/main` placeholder。
 23. MOPS 來源優先使用 MOPSOV 即時重大訊息頁；若 `status` 是 `blocked_or_security_page`、`parser_error` 或 `source_unavailable`，必須標示不可用，不得自行補事件。
@@ -93,7 +93,7 @@ Universe 摘要時請包含：
 ```text
 - coverage.material_information.available
 - data/latest-mops-events.json 的 data_date、is_current、event_count、errors、limitations
-- data/latest-mops-events.json 的 status 與 source_url；若 MOPS 歷史尚未滿 90 自然日，需說明採每日 forward accumulation。
+- data/latest-mops-events.json 的 status 與 source_url；若 MOPS 歷史尚未滿 90 自然日，需說明採每日 forward accumulation，或由手動 backfill 透過 MOPSOV `t05st01` 低頻補齊。
 - screening.mops_event_candidates 前 10 名的 symbol、name、event_count、event_categories、event_titles、risk_notes
 - 逐項列出公司、分類、標題，以及需要人工閱讀公告內容確認的重點
 - 若 MOPS 日期未知、回傳安全頁或解析失敗，清楚標示不可解讀，不得自行補事件
