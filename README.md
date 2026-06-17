@@ -298,6 +298,10 @@ https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-heal
 
 Raw URL 由 `stock_health/config.py` 的 `GITHUB_OWNER`、`GITHUB_REPO`、`GITHUB_RAW_BRANCH` 與 `github_raw_url()` 集中產生。`<OWNER>/<REPO>/main` 這類 placeholder 只適合模板，不是本 repository 目前可用 URL。若未來正式改用 `main`，只需修改 `GITHUB_RAW_BRANCH` 並重產 artifacts。
 
+程式中的 Raw URL 由 `stock_health/config.py` 的 `GITHUB_OWNER`、`GITHUB_REPO`、`GITHUB_RAW_BRANCH` 與 `github_raw_url()` 集中產生。若未來 repository 合併到 `main` 並改用 `main` 作為正式讀取分支，只需把 `GITHUB_RAW_BRANCH` 改成 `main`，不要在 README、prompt 或 runner 中分散硬編碼。
+
+`<OWNER>/<REPO>/main` 這類 placeholder 只適合專案模板，不是本 repository 目前可用的讀取 URL。
+
 ## ChatGPT 排程讀取方式
 
 ChatGPT 排程應讀取 `latest.json`、`data/latest-screening-summary.json` 與 `data/latest-mops-events.json`。若 `full_market_scan_ready=false`，應先說明缺少的核心資料段落，不得把摘要解讀成完整市場掃描。
