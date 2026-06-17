@@ -11,6 +11,7 @@ from typing import Any
 from urllib.parse import urljoin
 
 from .config import (
+    mops_current_day_events_url,
     tpex_daily_url,
     tpex_institutional_url,
     tpex_margin_short_url,
@@ -18,6 +19,7 @@ from .config import (
     twse_margin_short_url,
     twse_mi_index_url,
     mops_major_events_url,
+    mops_realtime_events_url,
 )
 from .http_client import HttpClient
 from .models import (
@@ -442,45 +444,117 @@ def fetch_tpex_margin_short(target_date: date, client: HttpClient | None = None)
 
 def fetch_mops_events(target_date: date, client: HttpClient | None = None) -> MopsEventFetchResult:
     client = client or HttpClient()
-    roc_year = str(target_date.year - 1911)
-    form = {
-        "encodeURIComponent": "1",
-        "step": "1",
-        "firstin": "1",
-        "off": "1",
-        "TYPEK": "all",
-        "year": roc_year,
-        "month": f"{target_date:%m}",
-        "day": f"{target_date:%d}",
-    }
-    response = client.post(
-        mops_major_events_url(),
-        form,
-        headers={
-            "Referer": "https://mops.twse.com.tw/mops/web/t05sr01_1",
-        },
-    )
+    realtime = fetch_mops_realtime_events(target_date, client)
+    if realtime.status in {STATUS_SUCCESS, STATUS_EMPTY_BUT_VALID, STATUS_BLOCKED_OR_SECURITY_PAGE}:
+        return realtime
+
+    current_day = fetch_mops_current_day_events(target_date, client)
+    return _prefer_mops_result(realtime, current_day)
+
+
+def fetch_mops_realtime_events(report_date: date, client: HttpClient | None = None) -> MopsEventFetchResult:
+    client = client or HttpClient()
+    source_url = mops_realtime_events_url()
+    response = client.get(source_url)
     if response.status != 200:
-        return MopsEventFetchResult(errors=[response.error or f"MOPS material information HTTP status {response.status}"], status=STATUS_SOURCE_UNAVAILABLE)
+        return MopsEventFetchResult(
+            errors=[response.error or f"MOPSOV realtime material information HTTP status {response.status}"],
+            status=STATUS_SOURCE_UNAVAILABLE,
+            source_url=source_url,
+        )
 
     text = response.text
     if _looks_like_mops_security_page(text):
-        return MopsEventFetchResult(errors=["MOPS material information response returned security page; no parsable event date"], status=STATUS_BLOCKED_OR_SECURITY_PAGE)
+        return MopsEventFetchResult(
+            errors=["MOPSOV realtime material information response returned security page; stop this source"],
+            limitations=["MOPS 重大訊息來源回傳 security page，未納入事件催化判斷。"],
+            status=STATUS_BLOCKED_OR_SECURITY_PAGE,
+            source_url=source_url,
+        )
 
     events, parser_errors = parse_mops_events_html(text)
-    data_date = _extract_mops_data_date(text, events)
+    report_day = f"{report_date:%Y-%m-%d}"
+    events = [event for event in events if event.date == report_day]
+    data_date = _extract_mops_data_date(text, events) or _extract_mops_data_date(text, [])
     errors = list(parser_errors)
     if data_date is None:
-        errors.append("MOPS material information response did not expose an explicit data date")
-    if not events and data_date and not _looks_like_no_mops_events(text):
-        errors.append("MOPS material information response date was explicit but no parsable event rows or no-data marker were found")
+        errors.append("MOPSOV realtime material information response did not expose an explicit data date")
     if errors:
-        return MopsEventFetchResult(rows=events, data_date=data_date, errors=errors, status=STATUS_PARSER_ERROR)
+        return MopsEventFetchResult(rows=events, data_date=data_date, errors=errors, status=STATUS_PARSER_ERROR, source_url=source_url)
     return MopsEventFetchResult(
         rows=events,
         data_date=data_date,
         errors=[],
         status=STATUS_SUCCESS if events else STATUS_EMPTY_BUT_VALID,
+        source_url=source_url,
+    )
+
+
+def fetch_mops_current_day_events(report_date: date, client: HttpClient | None = None) -> MopsEventFetchResult:
+    client = client or HttpClient()
+    source_url = mops_current_day_events_url()
+    response = client.get(source_url)
+    if response.status != 200:
+        return MopsEventFetchResult(
+            errors=[response.error or f"MOPSOV current-day material information HTTP status {response.status}"],
+            status=STATUS_SOURCE_UNAVAILABLE,
+            source_url=source_url,
+        )
+    text = response.text
+    if _looks_like_mops_security_page(text):
+        return MopsEventFetchResult(
+            errors=["MOPSOV current-day material information response returned security page; stop this source"],
+            limitations=["MOPS 重大訊息來源回傳 security page，未納入事件催化判斷。"],
+            status=STATUS_BLOCKED_OR_SECURITY_PAGE,
+            source_url=source_url,
+        )
+
+    events, parser_errors = parse_mops_events_html(text)
+    report_day = f"{report_date:%Y-%m-%d}"
+    events = [event for event in events if event.date == report_day]
+    data_date = _extract_mops_data_date(text, events)
+    if data_date:
+        return MopsEventFetchResult(
+            rows=events,
+            data_date=data_date,
+            errors=parser_errors,
+            status=STATUS_SUCCESS if events else STATUS_EMPTY_BUT_VALID,
+            source_url=source_url,
+        )
+    if _looks_like_current_day_query_form(text):
+        return MopsEventFetchResult(
+            rows=[],
+            data_date=None,
+            errors=[],
+            limitations=["MOPSOV 當日重大訊息頁僅回傳查詢表單，未取得可驗證資料日期。"],
+            status=STATUS_SOURCE_UNAVAILABLE,
+            source_url=source_url,
+        )
+    return MopsEventFetchResult(
+        rows=[],
+        data_date=None,
+        errors=parser_errors or ["MOPSOV current-day material information response did not expose a verifiable data date"],
+        status=STATUS_PARSER_ERROR,
+        source_url=source_url,
+    )
+
+
+def _prefer_mops_result(primary: MopsEventFetchResult, fallback: MopsEventFetchResult) -> MopsEventFetchResult:
+    if fallback.status in {STATUS_SUCCESS, STATUS_EMPTY_BUT_VALID, STATUS_BLOCKED_OR_SECURITY_PAGE}:
+        if primary.errors or primary.limitations:
+            fallback.limitations = [
+                *primary.limitations,
+                *(f"realtime fallback: {error}" for error in primary.errors),
+                *fallback.limitations,
+            ]
+        return fallback
+    return MopsEventFetchResult(
+        rows=[],
+        data_date=primary.data_date or fallback.data_date,
+        errors=[*primary.errors, *fallback.errors],
+        limitations=[*primary.limitations, *fallback.limitations],
+        status=primary.status if primary.status == STATUS_PARSER_ERROR else fallback.status,
+        source_url=primary.source_url or fallback.source_url,
     )
 
 
@@ -557,11 +631,26 @@ class _MopsTableParser(HTMLParser):
 
 
 def _looks_like_mops_security_page(text: str) -> bool:
-    return "FOR SECURITY REASONS" in text or "安全性考量" in text or "錯誤代碼" in text
+    markers = [
+        "FOR SECURITY REASONS",
+        "安全性考量",
+        "錯誤代碼",
+        "禁止存取",
+        "驗證碼",
+        "captcha",
+        "security",
+        "access denied",
+    ]
+    lowered = text.lower()
+    return any(marker in text or marker.lower() in lowered for marker in markers)
 
 
 def _looks_like_no_mops_events(text: str) -> bool:
     return any(marker in text for marker in ["查無資料", "無符合條件", "無重大訊息", "無資料"])
+
+
+def _looks_like_current_day_query_form(text: str) -> bool:
+    return "funcName" in text and "t05st02" in text and ("查詢" in text or "公司代號" in text)
 
 
 def _empty_payload_status(payload: dict[str, Any]) -> str:
@@ -603,6 +692,7 @@ def _mops_cell(row: list[dict[str, str]], headers: list[str], candidates: list[s
 def _mops_event_from_row(headers: list[str], row: list[dict[str, str]]) -> MopsEventRecord | None:
     symbol = _mops_cell(row, headers, ["公司代號", "證券代號", "代號"])["text"].strip()
     name = _mops_cell(row, headers, ["公司名稱", "公司簡稱", "名稱"])["text"].strip()
+    market = _mops_cell(row, headers, ["市場別"])["text"].strip() or None
     title_cell = _mops_cell(row, headers, ["重大訊息主旨", "主旨", "標題"])
     title = title_cell["text"].strip()
     event_date = _normalize_mops_date(_mops_cell(row, headers, ["發言日期", "公告日期", "日期"])["text"].strip())
@@ -616,12 +706,12 @@ def _mops_event_from_row(headers: list[str], row: list[dict[str, str]]) -> MopsE
         time=event_time,
         symbol=symbol,
         name=name,
-        market=None,
+        market=market,
         title=title,
         category=category,
         summary=summary,
-        url=urljoin(mops_major_events_url(), title_cell["href"]) if title_cell["href"] else None,
-        source="MOPS",
+        url=urljoin(mops_realtime_events_url(), title_cell["href"]) if title_cell["href"] else None,
+        source="MOPSOV:t05sr01_1",
     )
 
 
@@ -995,6 +1085,7 @@ def mops_events_payload(
     errors: list[str] | None = None,
     limitations: list[str] | None = None,
     status: str = STATUS_SOURCE_UNAVAILABLE,
+    source_url: str | None = None,
 ) -> dict[str, Any]:
     return {
         "schema_version": "1.0",
@@ -1004,6 +1095,8 @@ def mops_events_payload(
         "data_date": data_date,
         "is_current": is_current,
         "event_count": len(events),
+        "status": status,
+        "source_url": source_url,
         "events": [
             {
                 "date": event.date,
@@ -1019,7 +1112,6 @@ def mops_events_payload(
             }
             for event in events
         ],
-        "status": status,
         "errors": errors or [],
         "limitations": limitations or [],
     }

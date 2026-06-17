@@ -148,6 +148,14 @@ def mops_major_events_url() -> str:
     return "https://mops.twse.com.tw/mops/web/ajax_t05sr01_1"
 
 
+def mops_realtime_events_url() -> str:
+    return "https://mopsov.twse.com.tw/mops/web/t05sr01_1"
+
+
+def mops_current_day_events_url() -> str:
+    return "https://mopsov.twse.com.tw/mops/web/t05st02"
+
+
 def github_raw_url(path: str) -> str:
     normalized_path = path.strip().lstrip("/")
     return f"https://raw.githubusercontent.com/{GITHUB_OWNER}/{GITHUB_REPO}/{GITHUB_RAW_BRANCH}/{normalized_path}"
@@ -158,7 +166,7 @@ def source_configs(target_date: date) -> list[SourceConfig]:
         SourceConfig("twse", "TWSE", "主資料源", twse_mi_index_url(target_date), True, schedule_ready=True),
         SourceConfig("tpex", "TPEx", "主資料源", tpex_daily_url(target_date), True, schedule_ready=True),
         SourceConfig("data_gov_tw", "data.gov.tw", "主資料源", "https://data.gov.tw/", True),
-        SourceConfig("mops", "MOPS", "主資料源", "https://mops.twse.com.tw/mops/web/index", True),
+        SourceConfig("mops", "MOPS", "主資料源", mops_realtime_events_url(), True),
         SourceConfig("goodinfo", "Goodinfo", "候補資料源", "https://goodinfo.tw/tw/index.asp", False),
         SourceConfig("yahoo_tw_stock", "Yahoo 奇摩股市", "催化新聞源", "https://tw.stock.yahoo.com/", False, dynamic_loading_suspected=True),
         SourceConfig("cnyes", "鉅亨網 Cnyes", "催化新聞源", "https://www.cnyes.com/twstock/", False, dynamic_loading_suspected=True),

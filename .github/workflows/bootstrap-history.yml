@@ -15,6 +15,14 @@ on:
         description: "Number of natural days to backfill MOPS events"
         required: false
         default: "90"
+      include_mops_backfill:
+        description: "Opt in to low-frequency MOPS event backfill"
+        required: false
+        default: "false"
+      mops_max_dates_per_run:
+        description: "Maximum MOPS dates to request per run when backfill is enabled"
+        required: false
+        default: "5"
 
 permissions:
   contents: write
@@ -40,12 +48,17 @@ jobs:
 
       - name: Bootstrap history
         run: |
+          MOPS_BACKFILL_ARGS=""
+          if [ "${{ inputs.include_mops_backfill }}" = "true" ]; then
+            MOPS_BACKFILL_ARGS="--include-mops-backfill --mops-max-dates-per-run ${{ inputs.mops_max_dates_per_run }}"
+          fi
           python scripts/bootstrap_history.py \
             --trading-days "${{ inputs.trading_days }}" \
             --max-calendar-days "${{ inputs.max_calendar_days }}" \
             --include-institutional \
             --include-margin-short \
-            --mops-calendar-days "${{ inputs.mops_calendar_days }}"
+            --mops-calendar-days "${{ inputs.mops_calendar_days }}" \
+            ${MOPS_BACKFILL_ARGS}
 
       - name: Commit generated history
         run: |

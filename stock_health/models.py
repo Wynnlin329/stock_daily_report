@@ -258,6 +258,7 @@ class MopsEventFetchResult:
     errors: list[str] = field(default_factory=list)
     limitations: list[str] = field(default_factory=list)
     status: str = "source_unavailable"
+    source_url: str | None = None
 
     @property
     def ok(self) -> bool:

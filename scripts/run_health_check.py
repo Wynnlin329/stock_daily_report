@@ -85,6 +85,7 @@ def main() -> int:
         mops_events.errors,
         mops_events.limitations,
         mops_events.status,
+        mops_events.source_url,
     )
     write_mops_event_outputs(root, report_date, mops_summary, mops_events.rows)
 
@@ -194,6 +195,7 @@ def main() -> int:
         margin_short_history_rows=margin_short_history_rows,
         mops_event_rows=mops_events.rows,
         mops_event_history_payloads=mops_event_history_payloads,
+        mops_events_status=mops_events.status,
     )
     latest_md = build_health_markdown(report, report_date)
     market_scan_md = build_market_scan_markdown(summary, report_date)

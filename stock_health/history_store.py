@@ -182,6 +182,7 @@ def build_history_index(
     listed_margin_short_days: list[str] | None = None,
     otc_margin_short_days: list[str] | None = None,
     mops_event_days: list[str] | None = None,
+    mops_backfill_mode: str = "forward_accumulation",
 ) -> dict[str, Any]:
     listed_institutional_days = listed_institutional_days or []
     otc_institutional_days = otc_institutional_days or []
@@ -214,6 +215,7 @@ def build_history_index(
         "otc_margin_short_days": sorted(otc_margin_short_days),
         "common_margin_short_days": common_margin_short_days,
         "mops_event_days": sorted_mops_days,
+        "mops_backfill_mode": mops_backfill_mode,
         "missing_dates": missing_dates,
         "errors": errors,
         "has_20d_history": len(common_days) >= 20,

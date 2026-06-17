@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import re
+import sys
 from http.client import IncompleteRead
 from datetime import date, datetime
 from pathlib import Path
@@ -10,10 +11,12 @@ from stock_health.config import github_raw_url
 from stock_health.coverage import build_coverage
 from stock_health.data_fetcher import (
     classify_mops_event,
+    fetch_mops_current_day_events,
     fetch_tpex_institutional_trading,
     fetch_tpex_margin_short,
     fetch_tpex_otc_ohlcv,
     fetch_mops_events,
+    fetch_mops_realtime_events,
     fetch_twse_institutional_trading,
     fetch_twse_listed_ohlcv,
     fetch_twse_margin_short,
@@ -27,7 +30,7 @@ from stock_health.data_fetcher import (
 from stock_health.history_store import build_history_index, history_report_paths, load_history_rows, write_json, write_ohlcv_outputs
 from stock_health.http_client import HttpResponse
 import stock_health.http_client as http_client_module
-from stock_health.models import InstitutionalTradingRecord, MarginShortRecord, MopsEventRecord, OhlcvRecord, SourceHealth
+from stock_health.models import InstitutionalTradingRecord, MarginShortRecord, MopsEventFetchResult, MopsEventRecord, OhlcvRecord, SourceHealth
 from stock_health.report_writer import build_health_markdown
 from stock_health.screening import build_screening_summary
 from stock_health.source_health import check_all_sources
@@ -236,6 +239,7 @@ def test_history_index_chip_and_mops_flags() -> None:
     assert index["has_institutional_60d_history"] is True
     assert index["has_margin_short_60d_history"] is True
     assert index["has_mops_event_90d_history"] is True
+    assert index["mops_backfill_mode"] == "forward_accumulation"
     assert len(index["common_institutional_days"]) == 60
     assert len(index["common_margin_short_days"]) == 60
 
@@ -633,34 +637,103 @@ def test_single_margin_short_source_failure_does_not_block_other_source() -> Non
 def test_mops_event_parser_with_mock_html() -> None:
     html = """
     <html><body>
-    <div>資料日期：民國115年06月15日</div>
+    <div>市場別：全體公司</div>
     <table>
-      <tr><th>公司代號</th><th>公司名稱</th><th>發言日期</th><th>發言時間</th><th>主旨</th><th>說明</th></tr>
-      <tr><td>2330</td><td>台積電</td><td>115/06/15</td><td>18:01</td><td><a href="/mops/web/t05st01">董事會決議股利</a></td><td>決議現金股利</td></tr>
+      <tr><th>公司代號</th><th>公司簡稱</th><th>發言日期</th><th>發言時間</th><th>主旨</th><th>&nbsp;</th></tr>
+      <tr><td>2330</td><td>台積電</td><td>115/06/16</td><td>18:01:09</td><td>董事會決議股利</td><td><input type="button" value="詳細資料"></td></tr>
     </table>
     </body></html>
     """
-    result = fetch_mops_events(date(2026, 6, 15), FakeClient([HttpResponse("mock", 200, html.encode("utf-8"), 1)]))
+    result = fetch_mops_realtime_events(date(2026, 6, 16), FakeClient([HttpResponse("mock", 200, html.encode("utf-8"), 1)]))
     assert result.ok is True
-    assert result.data_date == "2026-06-15"
+    assert result.status == "success"
+    assert result.data_date == "2026-06-16"
     assert result.rows[0].symbol == "2330"
     assert result.rows[0].category == "股利"
-    assert result.rows[0].url and result.rows[0].url.startswith("https://mops.twse.com.tw")
+    assert result.rows[0].source == "MOPSOV:t05sr01_1"
 
 
 def test_mops_zero_events_with_explicit_date_counts_as_success() -> None:
-    html = "<html><body>資料日期：民國115年06月15日 查無資料</body></html>"
-    result = fetch_mops_events(date(2026, 6, 15), FakeClient([HttpResponse("mock", 200, html.encode("utf-8"), 1)]))
-    payload = mops_events_payload("2026-06-15", "2026-06-15T18:15:00+08:00", result.data_date, result.ok, result.rows, result.errors)
+    html = """
+    <html><body>
+    <table>
+      <tr><th>公司代號</th><th>公司簡稱</th><th>發言日期</th><th>發言時間</th><th>主旨</th></tr>
+      <tr><td>2330</td><td>台積電</td><td>115/06/15</td><td>18:01</td><td>董事會決議股利</td></tr>
+    </table>
+    </body></html>
+    """
+    result = fetch_mops_realtime_events(date(2026, 6, 16), FakeClient([HttpResponse("mock", 200, html.encode("utf-8"), 1)]))
+    payload = mops_events_payload("2026-06-16", "2026-06-16T18:15:00+08:00", result.data_date, result.data_date == "2026-06-16", result.rows, result.errors)
     assert result.ok is True
+    assert result.status == "empty_but_valid"
     assert result.rows == []
     assert payload["event_count"] == 0
-    assert payload["is_current"] is True
+    assert payload["is_current"] is False
+
+
+def test_mops_security_page_stops_without_fallback() -> None:
+    security_page = "<html>因為安全性考量，您所執行的頁面無法呈現。 FOR SECURITY REASONS</html>"
+    client = FakeClient(
+        [
+            HttpResponse("https://mopsov.twse.com.tw/mops/web/t05sr01_1", 200, security_page.encode("utf-8"), 1),
+            HttpResponse("https://mopsov.twse.com.tw/mops/web/t05st02", 200, b"should not be used", 1),
+        ]
+    )
+    result = fetch_mops_events(date(2026, 6, 16), client)
+    assert result.status == "blocked_or_security_page"
+    assert result.rows == []
+    assert len(client.urls) == 1
+
+
+def test_bootstrap_mops_backfill_stops_on_security_page(monkeypatch, tmp_path: Path) -> None:
+    import scripts.bootstrap_history as bootstrap_history
+
+    calls: list[str] = []
+
+    def fake_fetch_mops_events(target_date: date) -> MopsEventFetchResult:
+        calls.append(target_date.isoformat())
+        return MopsEventFetchResult(
+            errors=["security page"],
+            status="blocked_or_security_page",
+            source_url="https://mopsov.twse.com.tw/mops/web/t05sr01_1",
+        )
+
+    monkeypatch.setattr(bootstrap_history, "fetch_mops_events", fake_fetch_mops_events)
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "bootstrap_history.py",
+            "--root",
+            str(tmp_path),
+            "--trading-days",
+            "0",
+            "--max-calendar-days",
+            "0",
+            "--include-mops-backfill",
+            "--mops-calendar-days",
+            "3",
+            "--sleep-seconds",
+            "0",
+        ],
+    )
+    assert bootstrap_history.main() == 0
+    assert len(calls) == 1
+    index = json.load(open(tmp_path / "data" / "history-index.json", encoding="utf-8"))
+    assert index["mops_backfill_mode"] == "disabled_due_to_security_page"
+
+
+def test_mops_current_day_query_form_is_not_parser_error() -> None:
+    html = "<html><body><input type='hidden' name='funcName' value='t05st02'>公司代號 查詢</body></html>"
+    result = fetch_mops_current_day_events(date(2026, 6, 16), FakeClient([HttpResponse("mock", 200, html.encode("utf-8"), 1)]))
+    assert result.status == "source_unavailable"
+    assert result.errors == []
+    assert result.limitations
 
 
 def test_mops_unknown_data_date_is_not_success() -> None:
     html = "<html><body><table><tr><th>公司代號</th><th>公司名稱</th><th>主旨</th></tr></table></body></html>"
-    result = fetch_mops_events(date(2026, 6, 15), FakeClient([HttpResponse("mock", 200, html.encode("utf-8"), 1)]))
+    result = fetch_mops_realtime_events(date(2026, 6, 15), FakeClient([HttpResponse("mock", 200, html.encode("utf-8"), 1)]))
     assert result.ok is False
     assert result.data_date is None
     assert result.errors
@@ -728,9 +801,21 @@ def test_material_information_coverage_requires_explicit_current_mops_query() ->
         mops_event_rows=[],
         mops_events_is_current=True,
         mops_events_date_explicit=True,
+        mops_events_status="empty_but_valid",
     )
     assert coverage["material_information"]["available"] is True
     assert "material_information" not in missing
+    success_coverage, _, success_missing = build_coverage(
+        sources,
+        [sample_record()],
+        [sample_record(symbol="8069")],
+        mops_event_rows=[sample_mops_event()],
+        mops_events_is_current=True,
+        mops_events_date_explicit=True,
+        mops_events_status="success",
+    )
+    assert success_coverage["material_information"]["available"] is True
+    assert "material_information" not in success_missing
     stale_coverage, _, stale_missing = build_coverage(
         sources,
         [sample_record()],
@@ -738,6 +823,7 @@ def test_material_information_coverage_requires_explicit_current_mops_query() ->
         mops_event_rows=[sample_mops_event()],
         mops_events_is_current=False,
         mops_events_date_explicit=False,
+        mops_events_status="blocked_or_security_page",
     )
     assert stale_coverage["material_information"]["available"] is False
     assert "material_information" in stale_missing
@@ -834,6 +920,7 @@ def test_mops_event_candidates_aggregate_and_scan_eligible_only() -> None:
         False,
         [],
         "low",
+        mops_events_status="success",
         mops_event_rows=[
             sample_mops_event(symbol="2330", title="董事會決議股利", category="股利"),
             sample_mops_event(symbol="2330", title="公告重大合約", category="重大合約"),
@@ -895,6 +982,7 @@ def test_screening_adds_institutional_margin_and_mops_history_metrics() -> None:
         margin_short_rows=[current_margin],
         margin_short_history_rows=margin_history,
         mops_event_history_payloads=mops_history,
+        mops_events_status="success",
     )
     inst_candidate = summary["screening"]["institutional_buy_candidates"][0]
     assert inst_candidate["institutional_net_buy_5d"] == 264
@@ -928,9 +1016,13 @@ def test_mops_source_failure_does_not_stop_screening_summary() -> None:
         ["material_information"],
         "low",
         mops_event_rows=result.rows,
+        mops_events_status=result.status,
     )
     assert result.rows == []
+    assert result.status == "blocked_or_security_page"
     assert result.errors
+    assert summary["screening"]["mops_event_candidates"] == []
+    assert "MOPS 重大訊息不可用，未納入事件催化判斷。" in summary["limitations"]
     assert summary["rankings"]["top_turnover"][0]["symbol"] == "2330"
 
 

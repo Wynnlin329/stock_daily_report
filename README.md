@@ -239,7 +239,13 @@ Qullamaggie-style candidate 會附上可選欄位 `margin_balance`、`margin_cha
 
 ### MOPS 重大訊息
 
-重大訊息優先使用 MOPS 公開重大訊息查詢頁面。每日輸出：
+重大訊息優先使用 MOPSOV 即時重大訊息公開頁：
+
+```text
+https://mopsov.twse.com.tw/mops/web/t05sr01_1
+```
+
+若即時頁不可用，才嘗試 `https://mopsov.twse.com.tw/mops/web/t05st02` 作為第二來源。若任何 MOPS 來源回傳 security page、驗證頁或禁止存取頁，系統會立即停止該 MOPS 來源，標示 `blocked_or_security_page`，且不嘗試繞過、不使用瀏覽器自動化、不偽造 Cookie/Token/Session。每日輸出：
 
 ```text
 data/latest-mops-events.json
@@ -252,7 +258,7 @@ JSON 欄位包含：
 
 ```text
 schema_version, report_date, generated_at, timezone,
-data_date, is_current, event_count, events, errors, limitations
+data_date, is_current, event_count, status, source_url, events, errors, limitations
 ```
 
 CSV 與 `events` 欄位包含：
@@ -263,7 +269,7 @@ date, time, symbol, name, market, title, category, summary, url, source
 
 第一版分類只用公告標題與摘要的可重現關鍵字：財報、營收、股利、除權息、董事會、併購、處分資產、取得資產、增資、減資、法說會、重大合約、訴訟、注意事項；未命中則為「其他」。若 MOPS 回傳安全頁、無法解析、或沒有明確資料日期，`coverage.material_information.available=false`，不會把請求日期當成資料日期。
 
-系統會保留最近 90 個自然日的 MOPS 查詢歷史，供 `mops_event_count_today`、`mops_event_count_7d`、`mops_event_count_30d`、`mops_event_count_90d` 與事件分類統計使用。`screening.mops_event_candidates` 僅列出今日或近 7 日有 MOPS 事件且 `scan_eligible=true` 的普通股。重大訊息只作為研究與人工複核清單，不代表利多，也不得自動解讀為方向性訊號。
+MOPS 歷史採 forward accumulation：每日 GitHub Actions 抓一次即時重大訊息並寫入 `data/mops/YYYY/MM/`，自然累積成 7 日、30 日、90 日事件歷史。`bootstrap_history.py` 預設不強制回補 90 天；只有手動指定 `--include-mops-backfill` 才會低頻嘗試少量日期，且任一天遇到 security page 會立即停止。`screening.mops_event_candidates` 僅列出今日或近 7 日有 MOPS 事件且 `scan_eligible=true` 的普通股。重大訊息只作為研究與人工複核清單，不代表利多，也不得自動解讀為方向性訊號。
 
 Qullamaggie-style candidate 會附上 `mops_event_flag`、`mops_event_count`、`mops_event_categories`、`mops_event_titles` 與 `catalyst_tags`。MOPS 事件只作為 catalyst，不會單獨產生 breakout；episodic pivot 仍需符合既有價格、量能與流動性條件。
 
@@ -275,7 +281,7 @@ Qullamaggie-style candidate 會附上 `mops_event_flag`、`mops_event_count`、`
 OHLCV：60 個交易日，用於技術面、突破、量能與 Qullamaggie-style setup。
 法人買賣超：60 個交易日，用於 5D / 20D / 60D 累積買賣超與連買連賣天數。
 融資融券：60 個交易日，用於 5D / 20D / 60D 餘額變化、20D 比例與資券風險複核。
-MOPS 重大訊息：90 個自然日，用於 7D / 30D / 90D 事件統計與 catalyst 標記。
+MOPS 重大訊息：每日累積，最多使用近 90 個自然日，用於 7D / 30D / 90D 事件統計與 catalyst 標記。
 ```
 
 法人資料只作為籌碼確認，不是買進訊號。融資融券只作為籌碼與風險複核，不是買賣訊號。MOPS 重大訊息不等於利多，需人工閱讀公告內容確認事件性質。ChatGPT 排程必須尊重 `coverage`、`institutional_data_status`、`margin_short_data_status` 與 `mops_event_data_status`；若資料不可用，不得自行爬外部網站補資料。

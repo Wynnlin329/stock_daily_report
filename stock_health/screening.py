@@ -27,6 +27,7 @@ def build_screening_summary(
     margin_short_history_rows: dict[str, list[MarginShortRecord]] | None = None,
     mops_event_rows: list[MopsEventRecord] | None = None,
     mops_event_history_payloads: dict[str, dict[str, Any]] | None = None,
+    mops_events_status: str = "source_unavailable",
 ) -> dict[str, Any]:
     all_rows = listed_rows + otc_rows
     eligible_rows = [row for row in all_rows if row.scan_eligible]
@@ -44,7 +45,12 @@ def build_screening_summary(
     }
     mops_event_rows = mops_event_rows or []
     mops_event_history_payloads = mops_event_history_payloads or {}
-    mops_event_metrics_by_symbol = _mops_event_metrics_by_symbol(report_date, mops_event_rows, mops_event_history_payloads)
+    mops_events_available = mops_events_status in {"success", "empty_but_valid"}
+    mops_event_metrics_by_symbol = (
+        _mops_event_metrics_by_symbol(report_date, mops_event_rows, mops_event_history_payloads)
+        if mops_events_available
+        else {}
+    )
     mops_events_by_symbol = {
         symbol: [event for event in metrics["events_7d"]]
         for symbol, metrics in mops_event_metrics_by_symbol.items()
@@ -59,11 +65,13 @@ def build_screening_summary(
         limitations.append("歷史資料不足 60 個交易日；未產生 60 日突破訊號")
     if missing_sections:
         limitations.append("核心資料段落缺失：" + ", ".join(missing_sections))
+    if not mops_events_available:
+        limitations.append("MOPS 重大訊息不可用，未納入事件催化判斷。")
     if margin_short_rows and len(margin_short_history_rows) < 20:
         limitations.append("資券歷史資料不足 20 個交易日；margin_balance_ratio_20d 與 short_balance_ratio_20d 保留 null")
     institutional_status = _institutional_data_status(institutional_rows, institutional_history_rows)
     margin_short_status = _margin_short_data_status(margin_short_rows, margin_short_history_rows)
-    mops_event_status = _mops_event_data_status(report_date, mops_event_history_payloads)
+    mops_event_status = _mops_event_data_status(report_date, mops_event_history_payloads, mops_events_status)
     margin_short_attention = _margin_short_attention_candidates(eligible_rows, margin_short_metrics_by_symbol)
     margin_short_attention_symbols = {item["symbol"] for item in margin_short_attention}
     mops_event_candidates = _mops_event_candidates(eligible_rows, mops_event_metrics_by_symbol)
@@ -179,7 +187,7 @@ def _margin_short_data_status(
     }
 
 
-def _mops_event_data_status(report_date: str, history_payloads: dict[str, dict[str, Any]]) -> dict[str, Any]:
+def _mops_event_data_status(report_date: str, history_payloads: dict[str, dict[str, Any]], current_status: str = "source_unavailable") -> dict[str, Any]:
     end_date = date.fromisoformat(report_date)
     verified_days = {
         day
@@ -187,12 +195,15 @@ def _mops_event_data_status(report_date: str, history_payloads: dict[str, dict[s
         if payload.get("status") in {"success", "empty_but_valid"} and payload.get("data_date")
     }
     limitations: list[str] = []
+    if current_status not in {"success", "empty_but_valid"}:
+        limitations.append("MOPS 重大訊息不可用，未納入事件催化判斷。")
     if len(verified_days) < 7:
         limitations.append("MOPS 重大訊息歷史不足 7 個自然日")
     if len(verified_days) < 30:
         limitations.append("MOPS 重大訊息歷史不足 30 個自然日")
     if len(verified_days) < 90:
         limitations.append("MOPS 重大訊息歷史不足 90 個自然日")
+        limitations.append("MOPS 事件歷史採每日累積，目前尚未滿 90 自然日。")
     return {
         "latest_available": report_date in verified_days,
         "available_calendar_days": len(verified_days),
