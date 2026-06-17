@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "report_date": "2026-06-17",
-  "generated_at": "2026-06-17T10:24:07+08:00",
+  "generated_at": "2026-06-17T10:31:35+08:00",
   "timezone": "Asia/Taipei",
   "data_quality": {
     "listed_rows": 0,
@@ -58,9 +58,9 @@
         "notes": "empty_but_valid"
       },
       "material_information": {
-        "available": false,
+        "available": true,
         "source": "MOPS",
-        "notes": "blocked_or_security_page"
+        "notes": "MOPS material information query verified with 8 events"
       },
       "revenue_financials": {
         "available": false,
@@ -131,9 +131,9 @@
       "notes": "empty_but_valid"
     },
     "material_information": {
-      "available": false,
+      "available": true,
       "source": "MOPS",
-      "notes": "blocked_or_security_page"
+      "notes": "MOPS material information query verified with 8 events"
     },
     "revenue_financials": {
       "available": false,
@@ -175,15 +175,16 @@
     "limitations": []
   },
   "mops_event_data_status": {
-    "latest_available": false,
-    "available_calendar_days": 0,
+    "latest_available": true,
+    "available_calendar_days": 1,
     "has_7d_history": false,
     "has_30d_history": false,
     "has_90d_history": false,
     "limitations": [
       "MOPS 重大訊息歷史不足 7 個自然日",
       "MOPS 重大訊息歷史不足 30 個自然日",
-      "MOPS 重大訊息歷史不足 90 個自然日"
+      "MOPS 重大訊息歷史不足 90 個自然日",
+      "MOPS 事件歷史採每日累積，目前尚未滿 90 自然日。"
     ]
   },
   "universe_summary": {
@@ -6945,7 +6946,194 @@
     "breakout_candidates": [],
     "institutional_buy_candidates": [],
     "margin_short_attention": [],
-    "mops_event_candidates": [],
+    "mops_event_candidates": [
+      {
+        "symbol": "4953",
+        "name": "緯軟",
+        "market": "otc",
+        "close": 135.0,
+        "change_pct": -0.7353,
+        "volume": 512309,
+        "turnover": 69344208,
+        "security_type": "common_stock",
+        "scan_eligible": true,
+        "exclude_reason": "",
+        "volume_ratio_20d": null,
+        "new_high_20d": false,
+        "new_high_60d": false,
+        "foreign_net_buy": null,
+        "investment_trust_net_buy": null,
+        "dealer_net_buy": null,
+        "institutional_net_buy": null,
+        "institutional_net_buy_5d": null,
+        "institutional_net_buy_20d": null,
+        "institutional_net_buy_60d": null,
+        "foreign_net_buy_5d": null,
+        "foreign_net_buy_20d": null,
+        "foreign_net_buy_60d": null,
+        "investment_trust_net_buy_5d": null,
+        "investment_trust_net_buy_20d": null,
+        "investment_trust_net_buy_60d": null,
+        "dealer_net_buy_5d": null,
+        "dealer_net_buy_20d": null,
+        "dealer_net_buy_60d": null,
+        "foreign_consecutive_buy_days": null,
+        "foreign_consecutive_sell_days": null,
+        "investment_trust_consecutive_buy_days": null,
+        "investment_trust_consecutive_sell_days": null,
+        "institutional_consecutive_buy_days": null,
+        "institutional_consecutive_sell_days": null,
+        "institutional_rank_20d": null,
+        "institutional_rank_60d": null,
+        "institutional_confirmation": false,
+        "institutional_partial": false,
+        "margin_balance": null,
+        "margin_change": null,
+        "short_balance": null,
+        "short_change": null,
+        "margin_balance_5d_change": null,
+        "margin_balance_20d_change": null,
+        "margin_balance_60d_change": null,
+        "short_balance_5d_change": null,
+        "short_balance_20d_change": null,
+        "short_balance_60d_change": null,
+        "margin_balance_avg_20d": null,
+        "short_balance_avg_20d": null,
+        "margin_balance_ratio_20d": null,
+        "short_balance_ratio_20d": null,
+        "short_margin_ratio": null,
+        "margin_short_attention_flag": false,
+        "margin_short_risk_notes": [],
+        "event_count": 2,
+        "event_categories": [
+          "其他"
+        ],
+        "event_titles": [
+          "公告本公司名稱由「緯創軟體股份有限公司」 更名為「緯致科技股份有限公司」， 公告期間：115年6月2日至115年9月1日。",
+          "公告本公司名稱由「緯創軟體股份有限公司」 更名為「緯致科技股份有限公司」， 公告期間：115年6月2日至115年9月1日。"
+        ],
+        "mops_event_flag": true,
+        "mops_event_count_today": 2,
+        "mops_event_count_7d": 2,
+        "mops_event_count_30d": 2,
+        "mops_event_count_90d": 2,
+        "mops_event_categories_7d": [
+          "其他"
+        ],
+        "mops_event_categories_30d": [
+          "其他"
+        ],
+        "mops_recent_event_titles": [
+          "公告本公司名稱由「緯創軟體股份有限公司」 更名為「緯致科技股份有限公司」， 公告期間：115年6月2日至115年9月1日。",
+          "公告本公司名稱由「緯創軟體股份有限公司」 更名為「緯致科技股份有限公司」， 公告期間：115年6月2日至115年9月1日。"
+        ],
+        "tags": [
+          "重大訊息"
+        ],
+        "reasons": [],
+        "risk_notes": [
+          "僅供研究與人工複核，不構成買賣建議",
+          "重大訊息不等於利多，需人工閱讀公告內容與確認事件性質。"
+        ],
+        "source_refs": [
+          "TPEx",
+          "MOPS"
+        ]
+      },
+      {
+        "symbol": "5347",
+        "name": "世界",
+        "market": "otc",
+        "close": 171.5,
+        "change_pct": -1.7192,
+        "volume": 20599903,
+        "turnover": 3554510676,
+        "security_type": "common_stock",
+        "scan_eligible": true,
+        "exclude_reason": "",
+        "volume_ratio_20d": null,
+        "new_high_20d": false,
+        "new_high_60d": false,
+        "foreign_net_buy": null,
+        "investment_trust_net_buy": null,
+        "dealer_net_buy": null,
+        "institutional_net_buy": null,
+        "institutional_net_buy_5d": null,
+        "institutional_net_buy_20d": null,
+        "institutional_net_buy_60d": null,
+        "foreign_net_buy_5d": null,
+        "foreign_net_buy_20d": null,
+        "foreign_net_buy_60d": null,
+        "investment_trust_net_buy_5d": null,
+        "investment_trust_net_buy_20d": null,
+        "investment_trust_net_buy_60d": null,
+        "dealer_net_buy_5d": null,
+        "dealer_net_buy_20d": null,
+        "dealer_net_buy_60d": null,
+        "foreign_consecutive_buy_days": null,
+        "foreign_consecutive_sell_days": null,
+        "investment_trust_consecutive_buy_days": null,
+        "investment_trust_consecutive_sell_days": null,
+        "institutional_consecutive_buy_days": null,
+        "institutional_consecutive_sell_days": null,
+        "institutional_rank_20d": null,
+        "institutional_rank_60d": null,
+        "institutional_confirmation": false,
+        "institutional_partial": false,
+        "margin_balance": null,
+        "margin_change": null,
+        "short_balance": null,
+        "short_change": null,
+        "margin_balance_5d_change": null,
+        "margin_balance_20d_change": null,
+        "margin_balance_60d_change": null,
+        "short_balance_5d_change": null,
+        "short_balance_20d_change": null,
+        "short_balance_60d_change": null,
+        "margin_balance_avg_20d": null,
+        "short_balance_avg_20d": null,
+        "margin_balance_ratio_20d": null,
+        "short_balance_ratio_20d": null,
+        "short_margin_ratio": null,
+        "margin_short_attention_flag": false,
+        "margin_short_risk_notes": [],
+        "event_count": 2,
+        "event_categories": [
+          "股利"
+        ],
+        "event_titles": [
+          "公告本公司調整民國一一四年盈餘分派案配息比率 (每股現金股利金額)",
+          "公告本公司調整民國一一四年盈餘分派案配息比率 (每股現金股利金額)"
+        ],
+        "mops_event_flag": true,
+        "mops_event_count_today": 2,
+        "mops_event_count_7d": 2,
+        "mops_event_count_30d": 2,
+        "mops_event_count_90d": 2,
+        "mops_event_categories_7d": [
+          "股利"
+        ],
+        "mops_event_categories_30d": [
+          "股利"
+        ],
+        "mops_recent_event_titles": [
+          "公告本公司調整民國一一四年盈餘分派案配息比率 (每股現金股利金額)",
+          "公告本公司調整民國一一四年盈餘分派案配息比率 (每股現金股利金額)"
+        ],
+        "tags": [
+          "重大訊息"
+        ],
+        "reasons": [],
+        "risk_notes": [
+          "僅供研究與人工複核，不構成買賣建議",
+          "重大訊息不等於利多，需人工閱讀公告內容與確認事件性質。"
+        ],
+        "source_refs": [
+          "TPEx",
+          "MOPS"
+        ]
+      }
+    ],
     "revenue_financial_candidates": [],
     "manual_review_candidates": []
   },
@@ -9532,6 +9720,121 @@
           ],
           "source_refs": [
             "TPEx"
+          ]
+        },
+        {
+          "symbol": "5347",
+          "name": "世界",
+          "market": "otc",
+          "security_type": "common_stock",
+          "scan_eligible": true,
+          "setup_type": "insufficient_data",
+          "qullamaggie_score": 35,
+          "score_breakdown": {
+            "market_regime": 5,
+            "liquidity": 10,
+            "trend": 0,
+            "base_and_pivot": 10,
+            "breakout_and_volume": 0,
+            "relative_strength_and_catalyst": 5,
+            "risk_control": 5
+          },
+          "close": 171.5,
+          "change_pct": -1.7192,
+          "volume": 20599903,
+          "turnover": 3554510676,
+          "foreign_net_buy": null,
+          "investment_trust_net_buy": null,
+          "dealer_net_buy": null,
+          "institutional_net_buy": null,
+          "institutional_net_buy_5d": null,
+          "institutional_net_buy_20d": null,
+          "institutional_net_buy_60d": null,
+          "foreign_consecutive_buy_days": null,
+          "investment_trust_consecutive_buy_days": null,
+          "institutional_consecutive_buy_days": null,
+          "institutional_confirmation": false,
+          "margin_balance": null,
+          "margin_change": null,
+          "short_balance": null,
+          "short_change": null,
+          "margin_balance_ratio_20d": null,
+          "short_balance_ratio_20d": null,
+          "short_margin_ratio": null,
+          "margin_short_attention_flag": false,
+          "margin_short_risk_notes": [],
+          "ma10": 171.5,
+          "ma20": 171.5,
+          "ma50": 171.5,
+          "above_ma10": false,
+          "above_ma20": false,
+          "above_ma50": false,
+          "ma20_above_ma50": false,
+          "close_vs_ma10_pct": 0.0,
+          "close_vs_ma20_pct": 0.0,
+          "close_vs_ma50_pct": 0.0,
+          "avg_volume_20d": 20599903,
+          "volume_ratio_20d": 1.0,
+          "avg_turnover_20d": 3554510676,
+          "turnover_ok": true,
+          "liquidity_ok": true,
+          "prior_20d_high": 177.0,
+          "prior_60d_high": 177.0,
+          "new_high_20d": false,
+          "new_high_60d": false,
+          "pivot_price": 177.0,
+          "distance_to_pivot_pct": -3.1073,
+          "breakout_volume_confirmed": false,
+          "daily_range_pct": 4.6647,
+          "close_location_pct": 31.25,
+          "close_near_high": false,
+          "base_days": 30,
+          "base_high": 177.0,
+          "base_low": 169.0,
+          "base_depth_pct": 4.7337,
+          "range_contraction": false,
+          "volatility_contraction": false,
+          "tight_close_count": 5,
+          "relative_strength_20d": null,
+          "relative_strength_60d": null,
+          "relative_strength_rank": null,
+          "relative_strength_rank_basis": null,
+          "extended_from_pivot_pct": 0,
+          "extended_risk": false,
+          "stop_reference": 169.0,
+          "risk_to_stop_pct": 1.4793,
+          "mops_event_flag": true,
+          "mops_event_count": 2,
+          "mops_event_count_today": 2,
+          "mops_event_count_7d": 2,
+          "mops_event_count_30d": 2,
+          "mops_event_count_90d": 2,
+          "mops_event_categories": [
+            "股利"
+          ],
+          "mops_event_titles": [
+            "公告本公司調整民國一一四年盈餘分派案配息比率 (每股現金股利金額)",
+            "公告本公司調整民國一一四年盈餘分派案配息比率 (每股現金股利金額)"
+          ],
+          "revenue_financial_flag": false,
+          "news_topic_flag": false,
+          "catalyst_tags": [
+            "重大訊息:股利"
+          ],
+          "tags": [
+            "insufficient_data",
+            "重大訊息:股利"
+          ],
+          "setup_reasons": [
+            "歷史資料或必要欄位不足"
+          ],
+          "risk_notes": [
+            "僅供研究與人工複核，不構成買賣建議",
+            "相對強弱排名資料不足"
+          ],
+          "source_refs": [
+            "TPEx",
+            "MOPS"
           ]
         },
         {
@@ -12195,112 +12498,6 @@
           "source_refs": [
             "TPEx"
           ]
-        },
-        {
-          "symbol": "3162",
-          "name": "精確",
-          "market": "otc",
-          "security_type": "common_stock",
-          "scan_eligible": true,
-          "setup_type": "insufficient_data",
-          "qullamaggie_score": 35,
-          "score_breakdown": {
-            "market_regime": 5,
-            "liquidity": 10,
-            "trend": 0,
-            "base_and_pivot": 15,
-            "breakout_and_volume": 0,
-            "relative_strength_and_catalyst": 0,
-            "risk_control": 5
-          },
-          "close": 83.6,
-          "change_pct": -1.0651,
-          "volume": 1334843,
-          "turnover": 112438727,
-          "foreign_net_buy": null,
-          "investment_trust_net_buy": null,
-          "dealer_net_buy": null,
-          "institutional_net_buy": null,
-          "institutional_net_buy_5d": null,
-          "institutional_net_buy_20d": null,
-          "institutional_net_buy_60d": null,
-          "foreign_consecutive_buy_days": null,
-          "investment_trust_consecutive_buy_days": null,
-          "institutional_consecutive_buy_days": null,
-          "institutional_confirmation": false,
-          "margin_balance": null,
-          "margin_change": null,
-          "short_balance": null,
-          "short_change": null,
-          "margin_balance_ratio_20d": null,
-          "short_balance_ratio_20d": null,
-          "short_margin_ratio": null,
-          "margin_short_attention_flag": false,
-          "margin_short_risk_notes": [],
-          "ma10": 83.6,
-          "ma20": 83.6,
-          "ma50": 83.6,
-          "above_ma10": false,
-          "above_ma20": false,
-          "above_ma50": false,
-          "ma20_above_ma50": false,
-          "close_vs_ma10_pct": 0.0,
-          "close_vs_ma20_pct": 0.0,
-          "close_vs_ma50_pct": 0.0,
-          "avg_volume_20d": 1334843,
-          "volume_ratio_20d": 1.0,
-          "avg_turnover_20d": 112438727,
-          "turnover_ok": true,
-          "liquidity_ok": true,
-          "prior_20d_high": 85.7,
-          "prior_60d_high": 85.7,
-          "new_high_20d": false,
-          "new_high_60d": false,
-          "pivot_price": 85.7,
-          "distance_to_pivot_pct": -2.4504,
-          "breakout_volume_confirmed": false,
-          "daily_range_pct": 2.6316,
-          "close_location_pct": 4.5455,
-          "close_near_high": false,
-          "base_days": 30,
-          "base_high": 85.7,
-          "base_low": 83.5,
-          "base_depth_pct": 2.6347,
-          "range_contraction": false,
-          "volatility_contraction": false,
-          "tight_close_count": 5,
-          "relative_strength_20d": null,
-          "relative_strength_60d": null,
-          "relative_strength_rank": null,
-          "relative_strength_rank_basis": null,
-          "extended_from_pivot_pct": 0,
-          "extended_risk": false,
-          "stop_reference": 83.5,
-          "risk_to_stop_pct": 0.1198,
-          "mops_event_flag": false,
-          "mops_event_count": 0,
-          "mops_event_count_today": 0,
-          "mops_event_count_7d": 0,
-          "mops_event_count_30d": 0,
-          "mops_event_count_90d": 0,
-          "mops_event_categories": [],
-          "mops_event_titles": [],
-          "revenue_financial_flag": false,
-          "news_topic_flag": false,
-          "catalyst_tags": [],
-          "tags": [
-            "insufficient_data"
-          ],
-          "setup_reasons": [
-            "歷史資料或必要欄位不足"
-          ],
-          "risk_notes": [
-            "僅供研究與人工複核，不構成買賣建議",
-            "相對強弱排名資料不足"
-          ],
-          "source_refs": [
-            "TPEx"
-          ]
         }
       ]
     },
@@ -12316,12 +12513,11 @@
     "market_environment",
     "listed_ohlcv",
     "institutional_trading",
-    "margin_short",
-    "material_information"
+    "margin_short"
   ],
   "overall_confidence": "medium",
   "limitations": [
-    "核心資料段落缺失：market_environment, listed_ohlcv, institutional_trading, margin_short, material_information",
+    "核心資料段落缺失：market_environment, listed_ohlcv, institutional_trading, margin_short",
     "Qullamaggie-style 掃描僅針對 scan_eligible=true 的普通股 universe。",
     "TAIEX 或 OTC 指數歷史不足；market_regime 與相對強弱可能無法完整計算",
     "部分個股歷史或必要欄位不足，已歸類為 insufficient_data"

@@ -20,7 +20,7 @@ from stock_health.data_fetcher import (
     fetch_twse_margin_short,
     mops_events_payload,
 )
-from stock_health.history_store import build_history_index, ensure_dirs, write_institutional_outputs, write_json, write_margin_short_outputs, write_mops_event_outputs, write_ohlcv_outputs
+from stock_health.history_store import build_history_index, ensure_dirs, load_mops_event_history_payloads, write_institutional_outputs, write_json, write_margin_short_outputs, write_mops_event_outputs, write_ohlcv_outputs
 from stock_health.trading_calendar import ensure_taipei, is_trading_day, iter_recent_calendar_days
 
 LOGGER = logging.getLogger("stock_health.bootstrap_history")
@@ -33,6 +33,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--include-institutional", action="store_true", default=True)
     parser.add_argument("--include-margin-short", action="store_true", default=True)
     parser.add_argument("--mops-calendar-days", type=int, default=90)
+    parser.add_argument("--include-mops-backfill", action="store_true", default=False)
+    parser.add_argument("--mops-max-dates-per-run", type=int, default=5)
     parser.add_argument("--sleep-seconds", type=float, default=0.5)
     parser.add_argument("--root", default=".")
     return parser.parse_args()
@@ -105,7 +107,12 @@ def main() -> int:
         if args.sleep_seconds > 0:
             time.sleep(args.sleep_seconds)
 
-    for target_date in iter_recent_calendar_days(now.date(), args.mops_calendar_days):
+    mops_backfill_mode = "manual_backfill" if args.include_mops_backfill else "forward_accumulation"
+    mops_days_to_fetch = [now.date()]
+    if args.include_mops_backfill:
+        mops_days_to_fetch = list(iter_recent_calendar_days(now.date(), args.mops_calendar_days))[: max(args.mops_max_dates_per_run, 1)]
+
+    for target_date in mops_days_to_fetch:
         day = f"{target_date:%Y-%m-%d}"
         LOGGER.info("Fetching MOPS events %s", target_date)
         mops_events = fetch_mops_events(target_date)
@@ -118,6 +125,7 @@ def main() -> int:
             mops_events.errors,
             mops_events.limitations,
             mops_events.status,
+            mops_events.source_url,
         )
         write_mops_event_outputs(root, target_date, mops_summary, mops_events.rows)
         if mops_events.ok and mops_events.data_date == day:
@@ -126,6 +134,7 @@ def main() -> int:
             errors.extend([f"{day} mops events: {err}" for err in mops_events.errors])
         if mops_events.status == "blocked_or_security_page":
             errors.append("MOPS 回傳安全頁，停止 MOPS 重大訊息回補以避免持續請求")
+            mops_backfill_mode = "disabled_due_to_security_page"
             break
         if args.sleep_seconds > 0:
             time.sleep(args.sleep_seconds)
@@ -145,6 +154,13 @@ def main() -> int:
             latest_otc_margin_short = fetch_tpex_margin_short(latest)
             write_margin_short_outputs(root, latest, latest_listed_margin_short.rows, latest_otc_margin_short.rows)
 
+    existing_mops_payloads = load_mops_event_history_payloads(root)
+    mops_event_days = sorted(
+        day
+        for day, payload in existing_mops_payloads.items()
+        if payload.get("status") in {"success", "empty_but_valid"} and payload.get("data_date") == day
+    )
+
     index = build_history_index(
         now.isoformat(timespec="seconds"),
         args.trading_days,
@@ -156,6 +172,7 @@ def main() -> int:
         listed_margin_short_days,
         otc_margin_short_days,
         mops_event_days,
+        mops_backfill_mode,
     )
     write_json(root / "data" / "history-index.json", index)
     LOGGER.info("Available trading days: %s", index["available_trading_days"])

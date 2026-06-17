@@ -2,7 +2,7 @@
 
 本摘要僅供研究與人工複核，不構成買賣建議。
 
-- 執行時間：2026-06-17T10:24:07+08:00
+- 執行時間：2026-06-17T10:31:35+08:00
 - 是否足以執行全市場掃描：False
 - 整體信心等級：medium
 - 可用歷史交易日：64
@@ -88,7 +88,8 @@
 - 無
 
 ### mops_event_candidates
-- 無
+- 4953 緯軟（otc）：close=135.0 change_pct=-0.7353 volume=512309 turnover=69344208
+- 5347 世界（otc）：close=171.5 change_pct=-1.7192 volume=20599903 turnover=3554510676
 
 ### revenue_financial_candidates
 - 無
@@ -138,11 +139,10 @@
 - listed_ohlcv
 - institutional_trading
 - margin_short
-- material_information
 
 ## 限制
 
-- 核心資料段落缺失：market_environment, listed_ohlcv, institutional_trading, margin_short, material_information
+- 核心資料段落缺失：market_environment, listed_ohlcv, institutional_trading, margin_short
 - Qullamaggie-style 掃描僅針對 scan_eligible=true 的普通股 universe。
 - TAIEX 或 OTC 指數歷史不足；market_regime 與相對強弱可能無法完整計算
 - 部分個股歷史或必要欄位不足，已歸類為 insufficient_data

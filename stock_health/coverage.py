@@ -32,7 +32,11 @@ def build_coverage(
         row.symbol and _has_margin_short_values(row) for row in margin_short_rows
     )
     mops_event_rows = mops_event_rows or []
-    mops_events_available = mops_events_is_current and mops_events_date_explicit
+    mops_events_available = (
+        mops_events_status in {"success", "empty_but_valid"}
+        and mops_events_is_current
+        and mops_events_date_explicit
+    )
     coverage = {
         "market_environment": _item(source_current.get("twse", False), "TWSE", "TWSE has explicit current market date" if source_current.get("twse", False) else "TWSE current market environment not verified"),
         "listed_ohlcv": _item(bool(listed_rows), "TWSE", f"{len(listed_rows)} listed rows parsed" if listed_rows else "Listed OHLCV unavailable"),

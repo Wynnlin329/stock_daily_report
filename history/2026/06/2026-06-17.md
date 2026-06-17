@@ -1,6 +1,6 @@
 # 報告日期：2026/06/17（星期三）
 
-- 執行時間：2026-06-17T10:24:07+08:00
+- 執行時間：2026-06-17T10:31:35+08:00
 - 交易日判定：True
 - 最新市場資料日期：2026-06-16
 - 是否足以執行全市場掃描：False
@@ -13,7 +13,7 @@
 | TWSE | 主資料源 | True | 200 |  | False | False | False | TWSE response did not contain a parsable table with required fields ['證券代號', '開盤價', '最高價', '最低價', '收盤價']; stat='很抱歉，沒有符合條件的資料!'; tables= |
 | TPEx | 主資料源 | True | 200 | 2026-06-16 | True | False | False |  |
 | data.gov.tw | 主資料源 | True | 200 |  | False | False | False | 未取得明確資料日期；不可判定為當日資料可用 |
-| MOPS | 主資料源 | True | 200 |  | False | False | False | MOPS material information response returned security page; no parsable event date |
+| MOPS | 主資料源 | True | 200 | 2026-06-17 | True | True | True |  |
 | Goodinfo | 候補資料源 | True | 200 |  | False | False | False | 未取得明確資料日期；不可判定為當日資料可用 |
 | Yahoo 奇摩股市 | 催化新聞源 | True | 200 |  | False | False | False | 未取得明確資料日期；不可判定為當日資料可用 |
 | 鉅亨網 Cnyes | 催化新聞源 | True | 200 |  | False | False | False | 未取得明確資料日期；不可判定為當日資料可用 |
@@ -25,7 +25,7 @@
 
 ## 今日可用主資料源
 
-- 無
+- MOPS
 
 ## 今日候補資料源
 
@@ -47,7 +47,6 @@
 
 - TWSE：TWSE response did not contain a parsable table with required fields ['證券代號', '開盤價', '最高價', '最低價', '收盤價']; stat='很抱歉，沒有符合條件的資料!'; tables=
 - data.gov.tw：未取得明確資料日期；不可判定為當日資料可用
-- MOPS：MOPS material information response returned security page; no parsable event date
 - Goodinfo：未取得明確資料日期；不可判定為當日資料可用
 - Yahoo 奇摩股市：未取得明確資料日期；不可判定為當日資料可用
 - 鉅亨網 Cnyes：未取得明確資料日期；不可判定為當日資料可用
@@ -69,7 +68,7 @@
 - volume_spike_screening：True（20-day volume history available）
 - institutional_trading：False（empty_but_valid）
 - margin_short：False（empty_but_valid）
-- material_information：False（blocked_or_security_page）
+- material_information：True（MOPS material information query verified with 8 events）
 - revenue_financials：False（First version does not parse revenue or financial statements yet）
 - news_topics：True（At least one catalyst news source reachable）
 - technical_review：False（TradingView/WantGoo/CMoney are manual review sources, not automated signals）
@@ -80,10 +79,8 @@
 - listed_ohlcv
 - institutional_trading
 - margin_short
-- material_information
 
 ## 限制
 
 - TWSE response did not contain a parsable table with required fields ['證券代號', '開盤價', '最高價', '最低價', '收盤價']; stat='很抱歉，沒有符合條件的資料!'; tables=
-- MOPS material information response returned security page; no parsable event date
-- 核心資料段落缺失：market_environment, listed_ohlcv, institutional_trading, margin_short, material_information
+- 核心資料段落缺失：market_environment, listed_ohlcv, institutional_trading, margin_short
