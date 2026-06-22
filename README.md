@@ -11,6 +11,7 @@ stock_health/                 Python 套件
 scripts/run_health_check.py   每日健康檢查與資料產生
 scripts/bootstrap_history.py  首次回補最近 N 個交易日
 docs/chatgpt-task-prompt.md   ChatGPT 排程 Prompt 範例
+docs/chatgpt-schedule-repo-source.md ChatGPT 排程專用資料包說明
 latest.json                   最新資料源健康檢查 JSON
 latest.md                     最新資料源健康檢查 Markdown
 data/                         OHLCV、歷史索引與掃描摘要
@@ -330,6 +331,10 @@ https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-heal
 https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/latest-index-summary.json
 https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/latest-mops-events.json
 https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/history-index.json
+https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/daily-qullamaggie-source.json
+https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/weekly-qullamaggie-source.json
+https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/reports/chatgpt-daily-qullamaggie-source.md
+https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/reports/chatgpt-weekly-qullamaggie-source.md
 ```
 
 Raw URL 由 `stock_health/config.py` 的 `GITHUB_OWNER`、`GITHUB_REPO`、`GITHUB_RAW_BRANCH` 與 `github_raw_url()` 集中產生。`<OWNER>/<REPO>/main` 這類 placeholder 只適合模板，不是本 repository 目前可用 URL。若未來正式改用 `main`，只需修改 `GITHUB_RAW_BRANCH` 並重產 artifacts。
@@ -340,9 +345,9 @@ Raw URL 由 `stock_health/config.py` 的 `GITHUB_OWNER`、`GITHUB_REPO`、`GITHU
 
 ## ChatGPT 排程讀取方式
 
-ChatGPT 排程應讀取 `latest.json`、`data/latest-screening-summary.json` 與 `data/latest-mops-events.json`。若 `full_market_scan_ready=false`，應先說明缺少的核心資料段落，不得把摘要解讀成完整市場掃描。
+ChatGPT 排程優先讀取 `data/chatgpt/daily-qullamaggie-source.json` 與 `data/chatgpt/weekly-qullamaggie-source.json`。這兩份資料包已整合 `latest.json`、screening summary、法人、資券、MOPS、history-index 與報告 URL，排程不需要再分散讀取多個舊檔。若 `full_market_scan_ready=false` 或 `paper_trading_decision_gate.can_create_new_simulated_buy_candidate=false`，應先說明限制，不得把摘要解讀成完整市場掃描或產生新的模擬候選。
 
-若需要動能候選清單，ChatGPT 應讀取 `data/latest-screening-summary.json` 的 `qullamaggie` 區塊，不應重新爬外部網站。`qullamaggie.top_candidates` 與各 setup 分組都只可作為研究與人工複核清單。
+若需要動能候選清單，ChatGPT 應優先讀取 `data/chatgpt/daily-qullamaggie-source.json` 的 `qullamaggie_style` 區塊，不應重新爬外部網站。`qullamaggie_style.top_candidates` 與各 setup 分組都只可作為研究與人工複核清單。
 
 若需要重大事件清單，ChatGPT 應讀取 `data/latest-mops-events.json` 與 `screening.mops_event_candidates`，不得重新爬 MOPS，也不得把重大訊息自動解讀為利多。摘要時應列出公司、分類、標題與需要人工閱讀確認的重點。
 
