@@ -11,6 +11,7 @@ stock_health/                 Python 套件
 scripts/run_health_check.py   每日健康檢查與資料產生
 scripts/bootstrap_history.py  首次回補最近 N 個交易日
 docs/chatgpt-task-prompt.md   ChatGPT 排程 Prompt 範例
+docs/chatgpt-schedule-repo-source.md ChatGPT 排程專用資料包說明
 latest.json                   最新資料源健康檢查 JSON
 latest.md                     最新資料源健康檢查 Markdown
 data/                         OHLCV、歷史索引與掃描摘要
@@ -63,6 +64,7 @@ data/latest-institutional-trading.csv
 data/latest-institutional-trading-summary.json
 data/latest-margin-short.csv
 data/latest-margin-short-summary.json
+data/latest-index-summary.json
 data/latest-mops-events.json
 data/latest-mops-events.csv
 data/latest-screening-summary.json
@@ -101,7 +103,7 @@ can_use_margin_short_risk,
 can_use_mops_catalyst, reasons
 ```
 
-MOPS、法人或資券資料不可用不會阻止技術掃描或 Qullamaggie-style 掃描；但 OHLCV 或 60 日歷史不足、盤後最新交易日資料尚未完整、或 market_regime 不足時，不得產生新的模擬買進候選。
+MOPS、法人或資券資料不可用不會阻止技術掃描或 Qullamaggie-style 掃描；但 OHLCV 或 60 日歷史不足、指數歷史不足導致 `market_regime.status=insufficient_data`、盤後最新交易日資料尚未完整，或沒有 breakout / episodic_pivot / anticipation 候選時，不得產生新的模擬候選。
 
 每個來源至少包含：
 
@@ -117,6 +119,16 @@ error, response_time_ms
 `data/latest-screening-summary.json` 是 ChatGPT 後續排程的主要輸入。它包含資料品質、歷史資料狀態、市場統計、成交量/成交金額/漲幅排行、初步篩選清單、coverage、缺失項目與限制。
 
 `historical_data_status`、`institutional_data_status`、`margin_short_data_status` 與 `mops_event_data_status` 皆以 `data/history-index.json` 為準。`history-index.json` 由 `data/market/`、`data/institutional/`、`data/margin_short/` 與 `data/mops/` 的實際檔案掃描重建，避免單一 backfill 清空其他 section。
+
+`data/latest-index-summary.json` 保存 TAIEX 與 TPEx 櫃買指數歷史狀態與 `market_regime`。每日與 bootstrap 流程會輸出：
+
+```text
+data/index/taiex/YYYY/MM/YYYY-MM-DD-taiex.csv
+data/index/tpex/YYYY/MM/YYYY-MM-DD-tpex.csv
+data/latest-index-summary.json
+```
+
+指數資料來源為 TWSE `MI_INDEX` 的「發行量加權股價指數」與 TPEx `Inx_result.php` 的「櫃買指數(月查詢)」。至少要有 TAIEX 或 TPEx 50 日有效收盤歷史，才會判斷 `risk_on`、`neutral` 或 `risk_off`；不足時固定為 `insufficient_data`。
 
 若歷史資料不足，系統不會產生 20 日均量、60 日突破或爆量倍數等長週期訊號，並會在 `historical_data_status` 與 `limitations` 中標示。
 
@@ -169,6 +181,7 @@ distance_to_pivot_pct, breakout_volume_confirmed,
 base_days, base_high, base_low, base_depth_pct,
 range_contraction, volatility_contraction, tight_close_count,
 relative_strength_20d, relative_strength_60d, relative_strength_rank,
+relative_strength_rank_basis,
 extended_from_pivot_pct, extended_risk, stop_reference, risk_to_stop_pct,
 mops_event_flag, revenue_financial_flag, news_topic_flag,
 setup_type, qullamaggie_score, score_breakdown
@@ -185,8 +198,14 @@ breakout, episodic_pivot, anticipation, extended_watch, failed_breakout, insuffi
 ```text
 少於 20 個交易日：不計算 20 日均量、20 日新高、20 日相對強弱、量能倍數。
 少於 60 個交易日：不計算 60 日新高、60 日相對強弱，也不宣稱完整 Qullamaggie-style 訊號。
-缺少 TAIEX/OTC 指數歷史：market_regime 為 insufficient_data，相對強弱欄位保留 null。
+缺少 TAIEX/TPEx 指數歷史：market_regime 為 insufficient_data，相對強弱欄位保留 null。
 ```
+
+`relative_strength_20d` 與 `relative_strength_60d` 定義為個股 20/60 日報酬減同市場指數 20/60 日報酬；`relative_strength_rank` 是在 `scan_eligible=true` 普通股 universe 中的百分位排名，`relative_strength_rank_basis=scan_eligible_common_stock`。
+
+`market_regime` 使用保守規則：指數收盤高於 MA20 與 MA50、MA20 >= MA50 且 20 日報酬為正時為 `risk_on`；收盤低於 MA20 與 MA50、MA20 < MA50 且 20 日報酬為負時為 `risk_off`；其他為 `neutral`。breakout 不會在 `risk_off` 市場狀態下產生。
+
+`top_candidates` 只會從 `breakout`、`episodic_pivot`、`anticipation` 與 `extended_watch` 排序而來，不包含 `insufficient_data` 或 `failed_breakout`。排序優先順序為 setup 類型、`qullamaggie_score`、`liquidity_ok`、`extended_risk` 與 `relative_strength_rank`。
 
 ### 法人買賣超
 
@@ -309,8 +328,13 @@ MOPS 重大訊息：每日累積，手動 backfill 可用 `t05st01` 低頻回補
 ```text
 https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/latest.json
 https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/latest-screening-summary.json
+https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/latest-index-summary.json
 https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/latest-mops-events.json
 https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/history-index.json
+https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/daily-qullamaggie-source.json
+https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/weekly-qullamaggie-source.json
+https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/reports/chatgpt-daily-qullamaggie-source.md
+https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/reports/chatgpt-weekly-qullamaggie-source.md
 ```
 
 Raw URL 由 `stock_health/config.py` 的 `GITHUB_OWNER`、`GITHUB_REPO`、`GITHUB_RAW_BRANCH` 與 `github_raw_url()` 集中產生。`<OWNER>/<REPO>/main` 這類 placeholder 只適合模板，不是本 repository 目前可用 URL。若未來正式改用 `main`，只需修改 `GITHUB_RAW_BRANCH` 並重產 artifacts。
@@ -321,9 +345,9 @@ Raw URL 由 `stock_health/config.py` 的 `GITHUB_OWNER`、`GITHUB_REPO`、`GITHU
 
 ## ChatGPT 排程讀取方式
 
-ChatGPT 排程應讀取 `latest.json`、`data/latest-screening-summary.json` 與 `data/latest-mops-events.json`。若 `full_market_scan_ready=false`，應先說明缺少的核心資料段落，不得把摘要解讀成完整市場掃描。
+ChatGPT 排程優先讀取 `data/chatgpt/daily-qullamaggie-source.json` 與 `data/chatgpt/weekly-qullamaggie-source.json`。這兩份資料包已整合 `latest.json`、screening summary、法人、資券、MOPS、history-index 與報告 URL，排程不需要再分散讀取多個舊檔。若 `full_market_scan_ready=false` 或 `paper_trading_decision_gate.can_create_new_simulated_buy_candidate=false`，應先說明限制，不得把摘要解讀成完整市場掃描或產生新的模擬候選。
 
-若需要動能候選清單，ChatGPT 應讀取 `data/latest-screening-summary.json` 的 `qullamaggie` 區塊，不應重新爬外部網站。`qullamaggie.top_candidates` 與各 setup 分組都只可作為研究與人工複核清單。
+若需要動能候選清單，ChatGPT 應優先讀取 `data/chatgpt/daily-qullamaggie-source.json` 的 `qullamaggie_style` 區塊，不應重新爬外部網站。`qullamaggie_style.top_candidates` 與各 setup 分組都只可作為研究與人工複核清單。
 
 若需要重大事件清單，ChatGPT 應讀取 `data/latest-mops-events.json` 與 `screening.mops_event_candidates`，不得重新爬 MOPS，也不得把重大訊息自動解讀為利多。摘要時應列出公司、分類、標題與需要人工閱讀確認的重點。
 

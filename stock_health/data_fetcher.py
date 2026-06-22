@@ -13,9 +13,11 @@ from urllib.parse import urljoin
 from .config import (
     mops_current_day_events_url,
     mops_historical_events_url,
+    tpex_index_url,
     tpex_daily_url,
     tpex_institutional_url,
     tpex_margin_short_url,
+    twse_taiex_index_url,
     twse_institutional_url,
     twse_margin_short_url,
     twse_mi_index_url,
@@ -25,6 +27,8 @@ from .config import (
 from .http_client import HttpClient
 from .models import (
     FetchResult,
+    IndexFetchResult,
+    IndexRecord,
     InstitutionalFetchResult,
     InstitutionalTradingRecord,
     MarginShortFetchResult,
@@ -117,6 +121,20 @@ MOPS_EVENT_CSV_FIELDS = [
     "category",
     "summary",
     "url",
+    "source",
+]
+
+INDEX_CSV_FIELDS = [
+    "date",
+    "symbol",
+    "name",
+    "market",
+    "open",
+    "high",
+    "low",
+    "close",
+    "change",
+    "change_pct",
     "source",
 ]
 
@@ -315,6 +333,123 @@ def _normalize_tpex_row(target_date: date, fields: list[str], row: list[Any]) ->
         transactions=_to_int(_row_value(row, fields, ["成交筆數"])),
         source="TPEx",
     )
+
+
+def fetch_twse_taiex_index(target_date: date, client: HttpClient | None = None) -> IndexFetchResult:
+    client = client or HttpClient()
+    response = client.get(twse_taiex_index_url(target_date))
+    if response.status != 200:
+        return IndexFetchResult(errors=[response.error or f"TWSE TAIEX HTTP status {response.status}"], status=STATUS_SOURCE_UNAVAILABLE)
+    try:
+        payload = _parse_json(response.text)
+    except json.JSONDecodeError as exc:
+        return IndexFetchResult(errors=[f"TWSE TAIEX JSON parse failed: {exc}"], status=STATUS_PARSER_ERROR)
+
+    fields, rows = _extract_table(
+        payload,
+        required_fields=["指數", "收盤指數", "漲跌點數"],
+        title_keywords=["價格指數"],
+    )
+    data_date = _extract_payload_date(payload) or f"{target_date:%Y-%m-%d}"
+    if not fields or not rows:
+        status = _empty_payload_status(payload) if _payload_has_no_data(payload) or payload.get("stat") else STATUS_PARSER_ERROR
+        return IndexFetchResult(
+            data_date=data_date,
+            errors=[_table_error("TWSE TAIEX", payload, ["指數", "收盤指數", "漲跌點數"])],
+            status=status,
+        )
+
+    for row in rows:
+        name = str(_row_value(row, fields, ["指數"])).strip()
+        if name == "發行量加權股價指數":
+            record = _normalize_twse_index_row(target_date, fields, row)
+            return IndexFetchResult(rows=[record], data_date=data_date, status=STATUS_SUCCESS)
+    return IndexFetchResult(
+        data_date=data_date,
+        errors=["TWSE TAIEX table did not contain 發行量加權股價指數"],
+        status=STATUS_PARSER_ERROR,
+    )
+
+
+def fetch_tpex_index(target_date: date, client: HttpClient | None = None) -> IndexFetchResult:
+    client = client or HttpClient()
+    response = client.get(tpex_index_url(target_date))
+    if response.status != 200:
+        return IndexFetchResult(errors=[response.error or f"TPEx index HTTP status {response.status}"], status=STATUS_SOURCE_UNAVAILABLE)
+    try:
+        payload = _parse_json(response.text)
+    except json.JSONDecodeError as exc:
+        return IndexFetchResult(errors=[f"TPEx index JSON parse failed: {exc}"], status=STATUS_PARSER_ERROR)
+
+    fields, rows = _extract_table(
+        payload,
+        required_fields=["日期", "開市", "最高", "最低", "收市"],
+        title_keywords=["櫃買指數"],
+    )
+    if not fields or not rows:
+        status = _empty_payload_status(payload) if _payload_has_no_data(payload) or payload.get("stat") else STATUS_PARSER_ERROR
+        return IndexFetchResult(
+            data_date=_extract_payload_date(payload),
+            errors=[_table_error("TPEx index", payload, ["日期", "開市", "最高", "最低", "收市"])],
+            status=status,
+        )
+
+    target_day = f"{target_date:%Y/%m/%d}"
+    for row in rows:
+        if str(_row_value(row, fields, ["日期"])).strip() == target_day:
+            record = _normalize_tpex_index_row(target_date, fields, row)
+            return IndexFetchResult(rows=[record], data_date=record.date, status=STATUS_SUCCESS)
+    return IndexFetchResult(
+        data_date=_extract_payload_date(payload),
+        errors=[f"TPEx index table did not contain target date {target_day}"],
+        status=STATUS_NOT_YET_PUBLISHED if payload.get("stat") == "ok" else STATUS_PARSER_ERROR,
+    )
+
+
+def _normalize_twse_index_row(target_date: date, fields: list[str], row: list[Any]) -> IndexRecord:
+    close = _to_float(_row_value(row, fields, ["收盤指數"]))
+    change = _signed_change(_row_value(row, fields, ["漲跌(+/-)"]), _row_value(row, fields, ["漲跌點數"]))
+    return IndexRecord(
+        date=f"{target_date:%Y-%m-%d}",
+        symbol="TAIEX",
+        name="發行量加權股價指數",
+        market="listed",
+        open=None,
+        high=None,
+        low=None,
+        close=close,
+        change=change,
+        change_pct=_to_float(_row_value(row, fields, ["漲跌百分比(%)"])),
+        source="TWSE",
+    )
+
+
+def _normalize_tpex_index_row(target_date: date, fields: list[str], row: list[Any]) -> IndexRecord:
+    close = _to_float(_row_value(row, fields, ["收市"]))
+    change = _to_float(_row_value(row, fields, ["漲/跌", "漲跌"]))
+    return IndexRecord(
+        date=f"{target_date:%Y-%m-%d}",
+        symbol="TPEx",
+        name="櫃買指數",
+        market="otc",
+        open=_to_float(_row_value(row, fields, ["開市"])),
+        high=_to_float(_row_value(row, fields, ["最高"])),
+        low=_to_float(_row_value(row, fields, ["最低"])),
+        close=close,
+        change=change,
+        change_pct=_calc_change_pct(close, change),
+        source="TPEx",
+    )
+
+
+def _signed_change(sign_value: Any, raw_value: Any) -> float | None:
+    value = _to_float(raw_value)
+    if value is None:
+        return None
+    sign_text = re.sub(r"<[^>]+>", " ", str(sign_value)).strip()
+    if "-" in sign_text or "green" in str(sign_value).lower() or "跌" in sign_text:
+        return -abs(value)
+    return value
 
 
 def fetch_twse_institutional_trading(target_date: date, client: HttpClient | None = None) -> InstitutionalFetchResult:
@@ -1036,6 +1171,37 @@ def records_from_csv_text(text: str) -> list[OhlcvRecord]:
             )
         records.append(
             OhlcvRecord(**kwargs)
+        )
+    return records
+
+
+def index_records_to_csv_text(records: list[IndexRecord]) -> str:
+    output = io.StringIO()
+    writer = csv.DictWriter(output, fieldnames=INDEX_CSV_FIELDS, lineterminator="\n")
+    writer.writeheader()
+    for record in records:
+        writer.writerow(record.to_csv_row())
+    return output.getvalue()
+
+
+def index_records_from_csv_text(text: str) -> list[IndexRecord]:
+    reader = csv.DictReader(io.StringIO(text))
+    records: list[IndexRecord] = []
+    for row in reader:
+        records.append(
+            IndexRecord(
+                date=row.get("date", ""),
+                symbol=row.get("symbol", ""),
+                name=row.get("name", ""),
+                market=row.get("market", ""),
+                open=_to_float(row.get("open")),
+                high=_to_float(row.get("high")),
+                low=_to_float(row.get("low")),
+                close=_to_float(row.get("close")),
+                change=_to_float(row.get("change")),
+                change_pct=_to_float(row.get("change_pct")),
+                source=row.get("source", ""),
+            )
         )
     return records
 

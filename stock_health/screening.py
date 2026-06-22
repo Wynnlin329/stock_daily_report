@@ -29,21 +29,14 @@ def build_screening_summary(
     mops_event_history_payloads: dict[str, dict[str, Any]] | None = None,
     mops_events_status: str = "source_unavailable",
     history_index: dict[str, Any] | None = None,
+    benchmark_history: dict[str, list[float]] | None = None,
 ) -> dict[str, Any]:
     all_rows = listed_rows + otc_rows
     eligible_rows = [row for row in all_rows if row.scan_eligible]
     institutional_rows = institutional_rows or []
-    institutional_by_symbol = {row.symbol: row for row in institutional_rows}
     institutional_history_rows = institutional_history_rows or {}
-    institutional_metrics_by_symbol = _institutional_metrics_by_symbol(institutional_by_symbol, institutional_history_rows)
     margin_short_rows = margin_short_rows or []
     margin_short_history_rows = margin_short_history_rows or {}
-    margin_short_by_symbol = {row.symbol: row for row in margin_short_rows}
-    margin_short_history_by_symbol = _history_by_symbol(margin_short_history_rows)
-    margin_short_metrics_by_symbol = {
-        symbol: _margin_short_metrics(row, margin_short_history_by_symbol.get(symbol, []))
-        for symbol, row in margin_short_by_symbol.items()
-    }
     mops_event_rows = mops_event_rows or []
     mops_event_history_payloads = mops_event_history_payloads or {}
     mops_events_available = mops_events_status in {"success", "empty_but_valid"}
@@ -57,6 +50,16 @@ def build_screening_summary(
         for symbol, metrics in mops_event_metrics_by_symbol.items()
     }
     history_index = history_index or {}
+    institutional_latest_available = bool(history_index.get("has_institutional_latest", bool(institutional_rows)))
+    margin_short_latest_available = bool(history_index.get("has_margin_short_latest", bool(margin_short_rows)))
+    institutional_by_symbol = {row.symbol: row for row in institutional_rows} if institutional_latest_available else {}
+    institutional_metrics_by_symbol = _institutional_metrics_by_symbol(institutional_by_symbol, institutional_history_rows)
+    margin_short_by_symbol = {row.symbol: row for row in margin_short_rows} if margin_short_latest_available else {}
+    margin_short_history_by_symbol = _history_by_symbol(margin_short_history_rows)
+    margin_short_metrics_by_symbol = {
+        symbol: _margin_short_metrics(row, margin_short_history_by_symbol.get(symbol, []))
+        for symbol, row in margin_short_by_symbol.items()
+    }
     historical_days = sorted(history_rows)
     has_20d_history = bool(history_index.get("has_20d_history", len(historical_days) >= 20))
     has_60d_history = bool(history_index.get("has_60d_history", len(historical_days) >= 60))
@@ -81,6 +84,7 @@ def build_screening_summary(
     qullamaggie = calculate_qullamaggie_signals(
         eligible_rows,
         history_rows,
+        benchmark_history=benchmark_history,
         institutional_by_symbol=institutional_by_symbol,
         institutional_metrics_by_symbol=institutional_metrics_by_symbol,
         margin_short_by_symbol=margin_short_metrics_by_symbol,

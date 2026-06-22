@@ -7,6 +7,8 @@ from typing import Any
 
 from .config import SCHEMA_VERSION, TIMEZONE
 from .data_fetcher import (
+    index_records_from_csv_text,
+    index_records_to_csv_text,
     institutional_records_from_csv_text,
     institutional_records_to_csv_text,
     margin_short_records_from_csv_text,
@@ -15,7 +17,7 @@ from .data_fetcher import (
     records_from_csv_text,
     records_to_csv_text,
 )
-from .models import InstitutionalTradingRecord, MarginShortRecord, MopsEventRecord, OhlcvRecord
+from .models import IndexRecord, InstitutionalTradingRecord, MarginShortRecord, MopsEventRecord, OhlcvRecord
 
 
 def ensure_dirs(root: Path) -> None:
@@ -24,6 +26,9 @@ def ensure_dirs(root: Path) -> None:
         root / "data",
         root / "data" / "market",
         root / "data" / "institutional",
+        root / "data" / "index",
+        root / "data" / "index" / "taiex",
+        root / "data" / "index" / "tpex",
         root / "data" / "margin_short",
         root / "data" / "mops",
         root / "reports",
@@ -51,6 +56,12 @@ def market_history_paths(root: Path, report_date: date) -> tuple[Path, Path]:
     return folder / f"{report_date:%Y-%m-%d}-listed-ohlcv.csv", folder / f"{report_date:%Y-%m-%d}-otc-ohlcv.csv"
 
 
+def index_history_paths(root: Path, report_date: date) -> tuple[Path, Path]:
+    taiex_folder = root / "data" / "index" / "taiex" / f"{report_date:%Y}" / f"{report_date:%m}"
+    tpex_folder = root / "data" / "index" / "tpex" / f"{report_date:%Y}" / f"{report_date:%m}"
+    return taiex_folder / f"{report_date:%Y-%m-%d}-taiex.csv", tpex_folder / f"{report_date:%Y-%m-%d}-tpex.csv"
+
+
 def institutional_history_paths(root: Path, report_date: date) -> tuple[Path, Path]:
     folder = root / "data" / "institutional" / f"{report_date:%Y}" / f"{report_date:%m}"
     return folder / f"{report_date:%Y-%m-%d}-listed-institutional.csv", folder / f"{report_date:%Y-%m-%d}-otc-institutional.csv"
@@ -74,6 +85,14 @@ def write_ohlcv_outputs(root: Path, report_date: date, listed_rows: list[OhlcvRe
     listed_history, otc_history = market_history_paths(root, report_date)
     write_text(listed_history, listed_csv)
     write_text(otc_history, otc_csv)
+
+
+def write_index_outputs(root: Path, report_date: date, taiex_rows: list[IndexRecord], tpex_rows: list[IndexRecord]) -> None:
+    taiex_csv = index_records_to_csv_text(taiex_rows)
+    tpex_csv = index_records_to_csv_text(tpex_rows)
+    taiex_history, tpex_history = index_history_paths(root, report_date)
+    write_text(taiex_history, taiex_csv)
+    write_text(tpex_history, tpex_csv)
 
 
 def write_institutional_outputs(
@@ -128,6 +147,30 @@ def load_history_rows(root: Path) -> dict[str, list[OhlcvRecord]]:
         if listed_rows and otc_rows:
             rows[day] = listed_rows + otc_rows
     return rows
+
+
+def load_index_history_rows(root: Path) -> dict[str, list[IndexRecord]]:
+    output = {"taiex": [], "tpex_index": []}
+    for key, folder_name, suffix in (
+        ("taiex", "taiex", "-taiex.csv"),
+        ("tpex_index", "tpex", "-tpex.csv"),
+    ):
+        folder = root / "data" / "index" / folder_name
+        if not folder.exists():
+            continue
+        rows: list[IndexRecord] = []
+        for path in sorted(folder.glob(f"*/*/*{suffix}")):
+            rows.extend(index_records_from_csv_text(path.read_text(encoding="utf-8")))
+        rows.sort(key=lambda item: item.date)
+        output[key] = rows
+    return output
+
+
+def benchmark_history_from_index_rows(index_rows: dict[str, list[IndexRecord]]) -> dict[str, list[float]]:
+    return {
+        "listed": [row.close for row in index_rows.get("taiex", []) if row.close is not None and row.close > 0],
+        "otc": [row.close for row in index_rows.get("tpex_index", []) if row.close is not None and row.close > 0],
+    }
 
 
 def load_margin_short_history_rows(root: Path) -> dict[str, list[MarginShortRecord]]:

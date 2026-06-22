@@ -13,16 +13,18 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from stock_health.data_fetcher import (
     fetch_tpex_institutional_trading,
+    fetch_tpex_index,
     fetch_tpex_margin_short,
     fetch_tpex_otc_ohlcv,
     fetch_mops_events,
     fetch_mops_historical_events,
     fetch_twse_institutional_trading,
+    fetch_twse_taiex_index,
     fetch_twse_listed_ohlcv,
     fetch_twse_margin_short,
     mops_events_payload,
 )
-from stock_health.history_store import ensure_dirs, load_mops_event_history_payloads, mops_event_history_paths, rebuild_history_index_from_files, write_json, write_institutional_outputs, write_margin_short_outputs, write_mops_event_outputs, write_ohlcv_outputs
+from stock_health.history_store import ensure_dirs, load_mops_event_history_payloads, mops_event_history_paths, rebuild_history_index_from_files, write_index_outputs, write_json, write_institutional_outputs, write_margin_short_outputs, write_mops_event_outputs, write_ohlcv_outputs
 from stock_health.trading_calendar import ensure_taipei, is_trading_day, iter_recent_calendar_days
 
 LOGGER = logging.getLogger("stock_health.bootstrap_history")
@@ -66,6 +68,8 @@ def main() -> int:
         LOGGER.info("Fetching %s", target_date)
         listed = fetch_twse_listed_ohlcv(target_date)
         otc = fetch_tpex_otc_ohlcv(target_date)
+        taiex_index = fetch_twse_taiex_index(target_date)
+        tpex_index = fetch_tpex_index(target_date)
         listed_institutional = fetch_twse_institutional_trading(target_date) if args.include_institutional else None
         otc_institutional = fetch_tpex_institutional_trading(target_date) if args.include_institutional else None
         listed_margin_short = fetch_twse_margin_short(target_date) if args.include_margin_short else None
@@ -94,6 +98,11 @@ def main() -> int:
             if consecutive_network_failures >= 5:
                 errors.append("連續 5 個交易日皆疑似無法連外，停止 bootstrap 以避免無效重試")
                 break
+        if taiex_index.rows or tpex_index.rows:
+            write_index_outputs(root, target_date, taiex_index.rows, tpex_index.rows)
+        else:
+            errors.extend([f"{day} taiex index: {err}" for err in taiex_index.errors])
+            errors.extend([f"{day} tpex index: {err}" for err in tpex_index.errors])
         if args.include_institutional and listed_institutional and otc_institutional:
             if listed_institutional.rows or otc_institutional.rows:
                 write_institutional_outputs(root, target_date, listed_institutional.rows, otc_institutional.rows)
@@ -157,7 +166,10 @@ def main() -> int:
         latest = date.fromisoformat(common_days[-1])
         latest_listed = fetch_twse_listed_ohlcv(latest)
         latest_otc = fetch_tpex_otc_ohlcv(latest)
+        latest_taiex_index = fetch_twse_taiex_index(latest)
+        latest_tpex_index = fetch_tpex_index(latest)
         write_ohlcv_outputs(root, latest, latest_listed.rows, latest_otc.rows)
+        write_index_outputs(root, latest, latest_taiex_index.rows, latest_tpex_index.rows)
         if args.include_institutional:
             latest_listed_institutional = fetch_twse_institutional_trading(latest)
             latest_otc_institutional = fetch_tpex_institutional_trading(latest)
