@@ -1,54 +1,54 @@
 {
   "schema_version": "1.0",
   "report_date": "2026-06-22",
-  "generated_at": "2026-06-22T11:13:00+08:00",
+  "generated_at": "2026-06-22T15:49:39+08:00",
   "timezone": "Asia/Taipei",
   "market_is_trading_day": true,
-  "latest_market_data_date": "2026-06-18",
+  "latest_market_data_date": "2026-06-22",
   "data_freshness": {
     "report_date": "2026-06-22",
-    "latest_market_data_date": "2026-06-18",
-    "is_latest_trading_data_current": false,
-    "reason": "Current trading day OHLCV not fully available yet"
+    "latest_market_data_date": "2026-06-22",
+    "is_latest_trading_data_current": true,
+    "reason": "Latest trading data is current"
   },
   "sources": {
     "twse": {
       "name": "TWSE",
-      "checked_at": "2026-06-22T11:13:00+08:00",
+      "checked_at": "2026-06-22T15:49:39+08:00",
       "reachable": true,
       "http_status": 200,
-      "data_date": null,
-      "is_current": false,
-      "date_explicit": false,
-      "machine_readable": true,
-      "login_required": false,
-      "dynamic_loading_suspected": false,
-      "schedule_ready": false,
-      "role": "主資料源",
-      "evidence": "上市 OHLCV official endpoint reachable status=200, but no parsable OHLCV rows were obtained",
-      "error": "TWSE response did not contain a parsable table with required fields ['證券代號', '開盤價', '最高價', '最低價', '收盤價']; stat='很抱歉，沒有符合條件的資料!'; tables=",
-      "response_time_ms": 260
-    },
-    "tpex": {
-      "name": "TPEx",
-      "checked_at": "2026-06-22T11:13:00+08:00",
-      "reachable": true,
-      "http_status": 200,
-      "data_date": "2026-06-18",
-      "is_current": false,
+      "data_date": "2026-06-22",
+      "is_current": true,
       "date_explicit": true,
       "machine_readable": true,
       "login_required": false,
       "dynamic_loading_suspected": false,
-      "schedule_ready": false,
+      "schedule_ready": true,
       "role": "主資料源",
-      "evidence": "上櫃 OHLCV parsed 10073 rows from official endpoint",
+      "evidence": "上市 OHLCV parsed 1367 rows from official endpoint",
       "error": "",
-      "response_time_ms": 1630
+      "response_time_ms": 269
+    },
+    "tpex": {
+      "name": "TPEx",
+      "checked_at": "2026-06-22T15:49:39+08:00",
+      "reachable": true,
+      "http_status": 200,
+      "data_date": "2026-06-22",
+      "is_current": true,
+      "date_explicit": true,
+      "machine_readable": true,
+      "login_required": false,
+      "dynamic_loading_suspected": false,
+      "schedule_ready": true,
+      "role": "主資料源",
+      "evidence": "上櫃 OHLCV parsed 10033 rows from official endpoint",
+      "error": "",
+      "response_time_ms": 2023
     },
     "data_gov_tw": {
       "name": "data.gov.tw",
-      "checked_at": "2026-06-22T11:13:00+08:00",
+      "checked_at": "2026-06-22T15:49:39+08:00",
       "reachable": true,
       "http_status": 200,
       "data_date": null,
@@ -61,11 +61,11 @@
       "role": "主資料源",
       "evidence": "GET https://data.gov.tw/ succeeded, but no explicit data date was parsed",
       "error": "未取得明確資料日期；不可判定為當日資料可用",
-      "response_time_ms": 2737
+      "response_time_ms": 6365
     },
     "mops": {
       "name": "MOPS",
-      "checked_at": "2026-06-22T11:13:00+08:00",
+      "checked_at": "2026-06-22T15:49:39+08:00",
       "reachable": true,
       "http_status": 200,
       "data_date": "2026-06-22",
@@ -76,13 +76,13 @@
       "dynamic_loading_suspected": false,
       "schedule_ready": true,
       "role": "主資料源",
-      "evidence": "MOPS 重大訊息查詢成功，資料日期 2026-06-22，事件 12 則",
+      "evidence": "MOPS 重大訊息查詢成功，資料日期 2026-06-22，事件 125 則",
       "error": "",
-      "response_time_ms": 1272
+      "response_time_ms": 1747
     },
     "goodinfo": {
       "name": "Goodinfo",
-      "checked_at": "2026-06-22T11:13:00+08:00",
+      "checked_at": "2026-06-22T15:49:39+08:00",
       "reachable": true,
       "http_status": 200,
       "data_date": null,
@@ -95,11 +95,11 @@
       "role": "候補資料源",
       "evidence": "GET https://goodinfo.tw/tw/index.asp succeeded, but no explicit data date was parsed",
       "error": "未取得明確資料日期；不可判定為當日資料可用",
-      "response_time_ms": 284
+      "response_time_ms": 1522
     },
     "yahoo_tw_stock": {
       "name": "Yahoo 奇摩股市",
-      "checked_at": "2026-06-22T11:13:00+08:00",
+      "checked_at": "2026-06-22T15:49:39+08:00",
       "reachable": true,
       "http_status": 200,
       "data_date": null,
@@ -112,11 +112,11 @@
       "role": "催化新聞源",
       "evidence": "GET https://tw.stock.yahoo.com/ succeeded, but no explicit data date was parsed",
       "error": "未取得明確資料日期；不可判定為當日資料可用",
-      "response_time_ms": 7126
+      "response_time_ms": 8347
     },
     "cnyes": {
       "name": "鉅亨網 Cnyes",
-      "checked_at": "2026-06-22T11:13:00+08:00",
+      "checked_at": "2026-06-22T15:49:39+08:00",
       "reachable": true,
       "http_status": 200,
       "data_date": null,
@@ -129,11 +129,11 @@
       "role": "催化新聞源",
       "evidence": "GET https://www.cnyes.com/twstock/ succeeded, but no explicit data date was parsed",
       "error": "未取得明確資料日期；不可判定為當日資料可用",
-      "response_time_ms": 818
+      "response_time_ms": 1009
     },
     "moneydj": {
       "name": "MoneyDJ",
-      "checked_at": "2026-06-22T11:13:00+08:00",
+      "checked_at": "2026-06-22T15:49:39+08:00",
       "reachable": true,
       "http_status": 200,
       "data_date": null,
@@ -146,11 +146,11 @@
       "role": "催化新聞源",
       "evidence": "GET https://www.moneydj.com/ succeeded, but no explicit data date was parsed",
       "error": "未取得明確資料日期；不可判定為當日資料可用",
-      "response_time_ms": 413
+      "response_time_ms": 298
     },
     "tradingview": {
       "name": "TradingView",
-      "checked_at": "2026-06-22T11:13:00+08:00",
+      "checked_at": "2026-06-22T15:49:39+08:00",
       "reachable": true,
       "http_status": 200,
       "data_date": null,
@@ -163,11 +163,11 @@
       "role": "人工複核源",
       "evidence": "GET https://tw.tradingview.com/markets/stocks-taiwan/ succeeded, but no explicit data date was parsed",
       "error": "未取得明確資料日期；不可判定為當日資料可用",
-      "response_time_ms": 1244
+      "response_time_ms": 945
     },
     "wantgoo": {
       "name": "WantGoo",
-      "checked_at": "2026-06-22T11:13:00+08:00",
+      "checked_at": "2026-06-22T15:49:39+08:00",
       "reachable": true,
       "http_status": 200,
       "data_date": null,
@@ -180,11 +180,11 @@
       "role": "人工複核源",
       "evidence": "GET https://www.wantgoo.com/ succeeded, but no explicit data date was parsed",
       "error": "未取得明確資料日期；不可判定為當日資料可用",
-      "response_time_ms": 334
+      "response_time_ms": 138
     },
     "cmoney": {
       "name": "CMoney",
-      "checked_at": "2026-06-22T11:13:00+08:00",
+      "checked_at": "2026-06-22T15:49:39+08:00",
       "reachable": true,
       "http_status": 200,
       "data_date": null,
@@ -197,11 +197,11 @@
       "role": "人工複核源",
       "evidence": "GET https://www.cmoney.tw/ succeeded, but no explicit data date was parsed",
       "error": "未取得明確資料日期；不可判定為當日資料可用",
-      "response_time_ms": 588
+      "response_time_ms": 412
     },
     "statementdog": {
       "name": "財報狗 StatementDog",
-      "checked_at": "2026-06-22T11:13:00+08:00",
+      "checked_at": "2026-06-22T15:49:39+08:00",
       "reachable": true,
       "http_status": 200,
       "data_date": null,
@@ -214,24 +214,24 @@
       "role": "人工複核源",
       "evidence": "GET https://statementdog.com/ succeeded, but no explicit data date was parsed",
       "error": "未取得明確資料日期；不可判定為當日資料可用",
-      "response_time_ms": 468
+      "response_time_ms": 555
     }
   },
   "coverage": {
     "market_environment": {
-      "available": false,
+      "available": true,
       "source": "TWSE",
-      "notes": "TWSE current market environment not verified"
+      "notes": "TWSE has explicit current market date"
     },
     "listed_ohlcv": {
-      "available": false,
+      "available": true,
       "source": "TWSE",
-      "notes": "Listed OHLCV unavailable"
+      "notes": "1367 listed rows parsed"
     },
     "otc_ohlcv": {
       "available": true,
       "source": "TPEx",
-      "notes": "10073 OTC rows parsed"
+      "notes": "10033 OTC rows parsed"
     },
     "volume_ranking": {
       "available": true,
@@ -259,9 +259,9 @@
       "notes": "20-day volume history available"
     },
     "institutional_trading": {
-      "available": false,
+      "available": true,
       "source": "TWSE/TPEx",
-      "notes": "empty_but_valid"
+      "notes": "932 institutional rows parsed from official sources"
     },
     "margin_short": {
       "available": false,
@@ -271,7 +271,7 @@
     "material_information": {
       "available": true,
       "source": "MOPS",
-      "notes": "MOPS material information query verified with 12 events"
+      "notes": "MOPS material information query verified with 125 events"
     },
     "revenue_financials": {
       "available": false,
@@ -290,6 +290,8 @@
     }
   },
   "main_sources": [
+    "TWSE",
+    "TPEx",
     "MOPS"
   ],
   "backup_sources": [],
@@ -304,31 +306,27 @@
     "mops_events": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/latest-mops-events.json",
     "index_summary": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/latest-index-summary.json",
     "history_index": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/history-index.json",
-    "market_scan": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/reports/latest-market-scan.md"
+    "market_scan": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/reports/latest-market-scan.md",
+    "chatgpt_daily_qullamaggie_source": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/daily-qullamaggie-source.json",
+    "chatgpt_weekly_qullamaggie_source": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/weekly-qullamaggie-source.json",
+    "chatgpt_daily_qullamaggie_markdown": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/reports/chatgpt-daily-qullamaggie-source.md",
+    "chatgpt_weekly_qullamaggie_markdown": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/reports/chatgpt-weekly-qullamaggie-source.md"
   },
   "full_market_scan_ready": false,
   "scan_readiness": {
-    "can_run_technical_scan": false,
-    "can_run_qullamaggie_scan": false,
-    "can_generate_new_paper_trade_candidate": false,
+    "can_run_technical_scan": true,
+    "can_run_qullamaggie_scan": true,
+    "can_generate_new_paper_trade_candidate": true,
     "can_use_institutional_confirmation": false,
     "can_use_margin_short_risk": false,
-    "can_use_mops_catalyst": false,
-    "reasons": [
-      "listed_ohlcv unavailable",
-      "market_environment unavailable",
-      "Current trading day OHLCV not fully available yet"
-    ]
+    "can_use_mops_catalyst": true,
+    "reasons": []
   },
   "missing_sections": [
-    "market_environment",
-    "listed_ohlcv",
-    "institutional_trading",
     "margin_short"
   ],
   "overall_confidence": "medium",
   "errors": [
-    "TWSE response did not contain a parsable table with required fields ['證券代號', '開盤價', '最高價', '最低價', '收盤價']; stat='很抱歉，沒有符合條件的資料!'; tables=",
-    "核心資料段落缺失：market_environment, listed_ohlcv, institutional_trading, margin_short"
+    "核心資料段落缺失：margin_short"
   ]
 }

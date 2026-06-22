@@ -11,6 +11,14 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from stock_health.config import SCHEMA_VERSION, TIMEZONE, github_raw_url
 from stock_health.coverage import build_coverage
+from stock_health.chatgpt_source import (
+    build_daily_qullamaggie_markdown,
+    build_daily_qullamaggie_source,
+    build_weekly_qullamaggie_markdown,
+    build_weekly_qullamaggie_source,
+    load_recent_screening_summaries,
+    screening_history_path,
+)
 from stock_health.data_fetcher import (
     fetch_tpex_institutional_trading,
     fetch_tpex_index,
@@ -182,6 +190,10 @@ def main() -> int:
         "index_summary": github_raw_url("data/latest-index-summary.json"),
         "history_index": github_raw_url("data/history-index.json"),
         "market_scan": github_raw_url("reports/latest-market-scan.md"),
+        "chatgpt_daily_qullamaggie_source": github_raw_url("data/chatgpt/daily-qullamaggie-source.json"),
+        "chatgpt_weekly_qullamaggie_source": github_raw_url("data/chatgpt/weekly-qullamaggie-source.json"),
+        "chatgpt_daily_qullamaggie_markdown": github_raw_url("reports/chatgpt-daily-qullamaggie-source.md"),
+        "chatgpt_weekly_qullamaggie_markdown": github_raw_url("reports/chatgpt-weekly-qullamaggie-source.md"),
     }
 
     summary = build_screening_summary(
@@ -230,18 +242,32 @@ def main() -> int:
     }
     latest_md = build_health_markdown(report, report_date)
     market_scan_md = build_market_scan_markdown(summary, report_date)
+    daily_chatgpt_source = build_daily_qullamaggie_source(
+        report,
+        summary,
+        institutional_summary,
+        margin_short_summary,
+        mops_summary,
+        history_index,
+    )
 
     write_json(root / "latest.json", report)
     write_text(root / "latest.md", latest_md)
     write_json(root / "data" / "latest-screening-summary.json", summary)
+    write_json(screening_history_path(root, f"{report_date:%Y-%m-%d}"), summary)
     write_json(root / "data" / "latest-institutional-trading-summary.json", institutional_summary)
     write_json(root / "data" / "latest-margin-short-summary.json", margin_short_summary)
     write_json(root / "data" / "latest-index-summary.json", index_summary)
     write_json(root / "data" / "latest-mops-events.json", mops_summary)
+    write_json(root / "data" / "chatgpt" / "daily-qullamaggie-source.json", daily_chatgpt_source)
     write_text(root / "reports" / "latest-market-scan.md", market_scan_md)
+    write_text(root / "reports" / "chatgpt-daily-qullamaggie-source.md", build_daily_qullamaggie_markdown(daily_chatgpt_source))
     history_json, history_md = history_report_paths(root, report_date)
     write_json(history_json, report)
     write_text(history_md, latest_md)
+    weekly_chatgpt_source = build_weekly_qullamaggie_source(report, load_recent_screening_summaries(root, 5))
+    write_json(root / "data" / "chatgpt" / "weekly-qullamaggie-source.json", weekly_chatgpt_source)
+    write_text(root / "reports" / "chatgpt-weekly-qullamaggie-source.md", build_weekly_qullamaggie_markdown(weekly_chatgpt_source))
     LOGGER.info("Wrote latest report for %s", report_date)
     return 0
 
