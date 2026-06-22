@@ -103,6 +103,17 @@ def twse_mi_index_url(target_date: date) -> str:
     )
 
 
+def twse_taiex_index_url(target_date: date) -> str:
+    return twse_mi_index_url(target_date)
+
+
+def tpex_index_url(target_date: date) -> str:
+    return (
+        "https://www.tpex.org.tw/web/stock/iNdex_info/inxh/"
+        f"Inx_result.php?l=zh-tw&d={target_date:%Y/%m/%d}&o=json"
+    )
+
+
 def tpex_daily_url(target_date: date) -> str:
     roc_year = target_date.year - 1911
     roc_date = f"{roc_year}/{target_date:%m/%d}"

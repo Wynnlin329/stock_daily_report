@@ -1,0 +1,49 @@
+{
+  "schema_version": "1.0",
+  "report_date": "2026-06-22",
+  "generated_at": "2026-06-22T11:13:00+08:00",
+  "timezone": "Asia/Taipei",
+  "taiex": {
+    "data_date": "2026-06-18",
+    "is_current": false,
+    "rows": 60,
+    "has_20d_history": true,
+    "has_50d_history": true,
+    "has_60d_history": true
+  },
+  "tpex_index": {
+    "data_date": "2026-06-18",
+    "is_current": false,
+    "rows": 61,
+    "has_20d_history": true,
+    "has_50d_history": true,
+    "has_60d_history": true
+  },
+  "market_regime": {
+    "status": "risk_on",
+    "score": 15,
+    "reasons": [
+      "benchmark regime=risk_on"
+    ],
+    "risk_notes": [],
+    "metrics": {
+      "listed": {
+        "close": 46465.2,
+        "ma20": 44455.1,
+        "ma50": 41164.7578,
+        "return_20d_pct": 16.1026
+      },
+      "otc": {
+        "close": 447.06,
+        "ma20": 431.4265,
+        "ma50": 406.9462,
+        "return_20d_pct": 9.0922
+      }
+    }
+  },
+  "errors": [
+    "TWSE TAIEX response did not contain a parsable table with required fields ['指數', '收盤指數', '漲跌點數']; stat='很抱歉，沒有符合條件的資料!'; tables=",
+    "TPEx index table did not contain target date 2026/06/22"
+  ],
+  "limitations": []
+}

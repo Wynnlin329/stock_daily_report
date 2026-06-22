@@ -5,8 +5,6 @@ from statistics import mean
 from typing import Any
 
 from .config import (
-    ANTICIPATION_MAX_DISTANCE_TO_PIVOT_PCT,
-    ANTICIPATION_MIN_DISTANCE_TO_PIVOT_PCT,
     BREAKOUT_VOLUME_RATIO,
     CLOSE_NEAR_HIGH_PCT,
     EP_MIN_CHANGE_PCT,
@@ -79,8 +77,9 @@ def calculate_qullamaggie_signals(
     for setup_type in grouped:
         grouped[setup_type] = sorted(grouped[setup_type], key=_candidate_sort_key)[:QULLAMAGGIE_MAX_CANDIDATES_PER_SETUP]
 
+    top_candidate_setups = {"breakout", "episodic_pivot", "anticipation", "extended_watch"}
     top_candidates = sorted(
-        [candidate for candidate in candidates if candidate["setup_type"] != "insufficient_data"],
+        [candidate for candidate in candidates if candidate["setup_type"] in top_candidate_setups],
         key=_candidate_sort_key,
     )[:QULLAMAGGIE_MAX_TOP_CANDIDATES]
 
@@ -88,6 +87,8 @@ def calculate_qullamaggie_signals(
         limitations.append("部分個股歷史或必要欄位不足，已歸類為 insufficient_data")
     if not candidates:
         limitations.append("今日 scan_eligible=true 的 OHLCV 不足，無法產生 Qullamaggie-style 候選清單")
+    if candidates and not top_candidates:
+        limitations.append("所有 Qullamaggie-style 標的皆為 insufficient_data 或 failed_breakout，未產生 top_candidates")
 
     return {
         "market_regime": market_regime,
@@ -108,10 +109,16 @@ def calculate_market_regime(benchmark_history: BenchmarkHistory | None) -> dict[
         ma20 = _avg(closes[-20:])
         ma50 = _avg(closes[-50:])
         current = closes[-1]
-        metrics[market] = {"close": current, "ma20": ma20, "ma50": ma50}
-        if current > ma20 and ma20 > ma50:
+        return_20d = current / closes[-21] - 1 if closes[-21] else None
+        metrics[market] = {
+            "close": current,
+            "ma20": ma20,
+            "ma50": ma50,
+            "return_20d_pct": _pct(return_20d * 100) if return_20d is not None else None,
+        }
+        if current > ma20 and current > ma50 and ma20 >= ma50 and return_20d is not None and return_20d > 0:
             scores.append("risk_on")
-        elif current < ma20 and ma20 < ma50:
+        elif current < ma20 and current < ma50 and ma20 < ma50 and return_20d is not None and return_20d < 0:
             scores.append("risk_off")
         else:
             scores.append("neutral")
@@ -148,13 +155,15 @@ def classify_setup_type(metrics: dict[str, Any]) -> str:
         or metrics["close"] is None
         or metrics["volume"] is None
         or metrics["pivot_price"] is None
+        or metrics["volume_ratio_20d"] is None
+        or metrics["liquidity_ok"] is None
     ):
         return "insufficient_data"
     if (
         metrics["high"] is not None
         and metrics["pivot_price"] is not None
         and metrics["high"] > metrics["pivot_price"]
-        and metrics["close"] < metrics["pivot_price"]
+        and (metrics["close"] < metrics["pivot_price"] or _lt(metrics["close_location_pct"], 50))
         and _ge(metrics["volume_ratio_20d"], BREAKOUT_VOLUME_RATIO)
     ):
         return "failed_breakout"
@@ -171,6 +180,7 @@ def classify_setup_type(metrics: dict[str, Any]) -> str:
         and metrics["above_ma50"]
         and not metrics["extended_risk"]
         and metrics["liquidity_ok"]
+        and metrics.get("market_regime_status") != "risk_off"
     ):
         return "breakout"
     if (
@@ -179,16 +189,18 @@ def classify_setup_type(metrics: dict[str, Any]) -> str:
         and _ge(metrics["volume_ratio_20d"], EP_MIN_VOLUME_RATIO)
         and metrics["close_near_high"]
         and metrics["liquidity_ok"]
+        and not metrics["extended_risk"]
     ):
         return "episodic_pivot"
     if (
         not metrics["new_high_20d"]
         and not metrics["new_high_60d"]
-        and _between(metrics["distance_to_pivot_pct"], ANTICIPATION_MIN_DISTANCE_TO_PIVOT_PCT, ANTICIPATION_MAX_DISTANCE_TO_PIVOT_PCT)
-        and (metrics["range_contraction"] or metrics["volatility_contraction"])
-        and metrics["above_ma20"]
-        and metrics["above_ma50"]
+        and _between(metrics["distance_to_pivot_pct"], -5, 0)
+        and metrics["base_days"] >= 20
+        and metrics["base_depth_pct"] is not None
+        and metrics["base_depth_pct"] <= 35
         and metrics["liquidity_ok"]
+        and not metrics["extended_risk"]
     ):
         return "anticipation"
     return "insufficient_data"
@@ -256,6 +268,7 @@ def _calculate_candidate(
         mops_events_by_symbol.get(row.symbol, []),
         mops_event_metrics_by_symbol.get(row.symbol, {}),
     )
+    metrics["market_regime_status"] = market_regime.get("status")
     metrics["setup_type"] = classify_setup_type(metrics)
     score, breakdown = score_qullamaggie_candidate(metrics, market_regime)
     metrics["qullamaggie_score"] = score
@@ -365,7 +378,9 @@ def _calculate_metrics(
         "volume_ratio_20d": _pct(volume_ratio_20d),
         "avg_turnover_20d": _pct(avg_turnover_20d),
         "turnover_ok": bool(row.turnover is not None and row.turnover >= MIN_DAILY_TURNOVER),
-        "liquidity_ok": bool(row.turnover is not None and row.turnover >= MIN_DAILY_TURNOVER and avg_turnover_20d is not None and avg_turnover_20d >= MIN_AVG_TURNOVER_20D),
+        "liquidity_ok": bool(row.turnover is not None and row.turnover >= MIN_DAILY_TURNOVER and avg_turnover_20d is not None and avg_turnover_20d >= MIN_AVG_TURNOVER_20D)
+        if row.turnover is not None
+        else None,
         "daily_range_pct": daily_range_pct,
         "close_location_pct": close_location_pct,
         "close_near_high": bool(close_location_pct is not None and close_location_pct >= CLOSE_NEAR_HIGH_PCT),
@@ -415,6 +430,7 @@ def _candidate_payload(metrics: dict[str, Any]) -> dict[str, Any]:
         "setup_type",
         "qullamaggie_score",
         "score_breakdown",
+        "market_regime_status",
         "close",
         "change_pct",
         "volume",
@@ -519,7 +535,7 @@ def _apply_relative_strength_ranks(candidates: list[dict[str, Any]]) -> None:
         denominator = max(1, len(ranked) - 1)
         for position, candidate in enumerate(ranked):
             candidate["relative_strength_rank"] = round(position / denominator * 100, 4) if len(ranked) > 1 else 100.0
-            candidate["relative_strength_rank_basis"] = basis
+            candidate["relative_strength_rank_basis"] = "scan_eligible_common_stock"
             score, breakdown = score_qullamaggie_candidate(candidate, {"score": candidate["score_breakdown"]["market_regime"]})
             candidate["qullamaggie_score"] = score
             candidate["score_breakdown"] = breakdown
@@ -697,9 +713,21 @@ def _tags(metrics: dict[str, Any]) -> list[str]:
     return tags
 
 
-def _candidate_sort_key(candidate: dict[str, Any]) -> tuple[float, float, float]:
+def _candidate_sort_key(candidate: dict[str, Any]) -> tuple[int, float, int, int, float, float, float]:
+    setup_priority = {
+        "breakout": 0,
+        "episodic_pivot": 1,
+        "anticipation": 2,
+        "extended_watch": 3,
+        "failed_breakout": 4,
+        "insufficient_data": 5,
+    }
     return (
+        setup_priority.get(candidate.get("setup_type"), 9),
         -(candidate.get("qullamaggie_score") or 0),
+        0 if candidate.get("liquidity_ok") is True else 1,
+        0 if candidate.get("extended_risk") is False else 1,
+        -(candidate.get("relative_strength_rank") or -1),
         -(candidate.get("volume_ratio_20d") or 0),
         -(candidate.get("turnover") or 0),
     )
@@ -738,6 +766,10 @@ def _ge(value: float | None, threshold: float) -> bool:
 
 def _gt(value: float | None, threshold: float) -> bool:
     return value is not None and value > threshold
+
+
+def _lt(value: float | None, threshold: float) -> bool:
+    return value is not None and value < threshold
 
 
 def _le(value: float | None, threshold: float) -> bool:

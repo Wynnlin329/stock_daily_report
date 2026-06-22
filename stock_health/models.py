@@ -126,6 +126,48 @@ class FetchResult:
 
 
 @dataclass
+class IndexRecord:
+    date: str
+    symbol: str
+    name: str
+    market: str
+    open: float | None
+    high: float | None
+    low: float | None
+    close: float | None
+    change: float | None
+    change_pct: float | None
+    source: str
+
+    def to_csv_row(self) -> dict[str, Any]:
+        return {
+            "date": self.date,
+            "symbol": self.symbol,
+            "name": self.name,
+            "market": self.market,
+            "open": self.open if self.open is not None else "",
+            "high": self.high if self.high is not None else "",
+            "low": self.low if self.low is not None else "",
+            "close": self.close if self.close is not None else "",
+            "change": self.change if self.change is not None else "",
+            "change_pct": self.change_pct if self.change_pct is not None else "",
+            "source": self.source,
+        }
+
+
+@dataclass
+class IndexFetchResult:
+    rows: list[IndexRecord] = field(default_factory=list)
+    data_date: str | None = None
+    errors: list[str] = field(default_factory=list)
+    status: str = "source_unavailable"
+
+    @property
+    def ok(self) -> bool:
+        return bool(self.rows)
+
+
+@dataclass
 class InstitutionalTradingRecord:
     date: str
     symbol: str

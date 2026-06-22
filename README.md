@@ -63,6 +63,7 @@ data/latest-institutional-trading.csv
 data/latest-institutional-trading-summary.json
 data/latest-margin-short.csv
 data/latest-margin-short-summary.json
+data/latest-index-summary.json
 data/latest-mops-events.json
 data/latest-mops-events.csv
 data/latest-screening-summary.json
@@ -101,7 +102,7 @@ can_use_margin_short_risk,
 can_use_mops_catalyst, reasons
 ```
 
-MOPS、法人或資券資料不可用不會阻止技術掃描或 Qullamaggie-style 掃描；但 OHLCV 或 60 日歷史不足、盤後最新交易日資料尚未完整、或 market_regime 不足時，不得產生新的模擬買進候選。
+MOPS、法人或資券資料不可用不會阻止技術掃描或 Qullamaggie-style 掃描；但 OHLCV 或 60 日歷史不足、指數歷史不足導致 `market_regime.status=insufficient_data`、盤後最新交易日資料尚未完整，或沒有 breakout / episodic_pivot / anticipation 候選時，不得產生新的模擬候選。
 
 每個來源至少包含：
 
@@ -117,6 +118,16 @@ error, response_time_ms
 `data/latest-screening-summary.json` 是 ChatGPT 後續排程的主要輸入。它包含資料品質、歷史資料狀態、市場統計、成交量/成交金額/漲幅排行、初步篩選清單、coverage、缺失項目與限制。
 
 `historical_data_status`、`institutional_data_status`、`margin_short_data_status` 與 `mops_event_data_status` 皆以 `data/history-index.json` 為準。`history-index.json` 由 `data/market/`、`data/institutional/`、`data/margin_short/` 與 `data/mops/` 的實際檔案掃描重建，避免單一 backfill 清空其他 section。
+
+`data/latest-index-summary.json` 保存 TAIEX 與 TPEx 櫃買指數歷史狀態與 `market_regime`。每日與 bootstrap 流程會輸出：
+
+```text
+data/index/taiex/YYYY/MM/YYYY-MM-DD-taiex.csv
+data/index/tpex/YYYY/MM/YYYY-MM-DD-tpex.csv
+data/latest-index-summary.json
+```
+
+指數資料來源為 TWSE `MI_INDEX` 的「發行量加權股價指數」與 TPEx `Inx_result.php` 的「櫃買指數(月查詢)」。至少要有 TAIEX 或 TPEx 50 日有效收盤歷史，才會判斷 `risk_on`、`neutral` 或 `risk_off`；不足時固定為 `insufficient_data`。
 
 若歷史資料不足，系統不會產生 20 日均量、60 日突破或爆量倍數等長週期訊號，並會在 `historical_data_status` 與 `limitations` 中標示。
 
@@ -169,6 +180,7 @@ distance_to_pivot_pct, breakout_volume_confirmed,
 base_days, base_high, base_low, base_depth_pct,
 range_contraction, volatility_contraction, tight_close_count,
 relative_strength_20d, relative_strength_60d, relative_strength_rank,
+relative_strength_rank_basis,
 extended_from_pivot_pct, extended_risk, stop_reference, risk_to_stop_pct,
 mops_event_flag, revenue_financial_flag, news_topic_flag,
 setup_type, qullamaggie_score, score_breakdown
@@ -185,8 +197,14 @@ breakout, episodic_pivot, anticipation, extended_watch, failed_breakout, insuffi
 ```text
 少於 20 個交易日：不計算 20 日均量、20 日新高、20 日相對強弱、量能倍數。
 少於 60 個交易日：不計算 60 日新高、60 日相對強弱，也不宣稱完整 Qullamaggie-style 訊號。
-缺少 TAIEX/OTC 指數歷史：market_regime 為 insufficient_data，相對強弱欄位保留 null。
+缺少 TAIEX/TPEx 指數歷史：market_regime 為 insufficient_data，相對強弱欄位保留 null。
 ```
+
+`relative_strength_20d` 與 `relative_strength_60d` 定義為個股 20/60 日報酬減同市場指數 20/60 日報酬；`relative_strength_rank` 是在 `scan_eligible=true` 普通股 universe 中的百分位排名，`relative_strength_rank_basis=scan_eligible_common_stock`。
+
+`market_regime` 使用保守規則：指數收盤高於 MA20 與 MA50、MA20 >= MA50 且 20 日報酬為正時為 `risk_on`；收盤低於 MA20 與 MA50、MA20 < MA50 且 20 日報酬為負時為 `risk_off`；其他為 `neutral`。breakout 不會在 `risk_off` 市場狀態下產生。
+
+`top_candidates` 只會從 `breakout`、`episodic_pivot`、`anticipation` 與 `extended_watch` 排序而來，不包含 `insufficient_data` 或 `failed_breakout`。排序優先順序為 setup 類型、`qullamaggie_score`、`liquidity_ok`、`extended_risk` 與 `relative_strength_rank`。
 
 ### 法人買賣超
 
@@ -309,6 +327,7 @@ MOPS 重大訊息：每日累積，手動 backfill 可用 `t05st01` 低頻回補
 ```text
 https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/latest.json
 https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/latest-screening-summary.json
+https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/latest-index-summary.json
 https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/latest-mops-events.json
 https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/history-index.json
 ```

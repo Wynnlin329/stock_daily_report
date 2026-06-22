@@ -18,7 +18,9 @@ from stock_health.data_fetcher import (
     fetch_mops_events,
     fetch_mops_historical_events,
     fetch_mops_realtime_events,
+    fetch_tpex_index,
     fetch_twse_institutional_trading,
+    fetch_twse_taiex_index,
     fetch_twse_listed_ohlcv,
     fetch_twse_margin_short,
     mops_events_from_csv_text,
@@ -27,6 +29,8 @@ from stock_health.data_fetcher import (
     parse_mops_events_html,
     records_from_csv_text,
     records_to_csv_text,
+    index_records_from_csv_text,
+    index_records_to_csv_text,
 )
 from stock_health.history_store import (
     build_history_index,
@@ -41,7 +45,7 @@ from stock_health.history_store import (
 )
 from stock_health.http_client import HttpResponse
 import stock_health.http_client as http_client_module
-from stock_health.models import InstitutionalTradingRecord, MarginShortRecord, MopsEventFetchResult, MopsEventRecord, OhlcvRecord, SourceHealth
+from stock_health.models import IndexRecord, InstitutionalTradingRecord, MarginShortRecord, MopsEventFetchResult, MopsEventRecord, OhlcvRecord, SourceHealth
 from stock_health.report_writer import build_health_markdown
 from stock_health.screening import build_screening_summary
 from stock_health.source_health import check_all_sources
@@ -488,7 +492,10 @@ def test_scan_readiness_separates_optional_data_sources() -> None:
         "institutional_data_status": {"latest_available": False},
         "margin_short_data_status": {"latest_available": False},
         "mops_event_data_status": {"latest_available": False},
-        "qullamaggie": {"market_regime": {"status": "uptrend"}},
+        "qullamaggie": {
+            "market_regime": {"status": "risk_on"},
+            "candidates": {"breakout": [{"symbol": "2330"}], "episodic_pivot": [], "anticipation": []},
+        },
     }
     readiness = _build_scan_readiness(coverage, summary, {"is_latest_trading_data_current": True})
     assert readiness["can_run_technical_scan"] is True
@@ -515,7 +522,10 @@ def test_scan_readiness_blocks_new_candidate_when_ohlcv_stale() -> None:
         "institutional_data_status": {"latest_available": True},
         "margin_short_data_status": {"latest_available": True},
         "mops_event_data_status": {"latest_available": True},
-        "qullamaggie": {"market_regime": {"status": "uptrend"}},
+        "qullamaggie": {
+            "market_regime": {"status": "risk_on"},
+            "candidates": {"breakout": [{"symbol": "2330"}], "episodic_pivot": [], "anticipation": []},
+        },
     }
     readiness = _build_scan_readiness(
         coverage,
@@ -525,6 +535,33 @@ def test_scan_readiness_blocks_new_candidate_when_ohlcv_stale() -> None:
     assert readiness["can_run_qullamaggie_scan"] is True
     assert readiness["can_generate_new_paper_trade_candidate"] is False
     assert "Current trading day OHLCV not fully available yet" in readiness["reasons"]
+
+
+def test_scan_readiness_requires_actionable_qullamaggie_candidate() -> None:
+    from scripts.run_health_check import _build_scan_readiness
+
+    coverage = {
+        "listed_ohlcv": {"available": True},
+        "otc_ohlcv": {"available": True},
+        "market_environment": {"available": True},
+        "institutional_trading": {"available": False},
+        "margin_short": {"available": False},
+        "material_information": {"available": False},
+    }
+    summary = {
+        "historical_data_status": {"has_20d_history": True, "has_60d_history": True},
+        "institutional_data_status": {"latest_available": False},
+        "margin_short_data_status": {"latest_available": False},
+        "mops_event_data_status": {"latest_available": False},
+        "qullamaggie": {
+            "market_regime": {"status": "risk_on"},
+            "candidates": {"breakout": [], "episodic_pivot": [], "anticipation": [], "extended_watch": [{"symbol": "2330"}]},
+        },
+    }
+    readiness = _build_scan_readiness(coverage, summary, {"is_latest_trading_data_current": True})
+    assert readiness["can_run_qullamaggie_scan"] is True
+    assert readiness["can_generate_new_paper_trade_candidate"] is False
+    assert "no breakout, episodic_pivot, or anticipation candidate" in readiness["reasons"]
 
 
 def test_screening_candidate_lists_are_capped() -> None:
@@ -722,6 +759,73 @@ def test_tpex_parser_with_tables_response() -> None:
     assert result.data_date == "2026-06-15"
     assert result.rows[0].symbol == "8069"
     assert result.rows[0].turnover == 1286086332
+
+
+def test_twse_taiex_index_parser_with_mock_response() -> None:
+    payload = {
+        "date": "20260618",
+        "tables": [
+            {
+                "title": "115年06月18日 價格指數(臺灣證券交易所)",
+                "fields": ["指數", "收盤指數", "漲跌(+/-)", "漲跌點數", "漲跌百分比(%)"],
+                "data": [
+                    ["寶島股價指數", "51,916.49", "+", "726.82", "1.42"],
+                    ["發行量加權股價指數", "46,465.20", "+", "587.81", "1.28"],
+                ],
+            }
+        ],
+    }
+    result = fetch_twse_taiex_index(date(2026, 6, 18), FakeClient([HttpResponse("mock", 200, json.dumps(payload).encode(), 1)]))
+    assert result.status == "success"
+    assert result.data_date == "2026-06-18"
+    assert result.rows[0].symbol == "TAIEX"
+    assert result.rows[0].close == 46465.20
+    assert result.rows[0].change == 587.81
+    assert result.rows[0].change_pct == 1.28
+
+
+def test_tpex_index_parser_with_mock_response() -> None:
+    payload = {
+        "date": "20260622",
+        "tables": [
+            {
+                "title": "櫃買指數(月查詢)",
+                "fields": ["日期", "開市", "最高", "最低", "收市", "漲/跌"],
+                "data": [
+                    ["2026/06/17", "428.97", "433.34", "426.55", "433.34", "3.08"],
+                    ["2026/06/18", "434.54", "447.06", "434.54", "447.06", "13.72"],
+                ],
+            }
+        ],
+        "stat": "ok",
+    }
+    result = fetch_tpex_index(date(2026, 6, 18), FakeClient([HttpResponse("mock", 200, json.dumps(payload).encode(), 1)]))
+    assert result.status == "success"
+    assert result.data_date == "2026-06-18"
+    assert result.rows[0].symbol == "TPEx"
+    assert result.rows[0].close == 447.06
+    assert result.rows[0].change == 13.72
+
+
+def test_index_csv_roundtrip() -> None:
+    rows = [
+        IndexRecord(
+            date="2026-06-18",
+            symbol="TAIEX",
+            name="發行量加權股價指數",
+            market="listed",
+            open=None,
+            high=None,
+            low=None,
+            close=46465.2,
+            change=587.81,
+            change_pct=1.28,
+            source="TWSE",
+        )
+    ]
+    parsed = index_records_from_csv_text(index_records_to_csv_text(rows))
+    assert parsed[0].symbol == "TAIEX"
+    assert parsed[0].close == 46465.2
 
 
 def test_twse_institutional_parser_with_mock_response() -> None:

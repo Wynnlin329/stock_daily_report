@@ -4,7 +4,7 @@ import json
 from datetime import date, timedelta
 
 from stock_health.models import InstitutionalTradingRecord, MopsEventRecord, OhlcvRecord
-from stock_health.qullamaggie import calculate_qullamaggie_signals
+from stock_health.qullamaggie import calculate_market_regime, calculate_qullamaggie_signals
 from stock_health.screening import build_screening_summary
 
 
@@ -69,7 +69,7 @@ def test_qullamaggie_prior_high_uses_history_only_no_lookahead() -> None:
     history = history_for(high=100.0)
     current = make_record(date(2026, 6, 15), close=105.0, high=200.0, low=104.0, volume=2000, turnover=200_000_000)
     result = calculate_qullamaggie_signals([current], history, {"listed": [100 + i for i in range(61)]})
-    candidate = result["top_candidates"][0]
+    candidate = [candidate for group in result["candidates"].values() for candidate in group if candidate["symbol"] == "2330"][0]
     assert candidate["prior_20d_high"] == 100.0
     assert candidate["prior_60d_high"] == 100.0
     assert candidate["new_high_20d"] is True
@@ -102,6 +102,22 @@ def test_qullamaggie_breakout_classification() -> None:
     candidate = first_candidate(result, "breakout")
     assert candidate["setup_type"] == "breakout"
     assert 0 <= candidate["qullamaggie_score"] <= 100
+
+
+def test_market_regime_insufficient_data_when_index_history_under_50d() -> None:
+    result = calculate_market_regime({"listed": [100.0 + index for index in range(49)]})
+    assert result["status"] == "insufficient_data"
+
+
+def test_market_regime_risk_on_neutral_and_risk_off_rules() -> None:
+    risk_on = calculate_market_regime({"listed": [100.0 + index for index in range(60)]})
+    risk_off = calculate_market_regime({"listed": [160.0 - index for index in range(60)]})
+    neutral = calculate_market_regime({"listed": [100.0] * 60})
+    assert risk_on["status"] == "risk_on"
+    assert risk_on["metrics"]["listed"]["return_20d_pct"] > 0
+    assert risk_off["status"] == "risk_off"
+    assert risk_off["metrics"]["listed"]["return_20d_pct"] < 0
+    assert neutral["status"] == "neutral"
 
 
 def test_qullamaggie_anticipation_classification() -> None:
@@ -150,7 +166,7 @@ def test_qullamaggie_relative_strength_values_and_rank() -> None:
     assert candidates["2330"]["relative_strength_60d"] == 30.0
     assert candidates["2330"]["relative_strength_rank"] == 100.0
     assert candidates["2317"]["relative_strength_rank"] == 0.0
-    assert candidates["2330"]["relative_strength_rank_basis"] == "60d"
+    assert candidates["2330"]["relative_strength_rank_basis"] == "scan_eligible_common_stock"
 
 
 def test_qullamaggie_json_fields_and_no_trading_advice_text() -> None:

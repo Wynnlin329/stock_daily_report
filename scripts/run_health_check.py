@@ -13,22 +13,27 @@ from stock_health.config import SCHEMA_VERSION, TIMEZONE, github_raw_url
 from stock_health.coverage import build_coverage
 from stock_health.data_fetcher import (
     fetch_tpex_institutional_trading,
+    fetch_tpex_index,
     fetch_tpex_margin_short,
     fetch_tpex_otc_ohlcv,
     fetch_mops_events,
     fetch_twse_institutional_trading,
+    fetch_twse_taiex_index,
     fetch_twse_listed_ohlcv,
     fetch_twse_margin_short,
     mops_events_payload,
 )
 from stock_health.history_store import (
+    benchmark_history_from_index_rows,
     ensure_dirs,
     history_report_paths,
     load_history_rows,
+    load_index_history_rows,
     load_institutional_history_rows,
     load_margin_short_history_rows,
     load_mops_event_history_payloads,
     rebuild_history_index_from_files,
+    write_index_outputs,
     write_institutional_outputs,
     write_json,
     write_margin_short_outputs,
@@ -36,6 +41,7 @@ from stock_health.history_store import (
     write_ohlcv_outputs,
     write_text,
 )
+from stock_health.index_summary import build_index_summary
 from stock_health.report_writer import build_health_markdown, build_market_scan_markdown
 from stock_health.screening import build_screening_summary
 from stock_health.source_health import check_all_sources
@@ -69,11 +75,14 @@ def main() -> int:
     otc_institutional = fetch_tpex_institutional_trading(report_date)
     listed_margin_short = fetch_twse_margin_short(report_date)
     otc_margin_short = fetch_tpex_margin_short(report_date)
+    taiex_index = fetch_twse_taiex_index(report_date)
+    tpex_index = fetch_tpex_index(report_date)
     mops_events = fetch_mops_events(report_date)
     _apply_ohlcv_source_result(sources["twse"], listed_result, "上市 OHLCV", report_date)
     _apply_ohlcv_source_result(sources["tpex"], otc_result, "上櫃 OHLCV", report_date)
     _apply_mops_source_result(sources["mops"], mops_events, report_date, market_is_trading_day)
     write_ohlcv_outputs(root, report_date, listed_result.rows, otc_result.rows)
+    write_index_outputs(root, report_date, taiex_index.rows, tpex_index.rows)
     write_institutional_outputs(root, report_date, listed_institutional.rows, otc_institutional.rows)
     write_margin_short_outputs(root, report_date, listed_margin_short.rows, otc_margin_short.rows)
     mops_is_current = mops_events.ok and _is_data_current(mops_events.data_date, report_date, market_is_trading_day)
@@ -91,6 +100,8 @@ def main() -> int:
     write_mops_event_outputs(root, report_date, mops_summary, mops_events.rows)
 
     history_rows = load_history_rows(root)
+    index_history_rows = load_index_history_rows(root)
+    benchmark_history = benchmark_history_from_index_rows(index_history_rows)
     institutional_history_rows = load_institutional_history_rows(root)
     margin_short_history_rows = load_margin_short_history_rows(root)
     mops_event_history_payloads = load_mops_event_history_payloads(root)
@@ -139,6 +150,13 @@ def main() -> int:
         listed_margin_short,
         otc_margin_short,
     )
+    index_summary = build_index_summary(
+        report_date,
+        generated_at,
+        index_history_rows,
+        benchmark_history,
+        taiex_index.errors + tpex_index.errors,
+    )
     errors = (
         listed_result.errors
         + otc_result.errors
@@ -161,6 +179,7 @@ def main() -> int:
         "institutional_summary": github_raw_url("data/latest-institutional-trading-summary.json"),
         "margin_short_summary": github_raw_url("data/latest-margin-short-summary.json"),
         "mops_events": github_raw_url("data/latest-mops-events.json"),
+        "index_summary": github_raw_url("data/latest-index-summary.json"),
         "history_index": github_raw_url("data/history-index.json"),
         "market_scan": github_raw_url("reports/latest-market-scan.md"),
     }
@@ -183,6 +202,7 @@ def main() -> int:
         mops_event_history_payloads=mops_event_history_payloads,
         mops_events_status=mops_events.status,
         history_index=history_index,
+        benchmark_history=benchmark_history,
     )
     scan_readiness = _build_scan_readiness(coverage, summary, data_freshness)
 
@@ -216,6 +236,7 @@ def main() -> int:
     write_json(root / "data" / "latest-screening-summary.json", summary)
     write_json(root / "data" / "latest-institutional-trading-summary.json", institutional_summary)
     write_json(root / "data" / "latest-margin-short-summary.json", margin_short_summary)
+    write_json(root / "data" / "latest-index-summary.json", index_summary)
     write_json(root / "data" / "latest-mops-events.json", mops_summary)
     write_text(root / "reports" / "latest-market-scan.md", market_scan_md)
     history_json, history_md = history_report_paths(root, report_date)
@@ -260,17 +281,25 @@ def _build_scan_readiness(
     mops_event_status = summary.get("mops_event_data_status", {})
     qullamaggie = summary.get("qullamaggie", {})
     market_regime = qullamaggie.get("market_regime", {}) if isinstance(qullamaggie, dict) else {}
+    candidate_groups = qullamaggie.get("candidates", {}) if isinstance(qullamaggie, dict) else {}
+    has_actionable_qullamaggie_candidate = any(
+        candidate_groups.get(setup_type)
+        for setup_type in ("breakout", "episodic_pivot", "anticipation")
+    )
 
     can_run_technical_scan = (
         bool(coverage.get("listed_ohlcv", {}).get("available"))
         and bool(coverage.get("otc_ohlcv", {}).get("available"))
         and bool(historical_status.get("has_20d_history"))
     )
-    can_run_qullamaggie_scan = can_run_technical_scan and bool(historical_status.get("has_60d_history"))
+    can_run_qullamaggie_scan = (
+        can_run_technical_scan
+        and bool(historical_status.get("has_60d_history"))
+        and market_regime.get("status") != "insufficient_data"
+    )
     can_generate_new_paper_trade_candidate = (
         can_run_qullamaggie_scan
-        and bool(coverage.get("market_environment", {}).get("available"))
-        and market_regime.get("status") != "insufficient_data"
+        and has_actionable_qullamaggie_candidate
         and bool(data_freshness.get("is_latest_trading_data_current"))
     )
     can_use_institutional_confirmation = (
@@ -299,6 +328,8 @@ def _build_scan_readiness(
         reasons.append("market_environment unavailable")
     if market_regime.get("status") == "insufficient_data":
         reasons.append("Qullamaggie market_regime is insufficient_data")
+    if not has_actionable_qullamaggie_candidate:
+        reasons.append("no breakout, episodic_pivot, or anticipation candidate")
     if not bool(data_freshness.get("is_latest_trading_data_current")):
         reasons.append(str(data_freshness.get("reason") or "latest trading data is not current"))
 
