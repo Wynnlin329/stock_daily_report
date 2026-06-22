@@ -46,6 +46,67 @@ def calculate_qullamaggie_signals(
     margin_short_attention_symbols = margin_short_attention_symbols or set()
     mops_events_by_symbol = mops_events_by_symbol or {}
     mops_event_metrics_by_symbol = mops_event_metrics_by_symbol or {}
+    calculated = calculate_qullamaggie_candidate_payloads(
+        current_rows,
+        history_rows,
+        benchmark_history=benchmark_history,
+        catalyst_symbols=catalyst_symbols,
+        institutional_by_symbol=institutional_by_symbol,
+        institutional_metrics_by_symbol=institutional_metrics_by_symbol,
+        margin_short_by_symbol=margin_short_by_symbol,
+        margin_short_attention_symbols=margin_short_attention_symbols,
+        mops_events_by_symbol=mops_events_by_symbol,
+        mops_event_metrics_by_symbol=mops_event_metrics_by_symbol,
+    )
+    market_regime = calculated["market_regime"]
+    limitations = list(calculated["limitations"])
+    candidates = calculated["all_candidates"]
+
+    grouped: dict[str, list[dict[str, Any]]] = {setup_type: [] for setup_type in QULLAMAGGIE_SETUP_TYPES}
+    for candidate in candidates:
+        grouped[candidate["setup_type"]].append(candidate)
+
+    for setup_type in grouped:
+        grouped[setup_type] = sorted(grouped[setup_type], key=_candidate_sort_key)[:QULLAMAGGIE_MAX_CANDIDATES_PER_SETUP]
+
+    top_candidate_setups = {"breakout", "episodic_pivot", "anticipation", "extended_watch"}
+    top_candidates = sorted(
+        [candidate for candidate in candidates if candidate["setup_type"] in top_candidate_setups],
+        key=_candidate_sort_key,
+    )[:QULLAMAGGIE_MAX_TOP_CANDIDATES]
+
+    if candidates and not top_candidates:
+        limitations.append("所有 Qullamaggie-style 標的皆為 insufficient_data 或 failed_breakout，未產生 top_candidates")
+
+    return {
+        "market_regime": market_regime,
+        "candidates": grouped,
+        "top_candidates": top_candidates,
+        "all_candidates": candidates,
+        "limitations": limitations,
+    }
+
+
+def calculate_qullamaggie_candidate_payloads(
+    current_rows: list[OhlcvRecord],
+    history_rows: dict[str, list[OhlcvRecord]],
+    benchmark_history: BenchmarkHistory | None = None,
+    catalyst_symbols: dict[str, set[str]] | None = None,
+    institutional_by_symbol: dict[str, InstitutionalTradingRecord] | None = None,
+    institutional_metrics_by_symbol: dict[str, dict[str, Any]] | None = None,
+    margin_short_by_symbol: dict[str, dict[str, Any]] | None = None,
+    margin_short_attention_symbols: set[str] | None = None,
+    mops_events_by_symbol: dict[str, list[MopsEventRecord]] | None = None,
+    mops_event_metrics_by_symbol: dict[str, dict[str, Any]] | None = None,
+) -> dict[str, Any]:
+    benchmark_history = benchmark_history or {}
+    catalyst_symbols = catalyst_symbols or {}
+    institutional_by_symbol = institutional_by_symbol or {}
+    institutional_metrics_by_symbol = institutional_metrics_by_symbol or {}
+    margin_short_by_symbol = margin_short_by_symbol or {}
+    margin_short_attention_symbols = margin_short_attention_symbols or set()
+    mops_events_by_symbol = mops_events_by_symbol or {}
+    mops_event_metrics_by_symbol = mops_event_metrics_by_symbol or {}
     market_regime = calculate_market_regime(benchmark_history)
     eligible_rows = [row for row in current_rows if row.scan_eligible]
     limitations: list[str] = ["Qullamaggie-style 掃描僅針對 scan_eligible=true 的普通股 universe。"]
@@ -70,30 +131,14 @@ def calculate_qullamaggie_signals(
     ]
     _apply_relative_strength_ranks(candidates)
 
-    grouped: dict[str, list[dict[str, Any]]] = {setup_type: [] for setup_type in QULLAMAGGIE_SETUP_TYPES}
-    for candidate in candidates:
-        grouped[candidate["setup_type"]].append(candidate)
-
-    for setup_type in grouped:
-        grouped[setup_type] = sorted(grouped[setup_type], key=_candidate_sort_key)[:QULLAMAGGIE_MAX_CANDIDATES_PER_SETUP]
-
-    top_candidate_setups = {"breakout", "episodic_pivot", "anticipation", "extended_watch"}
-    top_candidates = sorted(
-        [candidate for candidate in candidates if candidate["setup_type"] in top_candidate_setups],
-        key=_candidate_sort_key,
-    )[:QULLAMAGGIE_MAX_TOP_CANDIDATES]
-
     if any(candidate["setup_type"] == "insufficient_data" for candidate in candidates):
         limitations.append("部分個股歷史或必要欄位不足，已歸類為 insufficient_data")
     if not candidates:
         limitations.append("今日 scan_eligible=true 的 OHLCV 不足，無法產生 Qullamaggie-style 候選清單")
-    if candidates and not top_candidates:
-        limitations.append("所有 Qullamaggie-style 標的皆為 insufficient_data 或 failed_breakout，未產生 top_candidates")
 
     return {
         "market_regime": market_regime,
-        "candidates": grouped,
-        "top_candidates": top_candidates,
+        "all_candidates": candidates,
         "limitations": limitations,
     }
 
@@ -333,6 +378,8 @@ def _calculate_metrics(
         "market": row.market,
         "security_type": row.security_type,
         "scan_eligible": row.scan_eligible,
+        "date": row.date,
+        "open": row.open,
         "history_days": len(history),
         "close": current_close,
         "high": row.high,
@@ -427,6 +474,8 @@ def _candidate_payload(metrics: dict[str, Any]) -> dict[str, Any]:
         "market",
         "security_type",
         "scan_eligible",
+        "date",
+        "open",
         "setup_type",
         "qullamaggie_score",
         "score_breakdown",
@@ -539,6 +588,7 @@ def _apply_relative_strength_ranks(candidates: list[dict[str, Any]]) -> None:
             score, breakdown = score_qullamaggie_candidate(candidate, {"score": candidate["score_breakdown"]["market_regime"]})
             candidate["qullamaggie_score"] = score
             candidate["score_breakdown"] = breakdown
+            candidate["risk_notes"] = _risk_notes(candidate)
 
 
 def _history_for_symbol_before_date(history_rows: dict[str, list[OhlcvRecord]], symbol: str, current_date: str) -> list[OhlcvRecord]:

@@ -6,6 +6,8 @@ from pathlib import Path
 from stock_health.chatgpt_source import (
     build_daily_qullamaggie_markdown,
     build_daily_qullamaggie_source,
+    build_symbol_index,
+    build_symbol_technical_payloads,
     build_weekly_qullamaggie_markdown,
     build_weekly_qullamaggie_source,
     load_recent_screening_summaries,
@@ -56,6 +58,7 @@ def sample_report(*, fresh: bool = True, actionable_ready: bool = True) -> dict:
             "market_scan": github_raw_url("reports/latest-market-scan.md"),
             "chatgpt_daily_qullamaggie_source": github_raw_url("data/chatgpt/daily-qullamaggie-source.json"),
             "chatgpt_weekly_qullamaggie_source": github_raw_url("data/chatgpt/weekly-qullamaggie-source.json"),
+            "chatgpt_symbol_index": github_raw_url("data/chatgpt/symbol-index.json"),
             "chatgpt_daily_qullamaggie_markdown": github_raw_url("reports/chatgpt-daily-qullamaggie-source.md"),
             "chatgpt_weekly_qullamaggie_markdown": github_raw_url("reports/chatgpt-weekly-qullamaggie-source.md"),
         },
@@ -67,7 +70,23 @@ def sample_candidate(symbol: str = "2330", setup_type: str = "breakout") -> dict
         "symbol": symbol,
         "name": f"{symbol}公司",
         "market": "listed",
+        "security_type": "common_stock",
+        "scan_eligible": True,
+        "date": "2026-06-15",
+        "open": 100.0,
+        "high": 105.0,
+        "low": 99.0,
+        "close": 104.0,
+        "volume": 1000,
+        "ma10": 101.0,
+        "ma20": 100.0,
+        "ma50": 98.0,
+        "avg_volume_20d": 800.0,
+        "volume_ratio_20d": 1.25,
+        "pivot_price": 103.0,
+        "stop_reference": 95.0,
         "setup_type": setup_type,
+        "extended_risk": False,
         "qullamaggie_score": 82.5,
         "setup_reasons": ["突破型態符合研究條件"],
         "risk_notes": ["需人工複核資料狀態"],
@@ -157,6 +176,7 @@ def test_latest_json_contains_chatgpt_artifact_urls() -> None:
     assert artifact_urls["chatgpt_weekly_qullamaggie_source"] == github_raw_url(
         "data/chatgpt/weekly-qullamaggie-source.json"
     )
+    assert artifact_urls["chatgpt_symbol_index"] == github_raw_url("data/chatgpt/symbol-index.json")
     assert artifact_urls["chatgpt_daily_qullamaggie_markdown"] == github_raw_url(
         "reports/chatgpt-daily-qullamaggie-source.md"
     )
@@ -185,6 +205,38 @@ def test_daily_chatgpt_gate_blocks_stale_or_empty_actionable_data() -> None:
 
     assert stale_payload["paper_trading_decision_gate"]["can_create_new_simulated_buy_candidate"] is False
     assert no_candidate_payload["paper_trading_decision_gate"]["can_create_new_simulated_buy_candidate"] is False
+
+
+def test_symbol_technical_payloads_and_index() -> None:
+    payloads = build_symbol_technical_payloads(sample_report(), [sample_candidate("2330")])
+    symbol_payload = payloads["2330"]
+
+    for field in [
+        "date",
+        "open",
+        "high",
+        "low",
+        "close",
+        "volume",
+        "ma10",
+        "ma20",
+        "ma50",
+        "avg_volume_20d",
+        "volume_ratio_20d",
+        "pivot_price",
+        "stop_reference",
+        "setup_type",
+        "extended_risk",
+        "risk_notes",
+    ]:
+        assert field in symbol_payload
+    assert symbol_payload["scan_eligible"] is True
+    assert symbol_payload["source_url"] == github_raw_url("data/chatgpt/symbols/2330.json")
+
+    index = build_symbol_index(sample_report(), payloads)
+    assert index["symbol_count"] == 1
+    assert index["symbols"][0]["symbol"] == "2330"
+    assert index["symbols"][0]["path"] == "data/chatgpt/symbols/2330.json"
 
 
 def test_weekly_chatgpt_source_uses_recent_screening_history(tmp_path: Path) -> None:

@@ -46,6 +46,22 @@ def write_text(path: Path, content: str) -> None:
     path.write_text(content, encoding="utf-8")
 
 
+def write_chatgpt_symbol_outputs(
+    root: Path,
+    symbol_payloads: dict[str, dict[str, Any]],
+    symbol_index: dict[str, Any],
+) -> None:
+    symbols_dir = root / "data" / "chatgpt" / "symbols"
+    symbols_dir.mkdir(parents=True, exist_ok=True)
+    current_files = {f"{symbol}.json" for symbol in symbol_payloads}
+    for path in symbols_dir.glob("*.json"):
+        if path.name not in current_files:
+            path.unlink()
+    for symbol, payload in sorted(symbol_payloads.items()):
+        write_json(symbols_dir / f"{symbol}.json", payload)
+    write_json(root / "data" / "chatgpt" / "symbol-index.json", symbol_index)
+
+
 def history_report_paths(root: Path, report_date: date) -> tuple[Path, Path]:
     folder = root / "history" / f"{report_date:%Y}" / f"{report_date:%m}"
     return folder / f"{report_date:%Y-%m-%d}.json", folder / f"{report_date:%Y-%m-%d}.md"

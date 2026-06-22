@@ -5,15 +5,37 @@ from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Any
 
-from .config import SCHEMA_VERSION, TIMEZONE
+from .config import SCHEMA_VERSION, TIMEZONE, github_raw_url
 
 ACTIONABLE_SETUPS = {"breakout", "episodic_pivot", "anticipation"}
 TOP_WEEKLY_LIMIT = 50
+SYMBOL_TECHNICAL_FIELDS = [
+    "date",
+    "open",
+    "high",
+    "low",
+    "close",
+    "volume",
+    "ma10",
+    "ma20",
+    "ma50",
+    "avg_volume_20d",
+    "volume_ratio_20d",
+    "pivot_price",
+    "stop_reference",
+    "setup_type",
+    "extended_risk",
+    "risk_notes",
+]
 
 
 def screening_history_path(root: Path, report_date: str) -> Path:
     year, month, _day = report_date.split("-")
     return root / "data" / "screening" / year / month / f"{report_date}-screening-summary.json"
+
+
+def symbol_file_path(root: Path, symbol: str) -> Path:
+    return root / "data" / "chatgpt" / "symbols" / f"{symbol}.json"
 
 
 def build_daily_qullamaggie_source(
@@ -92,6 +114,56 @@ def build_daily_qullamaggie_source(
             "institutional_is_confirmation_only": True,
             "margin_short_is_risk_review_only": True,
         },
+    }
+
+
+def build_symbol_technical_payloads(
+    report: dict[str, Any],
+    symbol_candidates: list[dict[str, Any]],
+) -> dict[str, dict[str, Any]]:
+    payloads: dict[str, dict[str, Any]] = {}
+    for candidate in sorted(symbol_candidates, key=lambda item: item.get("symbol", "")):
+        symbol = str(candidate.get("symbol") or "")
+        if not symbol:
+            continue
+        payload = {
+            "schema_version": SCHEMA_VERSION,
+            "symbol": symbol,
+            "name": candidate.get("name"),
+            "market": candidate.get("market"),
+            "security_type": candidate.get("security_type"),
+            "scan_eligible": candidate.get("scan_eligible"),
+            "report_date": report.get("report_date"),
+            "generated_at": report.get("generated_at"),
+            "timezone": TIMEZONE,
+            "source_url": github_raw_url(f"data/chatgpt/symbols/{symbol}.json"),
+        }
+        for field in SYMBOL_TECHNICAL_FIELDS:
+            payload[field] = candidate.get(field)
+        payloads[symbol] = payload
+    return payloads
+
+
+def build_symbol_index(report: dict[str, Any], symbol_payloads: dict[str, dict[str, Any]]) -> dict[str, Any]:
+    symbols = [
+        {
+            "symbol": symbol,
+            "name": payload.get("name"),
+            "market": payload.get("market"),
+            "setup_type": payload.get("setup_type"),
+            "extended_risk": payload.get("extended_risk"),
+            "path": f"data/chatgpt/symbols/{symbol}.json",
+            "url": payload.get("source_url"),
+        }
+        for symbol, payload in sorted(symbol_payloads.items())
+    ]
+    return {
+        "schema_version": SCHEMA_VERSION,
+        "report_date": report.get("report_date"),
+        "generated_at": report.get("generated_at"),
+        "timezone": TIMEZONE,
+        "symbol_count": len(symbols),
+        "symbols": symbols,
     }
 
 
@@ -361,6 +433,7 @@ def _source_urls(artifact_urls: dict[str, str]) -> dict[str, str]:
         "market_scan",
         "chatgpt_daily_qullamaggie_source",
         "chatgpt_weekly_qullamaggie_source",
+        "chatgpt_symbol_index",
         "chatgpt_daily_qullamaggie_markdown",
         "chatgpt_weekly_qullamaggie_markdown",
     ]

@@ -167,6 +167,8 @@ def test_qullamaggie_relative_strength_values_and_rank() -> None:
     assert candidates["2330"]["relative_strength_rank"] == 100.0
     assert candidates["2317"]["relative_strength_rank"] == 0.0
     assert candidates["2330"]["relative_strength_rank_basis"] == "scan_eligible_common_stock"
+    assert "相對強弱排名資料不足" not in candidates["2330"]["risk_notes"]
+    assert "相對強弱排名資料不足" not in candidates["2317"]["risk_notes"]
 
 
 def test_qullamaggie_json_fields_and_no_trading_advice_text() -> None:

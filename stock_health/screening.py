@@ -30,6 +30,7 @@ def build_screening_summary(
     mops_events_status: str = "source_unavailable",
     history_index: dict[str, Any] | None = None,
     benchmark_history: dict[str, list[float]] | None = None,
+    include_symbol_candidates: bool = False,
 ) -> dict[str, Any]:
     all_rows = listed_rows + otc_rows
     eligible_rows = [row for row in all_rows if row.scan_eligible]
@@ -91,9 +92,10 @@ def build_screening_summary(
         margin_short_attention_symbols=margin_short_attention_symbols,
         mops_event_metrics_by_symbol=mops_event_metrics_by_symbol,
     )
+    symbol_candidates = qullamaggie.pop("all_candidates", [])
     limitations.extend(qullamaggie["limitations"])
 
-    return {
+    payload = {
         "schema_version": SCHEMA_VERSION,
         "report_date": report_date,
         "generated_at": generated_at,
@@ -131,6 +133,9 @@ def build_screening_summary(
         "overall_confidence": overall_confidence,
         "limitations": limitations,
     }
+    if include_symbol_candidates:
+        payload["_chatgpt_symbol_candidates"] = symbol_candidates
+    return payload
 
 
 def _market_summary(rows: list[OhlcvRecord]) -> dict[str, Any]:
