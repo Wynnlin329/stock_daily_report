@@ -456,8 +456,8 @@ def _margin_short_metrics(row: MarginShortRecord, history: list[MarginShortRecor
     attention_flag = (
         (row.short_change is not None and row.short_change > 0)
         or (row.margin_change is not None and row.margin_change > 0)
-        or (row.margin_balance is not None and avg_margin is not None and row.margin_balance / avg_margin >= 1.5)
-        or (row.short_balance is not None and avg_short is not None and row.short_balance / avg_short >= 1.5)
+        or (row.margin_balance is not None and avg_margin is not None and avg_margin > 0 and row.margin_balance / avg_margin >= 1.5)
+        or (row.short_balance is not None and avg_short is not None and avg_short > 0 and row.short_balance / avg_short >= 1.5)
         or (short_margin_ratio is not None and short_margin_ratio >= 0.3)
     )
     return {

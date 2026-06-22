@@ -12,14 +12,20 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from stock_health.config import SCHEMA_VERSION, TIMEZONE, github_raw_url
 from stock_health.coverage import build_coverage
 from stock_health.chatgpt_source import (
+    attach_screening_as_of_metadata,
+    build_daily_qullamaggie_compact,
     build_daily_qullamaggie_markdown,
     build_daily_qullamaggie_source,
+    build_schedule_readiness,
+    build_screening_history_index,
     build_symbol_index,
     build_symbol_technical_payloads,
+    build_weekly_qullamaggie_compact,
     build_weekly_qullamaggie_markdown,
     build_weekly_qullamaggie_source,
     load_recent_screening_summaries,
     screening_history_path,
+    screening_history_index_path,
 )
 from stock_health.data_fetcher import (
     fetch_tpex_institutional_trading,
@@ -194,8 +200,12 @@ def main() -> int:
         "history_index": github_raw_url("data/history-index.json"),
         "market_scan": github_raw_url("reports/latest-market-scan.md"),
         "chatgpt_daily_qullamaggie_source": github_raw_url("data/chatgpt/daily-qullamaggie-source.json"),
+        "chatgpt_daily_qullamaggie_compact": github_raw_url("data/chatgpt/daily-qullamaggie-source-compact.json"),
         "chatgpt_weekly_qullamaggie_source": github_raw_url("data/chatgpt/weekly-qullamaggie-source.json"),
+        "chatgpt_weekly_qullamaggie_compact": github_raw_url("data/chatgpt/weekly-qullamaggie-source-compact.json"),
         "chatgpt_symbol_index": github_raw_url("data/chatgpt/symbol-index.json"),
+        "chatgpt_schedule_readiness": github_raw_url("data/chatgpt/schedule-readiness.json"),
+        "screening_history_index": github_raw_url("data/screening/history-index.json"),
         "chatgpt_daily_qullamaggie_markdown": github_raw_url("reports/chatgpt-daily-qullamaggie-source.md"),
         "chatgpt_weekly_qullamaggie_markdown": github_raw_url("reports/chatgpt-weekly-qullamaggie-source.md"),
     }
@@ -222,6 +232,20 @@ def main() -> int:
         include_symbol_candidates=True,
     )
     symbol_candidates = summary.pop("_chatgpt_symbol_candidates", [])
+    used_input_dates = [
+        value
+        for value in [
+            latest_market_data_date,
+            history_index.get("end_date"),
+            listed_institutional.data_date,
+            otc_institutional.data_date,
+            listed_margin_short.data_date,
+            otc_margin_short.data_date,
+            mops_events.data_date,
+        ]
+        if value
+    ]
+    attach_screening_as_of_metadata(summary, f"{report_date:%Y-%m-%d}", used_input_dates, "daily_health_check")
     scan_readiness = _build_scan_readiness(coverage, summary, data_freshness)
 
     report = {
@@ -258,6 +282,7 @@ def main() -> int:
     )
     symbol_payloads = build_symbol_technical_payloads(report, symbol_candidates)
     symbol_index = build_symbol_index(report, symbol_payloads)
+    daily_chatgpt_source_compact = build_daily_qullamaggie_compact(daily_chatgpt_source)
 
     write_json(root / "latest.json", report)
     write_text(root / "latest.md", latest_md)
@@ -268,14 +293,31 @@ def main() -> int:
     write_json(root / "data" / "latest-index-summary.json", index_summary)
     write_json(root / "data" / "latest-mops-events.json", mops_summary)
     write_json(root / "data" / "chatgpt" / "daily-qullamaggie-source.json", daily_chatgpt_source)
+    write_json(root / "data" / "chatgpt" / "daily-qullamaggie-source-compact.json", daily_chatgpt_source_compact)
     write_chatgpt_symbol_outputs(root, symbol_payloads, symbol_index)
     write_text(root / "reports" / "latest-market-scan.md", market_scan_md)
     write_text(root / "reports" / "chatgpt-daily-qullamaggie-source.md", build_daily_qullamaggie_markdown(daily_chatgpt_source))
     history_json, history_md = history_report_paths(root, report_date)
     write_json(history_json, report)
     write_text(history_md, latest_md)
+    screening_history_index = build_screening_history_index(
+        root,
+        generated_at,
+        list(history_index.get("common_ohlcv_days") or []),
+    )
+    write_json(screening_history_index_path(root), screening_history_index)
     weekly_chatgpt_source = build_weekly_qullamaggie_source(report, load_recent_screening_summaries(root, 5))
+    weekly_chatgpt_source_compact = build_weekly_qullamaggie_compact(weekly_chatgpt_source)
+    schedule_readiness = build_schedule_readiness(
+        report,
+        symbol_index,
+        screening_history_index,
+        daily_chatgpt_source_compact,
+        weekly_chatgpt_source_compact,
+    )
     write_json(root / "data" / "chatgpt" / "weekly-qullamaggie-source.json", weekly_chatgpt_source)
+    write_json(root / "data" / "chatgpt" / "weekly-qullamaggie-source-compact.json", weekly_chatgpt_source_compact)
+    write_json(root / "data" / "chatgpt" / "schedule-readiness.json", schedule_readiness)
     write_text(root / "reports" / "chatgpt-weekly-qullamaggie-source.md", build_weekly_qullamaggie_markdown(weekly_chatgpt_source))
     LOGGER.info("Wrote latest report for %s", report_date)
     return 0
