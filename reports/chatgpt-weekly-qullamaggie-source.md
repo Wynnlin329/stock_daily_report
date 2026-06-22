@@ -32,12 +32,12 @@
 - 6208 日揚 setup=failed_breakout score=80
 - 3090 日電貿 setup=failed_breakout score=80
 - 3587 閎康 setup=failed_breakout score=80
+- 3481 群創 setup=failed_breakout score=80
 - 3264 欣銓 setup=failed_breakout score=80
 - 2458 義隆 setup=failed_breakout score=80
 - 6290 良維 setup=failed_breakout score=80
 - 1708 東鹼 setup=failed_breakout score=80
 - 3526 凡甲 setup=failed_breakout score=80
-- 3481 群創 setup=failed_breakout score=75
 
 ## 下週 Watchlist Candidates
 - 8936 國統 setup=breakout score=95
@@ -75,5 +75,6 @@
 - market_scan: https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/reports/latest-market-scan.md
 - chatgpt_daily_qullamaggie_source: https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/daily-qullamaggie-source.json
 - chatgpt_weekly_qullamaggie_source: https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/weekly-qullamaggie-source.json
+- chatgpt_symbol_index: https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbol-index.json
 - chatgpt_daily_qullamaggie_markdown: https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/reports/chatgpt-daily-qullamaggie-source.md
 - chatgpt_weekly_qullamaggie_markdown: https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/reports/chatgpt-weekly-qullamaggie-source.md

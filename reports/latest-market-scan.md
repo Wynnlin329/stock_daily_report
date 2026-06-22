@@ -2,7 +2,7 @@
 
 本摘要僅供研究與人工複核，不構成買賣建議。
 
-- 執行時間：2026-06-22T15:49:39+08:00
+- 執行時間：2026-06-22T16:11:52+08:00
 - 是否足以執行全市場掃描：False
 - 整體信心等級：medium
 - 可用歷史交易日：67
@@ -91,7 +91,16 @@
 - 無
 
 ### institutional_buy_candidates
-- 無
+- 1802 台玻（listed）：close=76.6 change_pct=7.4334 volume=172733646 turnover=13238079387
+- 2409 友達（listed）：close=30.95 change_pct=9.9467 volume=297702512 turnover=9054098011
+- 2887 台新新光金（listed）：close=32.05 change_pct=-1.2327 volume=62139229 turnover=1997557239
+- 2892 第一金（listed）：close=32.3 change_pct=-0.9202 volume=46847145 turnover=1519291822
+- 2408 南亞科（listed）：close=505.0 change_pct=9.9021 volume=96310516 turnover=47958370621
+- 1301 台塑（listed）：close=52.4 change_pct=1.354 volume=51915785 turnover=2738975449
+- 2002 中鋼（listed）：close=19.5 change_pct=2.0942 volume=129639571 turnover=2537361232
+- 1402 遠東新（listed）：close=28.8 change_pct=-0.1733 volume=32428444 turnover=933796002
+- 1326 台化（listed）：close=56.2 change_pct=3.69 volume=33297275 turnover=1869194444
+- 2337 旺宏（listed）：close=185.5 change_pct=9.7633 volume=136155871 turnover=24825451379
 
 ### margin_short_attention
 - 無

@@ -43,6 +43,36 @@ https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-heal
 
 若最近 5 份 screening summary 不足，`paper_trading_weekly_review_gate.can_generate_weekly_review=false`，ChatGPT 只能說明可用資料與缺口。
 
+## Symbol Source
+
+```text
+https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbol-index.json
+https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/{symbol}.json
+```
+
+`data/chatgpt/symbol-index.json` 列出所有已產生逐檔資料的 `scan_eligible=true` 普通股。查詢單一股票時，先用 index 確認代號存在，再讀取 `data/chatgpt/symbols/{symbol}.json`。
+
+每個 symbol JSON 至少包含：
+
+- `date`
+- `open`
+- `high`
+- `low`
+- `close`
+- `volume`
+- `ma10`
+- `ma20`
+- `ma50`
+- `avg_volume_20d`
+- `volume_ratio_20d`
+- `pivot_price`
+- `stop_reference`
+- `setup_type`
+- `extended_risk`
+- `risk_notes`
+
+這些逐檔檔案只保存研究用技術資料，不輸出真實交易建議。
+
 ## Screening History
 
 每日執行會保留：
@@ -59,6 +89,7 @@ data/screening/YYYY/MM/YYYY-MM-DD-screening-summary.json
 
 - `chatgpt_daily_qullamaggie_source`
 - `chatgpt_weekly_qullamaggie_source`
+- `chatgpt_symbol_index`
 - `chatgpt_daily_qullamaggie_markdown`
 - `chatgpt_weekly_qullamaggie_markdown`
 
