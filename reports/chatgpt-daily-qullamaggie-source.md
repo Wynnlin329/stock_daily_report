@@ -6,7 +6,7 @@
 - data_freshness: {'report_date': '2026-06-22', 'latest_market_data_date': '2026-06-22', 'is_latest_trading_data_current': True, 'reason': 'Latest trading data is current'}
 
 ## Scan Readiness
-- scan_readiness: {'can_run_technical_scan': True, 'can_run_qullamaggie_scan': True, 'can_generate_new_paper_trade_candidate': True, 'can_use_institutional_confirmation': True, 'can_use_margin_short_risk': False, 'can_use_mops_catalyst': True, 'reasons': []}
+- scan_readiness: {'can_run_technical_scan': True, 'can_run_qullamaggie_scan': True, 'can_generate_new_paper_trade_candidate': True, 'can_use_institutional_confirmation': True, 'can_use_margin_short_risk': True, 'can_use_mops_catalyst': True, 'reasons': []}
 
 ## Qullamaggie Market Regime
 - market_regime: {'status': 'risk_on', 'score': 15, 'reasons': ['benchmark regime=risk_on'], 'risk_notes': [], 'metrics': {'listed': {'close': 47741.51, 'ma20': 44773.765, 'ma50': 41424.3604, 'return_20d_pct': 15.4063}, 'otc': {'close': 453.5, 'ma20': 432.939, 'ma50': 409.1648, 'return_20d_pct': 7.1471}}}
@@ -22,6 +22,7 @@
 - 3211 順達 setup=anticipation score=80
 - 3093 港建* setup=anticipation score=80
 - 8155 博智 setup=anticipation score=80
+- 3105 穩懋 setup=anticipation score=75
 - 5536 聖暉* setup=anticipation score=75
 - 6642 富致 setup=anticipation score=75
 - 3479 安勤 setup=anticipation score=75
@@ -34,13 +35,12 @@
 - 3691 碩禾 setup=anticipation score=75
 - 7751 竑騰 setup=anticipation score=75
 - 3689 湧德 setup=anticipation score=75
-- 2345 智邦 setup=anticipation score=70
 
 ## Paper Trading Decision Gate
-- gate: {'can_create_new_simulated_buy_candidate': True, 'reason': ['資券資料不可用，僅停用資券風險'], 'allowed_actions': ['可產生資料狀態報告', '可產生候選股研究清單', '可更新觀察名單', '可做 MOPS 事件人工複核'], 'blocked_actions': ['不得宣稱資券風險已驗證']}
+- gate: {'can_create_new_simulated_buy_candidate': True, 'reason': [], 'allowed_actions': ['可產生資料狀態報告', '可產生候選股研究清單', '可更新觀察名單', '可做 MOPS 事件人工複核'], 'blocked_actions': []}
 
 ## Disabled Sections
-- 不得宣稱資券風險已驗證
+- 無
 
 ## Source URLs
 - latest_json: https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/latest.json

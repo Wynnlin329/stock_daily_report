@@ -1,10 +1,10 @@
 # 報告日期：2026/06/22（星期一）
 
-- 執行時間：2026-06-22T17:01:38+08:00
+- 執行時間：2026-06-22T23:33:19+08:00
 - 交易日判定：True
 - 最新市場資料日期：2026-06-22
-- 是否足以執行全市場掃描：False
-- 整體信心等級：medium
+- 是否足以執行全市場掃描：True
+- 整體信心等級：high
 
 ## 資料來源健康狀態
 
@@ -19,7 +19,7 @@
 | 鉅亨網 Cnyes | 催化新聞源 | True | 200 |  | False | False | False | 未取得明確資料日期；不可判定為當日資料可用 |
 | MoneyDJ | 催化新聞源 | True | 200 |  | False | False | False | 未取得明確資料日期；不可判定為當日資料可用 |
 | TradingView | 人工複核源 | True | 200 |  | False | False | False | 未取得明確資料日期；不可判定為當日資料可用 |
-| WantGoo | 人工複核源 | True | 200 |  | False | False | False | 未取得明確資料日期；不可判定為當日資料可用 |
+| WantGoo | 人工複核源 | False | 403 |  | False | False | False | HTTP 403: Forbidden |
 | CMoney | 人工複核源 | True | 200 |  | False | False | False | 未取得明確資料日期；不可判定為當日資料可用 |
 | 財報狗 StatementDog | 人工複核源 | True | 200 |  | False | False | False | 未取得明確資料日期；不可判定為當日資料可用 |
 
@@ -53,7 +53,7 @@
 - 鉅亨網 Cnyes：未取得明確資料日期；不可判定為當日資料可用
 - MoneyDJ：未取得明確資料日期；不可判定為當日資料可用
 - TradingView：未取得明確資料日期；不可判定為當日資料可用
-- WantGoo：未取得明確資料日期；不可判定為當日資料可用
+- WantGoo：HTTP 403: Forbidden
 - CMoney：未取得明確資料日期；不可判定為當日資料可用
 - 財報狗 StatementDog：未取得明確資料日期；不可判定為當日資料可用
 
@@ -67,17 +67,17 @@
 - price_change_screening：True（Computed from official OHLCV）
 - limit_up_screening：True（Estimated from daily change percent）
 - volume_spike_screening：True（20-day volume history available）
-- institutional_trading：True（16598 institutional rows parsed from official sources）
-- margin_short：False（empty_but_valid）
-- material_information：True（MOPS material information query verified with 197 events）
+- institutional_trading：True（16601 institutional rows parsed from official sources）
+- margin_short：True（1957 margin/short rows parsed from official sources）
+- material_information：True（MOPS material information query verified with 335 events）
 - revenue_financials：False（First version does not parse revenue or financial statements yet）
 - news_topics：True（At least one catalyst news source reachable）
 - technical_review：False（TradingView/WantGoo/CMoney are manual review sources, not automated signals）
 
 ## 缺少的資料段落
 
-- margin_short
+- 無
 
 ## 限制
 
-- 核心資料段落缺失：margin_short
+- 無
