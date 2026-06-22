@@ -4,6 +4,14 @@
 
 ## Daily Source
 
+每日排程優先讀 compact JSON：
+
+```text
+https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/daily-qullamaggie-source-compact.json
+```
+
+完整 JSON 與 Markdown 只供除錯或人工檢查：
+
 ```text
 https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/daily-qullamaggie-source.json
 https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/reports/chatgpt-daily-qullamaggie-source.md
@@ -27,6 +35,14 @@ https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-heal
 `paper_trading_decision_gate.can_create_new_simulated_buy_candidate=false` 時，ChatGPT 只能產生資料狀態報告、研究清單或觀察名單，不得產生新的模擬候選。法人、資券與 MOPS 是確認或風險複核資料，不會單獨解除技術資料不足或資料過期的限制。
 
 ## Weekly Source
+
+每週排程優先讀 compact JSON：
+
+```text
+https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/weekly-qullamaggie-source-compact.json
+```
+
+完整 JSON 與 Markdown 只供除錯或人工檢查：
 
 ```text
 https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/weekly-qullamaggie-source.json
@@ -60,6 +76,7 @@ https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-heal
 - `low`
 - `close`
 - `volume`
+- `turnover`
 - `ma10`
 - `ma20`
 - `ma50`
@@ -70,8 +87,38 @@ https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-heal
 - `setup_type`
 - `extended_risk`
 - `risk_notes`
+- `data_quality.ohlcv_complete`
+- `data_quality.technical_indicators_complete`
+- `data_quality.source_market_file`
 
 這些逐檔檔案只保存研究用技術資料，不輸出真實交易建議。
+
+## Schedule Readiness
+
+正式切換排程前先讀：
+
+```text
+https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/schedule-readiness.json
+```
+
+`schedule-readiness.json` 會列出：
+
+- `checks.latest_market_data_current`
+- `checks.technical_scan_ready`
+- `checks.qullamaggie_scan_ready`
+- `checks.daily_compact_source_ready`
+- `checks.symbol_index_ready`
+- `checks.symbol_ohlcv_complete`
+- `checks.screening_history_5d_ready`
+- `checks.weekly_compact_source_ready`
+- `checks.weekly_review_gate_ready`
+- `schedule_switch.can_switch_daily_scan_schedule`
+- `schedule_switch.can_switch_watchlist_schedule`
+- `schedule_switch.can_switch_position_management_schedule`
+- `schedule_switch.can_switch_weekly_review_schedule`
+- `schedule_switch.can_switch_all_schedules`
+
+法人、資券與 MOPS 缺失可列入 `warnings`，但不得在 OHLCV 與技術資料完整時單獨阻止每日技術選股。若 `warnings` 顯示法人或資券停用，ChatGPT 不得宣稱法人確認，也不得宣稱資券風險已驗證。
 
 ## Screening History
 
@@ -83,13 +130,19 @@ data/screening/YYYY/MM/YYYY-MM-DD-screening-summary.json
 
 這份檔案是 weekly source 的唯一輸入來源。週度資料包不重新計算行情，也不回頭爬外部網站。
 
+`data/screening/history-index.json` 記錄最近 5 個有效 screening summary、缺漏日期與 lookahead 檢查結果。weekly gate 只使用通過 as-of 檢查的 5 個交易日。
+
 ## Artifact URLs
 
 `latest.json.artifact_urls` 會包含：
 
 - `chatgpt_daily_qullamaggie_source`
+- `chatgpt_daily_qullamaggie_compact`
 - `chatgpt_weekly_qullamaggie_source`
+- `chatgpt_weekly_qullamaggie_compact`
 - `chatgpt_symbol_index`
+- `chatgpt_schedule_readiness`
+- `screening_history_index`
 - `chatgpt_daily_qullamaggie_markdown`
 - `chatgpt_weekly_qullamaggie_markdown`
 

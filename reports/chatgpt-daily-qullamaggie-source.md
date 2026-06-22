@@ -52,7 +52,11 @@
 - history_index: https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/history-index.json
 - market_scan: https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/reports/latest-market-scan.md
 - chatgpt_daily_qullamaggie_source: https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/daily-qullamaggie-source.json
+- chatgpt_daily_qullamaggie_compact: https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/daily-qullamaggie-source-compact.json
 - chatgpt_weekly_qullamaggie_source: https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/weekly-qullamaggie-source.json
+- chatgpt_weekly_qullamaggie_compact: https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/weekly-qullamaggie-source-compact.json
 - chatgpt_symbol_index: https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbol-index.json
+- chatgpt_schedule_readiness: https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/schedule-readiness.json
+- screening_history_index: https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/screening/history-index.json
 - chatgpt_daily_qullamaggie_markdown: https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/reports/chatgpt-daily-qullamaggie-source.md
 - chatgpt_weekly_qullamaggie_markdown: https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/reports/chatgpt-weekly-qullamaggie-source.md

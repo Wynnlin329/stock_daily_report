@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 from collections import Counter, defaultdict
+from datetime import date
 from pathlib import Path
 from typing import Any
 
@@ -9,6 +10,8 @@ from .config import SCHEMA_VERSION, TIMEZONE, github_raw_url
 
 ACTIONABLE_SETUPS = {"breakout", "episodic_pivot", "anticipation"}
 TOP_WEEKLY_LIMIT = 50
+SYMBOL_SCHEMA_VERSION = "1.1"
+COMPACT_SIZE_LIMIT_BYTES = 1_048_576
 SYMBOL_TECHNICAL_FIELDS = [
     "date",
     "open",
@@ -16,6 +19,7 @@ SYMBOL_TECHNICAL_FIELDS = [
     "low",
     "close",
     "volume",
+    "turnover",
     "ma10",
     "ma20",
     "ma50",
@@ -36,6 +40,10 @@ def screening_history_path(root: Path, report_date: str) -> Path:
 
 def symbol_file_path(root: Path, symbol: str) -> Path:
     return root / "data" / "chatgpt" / "symbols" / f"{symbol}.json"
+
+
+def screening_history_index_path(root: Path) -> Path:
+    return root / "data" / "screening" / "history-index.json"
 
 
 def build_daily_qullamaggie_source(
@@ -126,8 +134,9 @@ def build_symbol_technical_payloads(
         symbol = str(candidate.get("symbol") or "")
         if not symbol:
             continue
+        data_quality = _symbol_data_quality(candidate)
         payload = {
-            "schema_version": SCHEMA_VERSION,
+            "schema_version": SYMBOL_SCHEMA_VERSION,
             "symbol": symbol,
             "name": candidate.get("name"),
             "market": candidate.get("market"),
@@ -137,6 +146,7 @@ def build_symbol_technical_payloads(
             "generated_at": report.get("generated_at"),
             "timezone": TIMEZONE,
             "source_url": github_raw_url(f"data/chatgpt/symbols/{symbol}.json"),
+            "data_quality": data_quality,
         }
         for field in SYMBOL_TECHNICAL_FIELDS:
             payload[field] = candidate.get(field)
@@ -152,17 +162,26 @@ def build_symbol_index(report: dict[str, Any], symbol_payloads: dict[str, dict[s
             "market": payload.get("market"),
             "setup_type": payload.get("setup_type"),
             "extended_risk": payload.get("extended_risk"),
+            "ohlcv_complete": bool(payload.get("data_quality", {}).get("ohlcv_complete")),
+            "technical_indicators_complete": bool(payload.get("data_quality", {}).get("technical_indicators_complete")),
             "path": f"data/chatgpt/symbols/{symbol}.json",
             "url": payload.get("source_url"),
         }
         for symbol, payload in sorted(symbol_payloads.items())
     ]
+    complete_ohlcv_count = sum(1 for item in symbols if item["ohlcv_complete"])
+    complete_technical_count = sum(1 for item in symbols if item["technical_indicators_complete"])
     return {
-        "schema_version": SCHEMA_VERSION,
+        "schema_version": SYMBOL_SCHEMA_VERSION,
         "report_date": report.get("report_date"),
         "generated_at": report.get("generated_at"),
         "timezone": TIMEZONE,
         "symbol_count": len(symbols),
+        "complete_ohlcv_count": complete_ohlcv_count,
+        "incomplete_ohlcv_count": len(symbols) - complete_ohlcv_count,
+        "complete_technical_indicators_count": complete_technical_count,
+        "incomplete_technical_indicators_count": len(symbols) - complete_technical_count,
+        "incomplete_ohlcv_symbols": [item["symbol"] for item in symbols if not item["ohlcv_complete"]],
         "symbols": symbols,
     }
 
@@ -227,6 +246,18 @@ def build_paper_trading_decision_gate(report: dict[str, Any], screening_summary:
 
 
 def load_recent_screening_summaries(root: Path, limit: int = 5) -> list[dict[str, Any]]:
+    indexed_dates = _screening_dates_from_index(root, limit)
+    if indexed_dates:
+        payloads = []
+        for report_date in indexed_dates:
+            path = screening_history_path(root, report_date)
+            try:
+                payloads.append(json.loads(path.read_text(encoding="utf-8")))
+            except (OSError, json.JSONDecodeError):
+                continue
+        if payloads:
+            return sorted(payloads, key=lambda item: item.get("report_date", ""))
+
     screening_dir = root / "data" / "screening"
     if not screening_dir.exists():
         return []
@@ -246,15 +277,20 @@ def build_weekly_qullamaggie_source(
     screening_payloads: list[dict[str, Any]],
 ) -> dict[str, Any]:
     dates = [payload.get("report_date") for payload in screening_payloads if payload.get("report_date")]
+    valid_payloads = [payload for payload in screening_payloads if _screening_payload_valid(payload)]
+    valid_dates = [payload.get("report_date") for payload in valid_payloads if payload.get("report_date")]
     missing_dates: list[str] = []
+    invalid_dates = [day for day in dates if day not in set(valid_dates)]
     limitations: list[str] = []
-    if len(dates) < 5:
+    if len(valid_dates) < 5:
         limitations.append("最近 5 個交易日 screening summary 歷史不足。")
-    weekly_summary = _weekly_setup_summary(screening_payloads)
-    weekly_support = _weekly_supporting_data(screening_payloads)
-    watchlist = _next_week_watchlist(weekly_summary, screening_payloads)
-    can_review = len(dates) >= 5
-    reasons = [] if can_review else ["最近 5 個交易日資料不足，週度複盤僅可輸出部分觀察。"]
+    if invalid_dates:
+        limitations.append("部分 screening summary 未通過 as-of 或 schema 檢查。")
+    weekly_summary = _weekly_setup_summary(valid_payloads)
+    weekly_support = _weekly_supporting_data(valid_payloads)
+    watchlist = _next_week_watchlist(weekly_summary, valid_payloads)
+    can_review = len(valid_dates) >= 5 and not invalid_dates
+    reasons = [] if can_review else ["最近 5 個有效交易日資料不足，週度複盤僅可輸出部分觀察。"]
     return {
         "schema_version": SCHEMA_VERSION,
         "week_end_date": report.get("report_date"),
@@ -262,9 +298,12 @@ def build_weekly_qullamaggie_source(
         "timezone": TIMEZONE,
         "source_urls": _source_urls(report.get("artifact_urls", {})),
         "week_data_status": {
-            "available_trading_days": len(dates),
-            "dates": dates,
+            "available_trading_days": len(valid_dates),
+            "required_trading_days": 5,
+            "dates": valid_dates,
             "missing_dates": missing_dates,
+            "invalid_dates": invalid_dates,
+            "has_complete_5d_history": can_review,
             "limitations": limitations,
         },
         "weekly_setup_summary": weekly_summary,
@@ -273,6 +312,208 @@ def build_weekly_qullamaggie_source(
         "paper_trading_weekly_review_gate": {
             "can_generate_weekly_review": can_review,
             "reason": reasons,
+        },
+    }
+
+
+def build_daily_qullamaggie_compact(payload: dict[str, Any]) -> dict[str, Any]:
+    q = payload.get("qullamaggie_style", {})
+    return {
+        "schema_version": SCHEMA_VERSION,
+        "report_date": payload.get("report_date"),
+        "generated_at": payload.get("generated_at"),
+        "timezone": payload.get("timezone"),
+        "data_freshness": payload.get("data_freshness", {}),
+        "scan_readiness": payload.get("scan_readiness", {}),
+        "source_urls": payload.get("source_urls", {}),
+        "market_context": payload.get("market_context", {}),
+        "setup_counts": q.get("setup_counts", {}),
+        "top_candidates": [_compact_candidate(item) for item in q.get("top_candidates", [])[:100]],
+        "breakout": [_compact_candidate(item) for item in q.get("breakout", [])[:100]],
+        "episodic_pivot": [_compact_candidate(item) for item in q.get("episodic_pivot", [])[:100]],
+        "anticipation": [_compact_candidate(item) for item in q.get("anticipation", [])[:100]],
+        "extended_watch": [_compact_candidate(item) for item in q.get("extended_watch", [])[:100]],
+        "failed_breakout": [_compact_candidate(item) for item in q.get("failed_breakout", [])[:100]],
+        "paper_trading_decision_gate": payload.get("paper_trading_decision_gate", {}),
+    }
+
+
+def build_weekly_qullamaggie_compact(payload: dict[str, Any]) -> dict[str, Any]:
+    weekly = payload.get("weekly_setup_summary", {})
+    return {
+        "schema_version": SCHEMA_VERSION,
+        "week_end_date": payload.get("week_end_date"),
+        "generated_at": payload.get("generated_at"),
+        "timezone": payload.get("timezone"),
+        "source_urls": payload.get("source_urls", {}),
+        "week_data_status": payload.get("week_data_status", {}),
+        "setup_counts": weekly.get("setup_counts", {}),
+        "repeated_candidates": [_compact_weekly_candidate(item) for item in weekly.get("repeated_candidates", [])[:100]],
+        "setup_transitions": weekly.get("setup_transitions", [])[:100],
+        "next_week_watchlist_candidates": [
+            _compact_weekly_candidate(item) for item in payload.get("next_week_watchlist_candidates", [])[:100]
+        ],
+        "paper_trading_weekly_review_gate": payload.get("paper_trading_weekly_review_gate", {}),
+    }
+
+
+def build_screening_history_index(
+    root: Path,
+    generated_at: str,
+    common_ohlcv_days: list[str],
+    required_trading_days: int = 5,
+) -> dict[str, Any]:
+    latest_days = list(common_ohlcv_days[-required_trading_days:])
+    files: list[dict[str, Any]] = []
+    valid_dates: list[str] = []
+    missing_dates: list[str] = []
+    invalid_dates: list[str] = []
+    for report_date in latest_days:
+        path = screening_history_path(root, report_date)
+        rel_path = path.relative_to(root).as_posix()
+        if not path.exists():
+            files.append({"date": report_date, "path": rel_path, "exists": False, "valid": False, "errors": ["missing_file"]})
+            missing_dates.append(report_date)
+            continue
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as exc:
+            files.append({"date": report_date, "path": rel_path, "exists": True, "valid": False, "errors": [str(exc)]})
+            invalid_dates.append(report_date)
+            continue
+        errors = _screening_payload_errors(payload, report_date)
+        valid = not errors
+        files.append({"date": report_date, "path": rel_path, "exists": True, "valid": valid, "errors": errors})
+        if valid:
+            valid_dates.append(report_date)
+        else:
+            invalid_dates.append(report_date)
+    return {
+        "schema_version": SCHEMA_VERSION,
+        "generated_at": generated_at,
+        "timezone": TIMEZONE,
+        "required_trading_days": required_trading_days,
+        "latest_5_trading_days": latest_days,
+        "valid_dates": valid_dates,
+        "missing_dates": missing_dates,
+        "invalid_dates": invalid_dates,
+        "available_valid_days": len(valid_dates),
+        "has_5d_history": len(valid_dates) >= required_trading_days and not missing_dates and not invalid_dates,
+        "files": files,
+    }
+
+
+def attach_screening_as_of_metadata(
+    summary: dict[str, Any],
+    as_of_date: str,
+    used_input_dates: list[str],
+    generation_mode: str,
+) -> dict[str, Any]:
+    latest_input_date = max(used_input_dates) if used_input_dates else None
+    future_dates = [day for day in used_input_dates if day > as_of_date]
+    summary["as_of_date"] = as_of_date
+    summary["generation_mode"] = generation_mode
+    summary["lookahead_check"] = {
+        "passed": not future_dates,
+        "as_of_date": as_of_date,
+        "latest_input_date": latest_input_date,
+        "future_input_dates": future_dates,
+    }
+    return summary
+
+
+def build_schedule_readiness(
+    report: dict[str, Any],
+    symbol_index: dict[str, Any],
+    screening_history_index: dict[str, Any],
+    daily_compact: dict[str, Any],
+    weekly_compact: dict[str, Any],
+) -> dict[str, Any]:
+    scan_readiness = report.get("scan_readiness", {})
+    freshness = report.get("data_freshness", {})
+    daily_compact_size = _json_size_bytes(daily_compact)
+    weekly_compact_size = _json_size_bytes(weekly_compact)
+    checks = {
+        "latest_market_data_current": bool(freshness.get("is_latest_trading_data_current")),
+        "technical_scan_ready": bool(scan_readiness.get("can_run_technical_scan")),
+        "qullamaggie_scan_ready": bool(scan_readiness.get("can_run_qullamaggie_scan")),
+        "daily_compact_source_ready": bool(daily_compact.get("top_candidates") is not None and daily_compact_size < COMPACT_SIZE_LIMIT_BYTES),
+        "symbol_index_ready": bool(symbol_index.get("symbol_count", 0) > 0),
+        "symbol_ohlcv_complete": bool(symbol_index.get("symbol_count", 0) > 0 and symbol_index.get("incomplete_ohlcv_count") == 0),
+        "screening_history_5d_ready": bool(screening_history_index.get("has_5d_history")),
+        "weekly_compact_source_ready": bool(weekly_compact.get("week_data_status") is not None and weekly_compact_size < COMPACT_SIZE_LIMIT_BYTES),
+        "weekly_review_gate_ready": bool(
+            weekly_compact.get("paper_trading_weekly_review_gate", {}).get("can_generate_weekly_review")
+        ),
+    }
+    can_switch_daily_scan_schedule = all(
+        checks[key]
+        for key in (
+            "latest_market_data_current",
+            "technical_scan_ready",
+            "qullamaggie_scan_ready",
+            "daily_compact_source_ready",
+            "symbol_index_ready",
+        )
+    )
+    can_switch_watchlist_schedule = can_switch_daily_scan_schedule and checks["symbol_index_ready"]
+    can_switch_position_management_schedule = all(
+        checks[key]
+        for key in (
+            "symbol_index_ready",
+            "symbol_ohlcv_complete",
+        )
+    )
+    can_switch_weekly_review_schedule = all(
+        checks[key]
+        for key in (
+            "screening_history_5d_ready",
+            "weekly_compact_source_ready",
+            "weekly_review_gate_ready",
+        )
+    )
+    blocking_reasons = [key for key, value in checks.items() if not value]
+    warnings: list[str] = []
+    if not scan_readiness.get("can_use_institutional_confirmation"):
+        warnings.append("法人確認停用；不得宣稱法人確認。")
+    if not scan_readiness.get("can_use_margin_short_risk"):
+        warnings.append("資券風險驗證停用；不得宣稱資券風險已驗證。")
+    if not scan_readiness.get("can_use_mops_catalyst"):
+        warnings.append("MOPS 催化延續性停用或不足；僅可列為人工複核素材。")
+    if symbol_index.get("incomplete_ohlcv_symbols"):
+        warnings.append("部分 symbol 技術檔 OHLCV 不完整。")
+    return {
+        "schema_version": SCHEMA_VERSION,
+        "report_date": report.get("report_date"),
+        "generated_at": report.get("generated_at"),
+        "timezone": TIMEZONE,
+        "checks": checks,
+        "compact_sizes": {
+            "daily_qullamaggie_source_compact_bytes": daily_compact_size,
+            "weekly_qullamaggie_source_compact_bytes": weekly_compact_size,
+            "limit_bytes": COMPACT_SIZE_LIMIT_BYTES,
+        },
+        "schedule_switch": {
+            "can_switch_daily_scan_schedule": can_switch_daily_scan_schedule,
+            "can_switch_watchlist_schedule": can_switch_watchlist_schedule,
+            "can_switch_position_management_schedule": can_switch_position_management_schedule,
+            "can_switch_weekly_review_schedule": can_switch_weekly_review_schedule,
+            "can_switch_all_schedules": all(
+                [
+                    can_switch_daily_scan_schedule,
+                    can_switch_watchlist_schedule,
+                    can_switch_position_management_schedule,
+                    can_switch_weekly_review_schedule,
+                ]
+            ),
+        },
+        "blocking_reasons": blocking_reasons,
+        "warnings": warnings,
+        "source_urls": {
+            "daily_compact": github_raw_url("data/chatgpt/daily-qullamaggie-source-compact.json"),
+            "weekly_compact": github_raw_url("data/chatgpt/weekly-qullamaggie-source-compact.json"),
+            "symbol_index": github_raw_url("data/chatgpt/symbol-index.json"),
+            "screening_history_index": github_raw_url("data/screening/history-index.json"),
         },
     }
 
@@ -352,6 +593,7 @@ def _weekly_setup_summary(payloads: list[dict[str, Any]]) -> dict[str, Any]:
     symbol_counter: Counter[str] = Counter()
     latest_by_symbol: dict[str, dict[str, Any]] = {}
     setup_counts: Counter[str] = Counter()
+    appearances: dict[str, list[dict[str, Any]]] = defaultdict(list)
     for payload in payloads:
         report_date = payload.get("report_date")
         candidates = payload.get("qullamaggie", {}).get("candidates", {})
@@ -367,14 +609,30 @@ def _weekly_setup_summary(payloads: list[dict[str, Any]]) -> dict[str, Any]:
                 if symbol:
                     symbol_counter[symbol] += 1
                     latest_by_symbol[symbol] = item
+                    appearances[symbol].append(
+                        {
+                            "date": report_date,
+                            "setup_type": candidate.get("setup_type") or setup,
+                            "score": candidate.get("qullamaggie_score"),
+                        }
+                    )
     repeated = [
-        {**latest_by_symbol[symbol], "seen_count": count}
+        {
+            **latest_by_symbol[symbol],
+            "seen_count": count,
+            "appearance_count": count,
+            "dates": [item["date"] for item in appearances[symbol] if item.get("date")],
+            "setup_types": [item["setup_type"] for item in appearances[symbol] if item.get("setup_type")],
+            "latest_setup_type": latest_by_symbol[symbol].get("setup_type"),
+            "latest_score": latest_by_symbol[symbol].get("qullamaggie_score"),
+        }
         for symbol, count in symbol_counter.most_common()
         if count >= 2 and symbol in latest_by_symbol
     ][:TOP_WEEKLY_LIMIT]
     return {
         "setup_counts": dict(setup_counts),
         "repeated_candidates": repeated,
+        "setup_transitions": _setup_transitions(appearances),
         "breakout_this_week": setup_items.get("breakout", [])[:TOP_WEEKLY_LIMIT],
         "episodic_pivot_this_week": setup_items.get("episodic_pivot", [])[:TOP_WEEKLY_LIMIT],
         "anticipation_this_week": setup_items.get("anticipation", [])[:TOP_WEEKLY_LIMIT],
@@ -432,8 +690,12 @@ def _source_urls(artifact_urls: dict[str, str]) -> dict[str, str]:
         "history_index",
         "market_scan",
         "chatgpt_daily_qullamaggie_source",
+        "chatgpt_daily_qullamaggie_compact",
         "chatgpt_weekly_qullamaggie_source",
+        "chatgpt_weekly_qullamaggie_compact",
         "chatgpt_symbol_index",
+        "chatgpt_schedule_readiness",
+        "screening_history_index",
         "chatgpt_daily_qullamaggie_markdown",
         "chatgpt_weekly_qullamaggie_markdown",
     ]
@@ -456,6 +718,154 @@ def _setup_names() -> list[str]:
 
 def _candidate_with_seen_date(candidate: dict[str, Any], report_date: str | None) -> dict[str, Any]:
     return {**candidate, "seen_date": report_date}
+
+
+def _symbol_data_quality(candidate: dict[str, Any]) -> dict[str, Any]:
+    market = str(candidate.get("market") or "")
+    report_date = str(candidate.get("date") or "")
+    return {
+        "ohlcv_complete": _ohlcv_complete(candidate),
+        "technical_indicators_complete": _technical_indicators_complete(candidate),
+        "source_market_file": _source_market_file(report_date, market),
+    }
+
+
+def _ohlcv_complete(candidate: dict[str, Any]) -> bool:
+    open_price = _number(candidate.get("open"))
+    high = _number(candidate.get("high"))
+    low = _number(candidate.get("low"))
+    close = _number(candidate.get("close"))
+    volume = _number(candidate.get("volume"))
+    if None in (open_price, high, low, close, volume):
+        return False
+    if close <= 0 or volume <= 0:
+        return False
+    return bool(high >= low and high >= max(open_price, close) and low <= min(open_price, close))
+
+
+def _technical_indicators_complete(candidate: dict[str, Any]) -> bool:
+    fields = ["ma10", "ma20", "ma50", "avg_volume_20d", "volume_ratio_20d", "pivot_price", "stop_reference"]
+    return all(_number(candidate.get(field)) is not None for field in fields)
+
+
+def _number(value: Any) -> float | None:
+    if value is None or value == "":
+        return None
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def _source_market_file(report_date: str, market: str) -> str | None:
+    if not report_date:
+        return None
+    try:
+        parsed = date.fromisoformat(report_date)
+    except ValueError:
+        return None
+    suffix = "listed" if market == "listed" else "otc" if market == "otc" else None
+    if suffix is None:
+        return None
+    return f"data/market/{parsed:%Y/%m}/{report_date}-{suffix}-ohlcv.csv"
+
+
+def _screening_dates_from_index(root: Path, limit: int) -> list[str]:
+    path = screening_history_index_path(root)
+    if not path.exists():
+        return []
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return []
+    dates = [str(day) for day in payload.get("valid_dates", []) if day]
+    return dates[-limit:]
+
+
+def _screening_payload_valid(payload: dict[str, Any]) -> bool:
+    report_date = str(payload.get("report_date") or "")
+    return not _screening_payload_errors(payload, report_date)
+
+
+def _screening_payload_errors(payload: dict[str, Any], expected_date: str) -> list[str]:
+    errors: list[str] = []
+    if payload.get("report_date") != expected_date:
+        errors.append("report_date_mismatch")
+    if payload.get("as_of_date") and payload.get("as_of_date") != expected_date:
+        errors.append("as_of_date_mismatch")
+    lookahead = payload.get("lookahead_check", {})
+    if lookahead and not lookahead.get("passed"):
+        errors.append("lookahead_check_failed")
+    if not isinstance(payload.get("qullamaggie"), dict):
+        errors.append("missing_qullamaggie")
+    else:
+        candidates = payload.get("qullamaggie", {}).get("candidates")
+        if not isinstance(candidates, dict):
+            errors.append("missing_qullamaggie_candidates")
+    return errors
+
+
+def _compact_candidate(candidate: dict[str, Any]) -> dict[str, Any]:
+    symbol = str(candidate.get("symbol") or "")
+    return {
+        "symbol": symbol,
+        "name": candidate.get("name"),
+        "market": candidate.get("market"),
+        "setup_type": candidate.get("setup_type"),
+        "score": candidate.get("qullamaggie_score"),
+        "date": candidate.get("date"),
+        "close": candidate.get("close"),
+        "volume": candidate.get("volume"),
+        "volume_ratio_20d": candidate.get("volume_ratio_20d"),
+        "relative_strength_rank": candidate.get("relative_strength_rank"),
+        "pivot_price": candidate.get("pivot_price"),
+        "stop_reference": candidate.get("stop_reference"),
+        "extended_risk": candidate.get("extended_risk"),
+        "risk_notes": candidate.get("risk_notes", []),
+        "symbol_data_url": github_raw_url(f"data/chatgpt/symbols/{symbol}.json") if symbol else "",
+    }
+
+
+def _compact_weekly_candidate(candidate: dict[str, Any]) -> dict[str, Any]:
+    item = _compact_candidate(candidate)
+    item.update(
+        {
+            "seen_date": candidate.get("seen_date"),
+            "seen_count": candidate.get("seen_count"),
+            "appearance_count": candidate.get("appearance_count"),
+            "dates": candidate.get("dates", []),
+            "setup_types": candidate.get("setup_types", []),
+            "latest_setup_type": candidate.get("latest_setup_type"),
+            "latest_score": candidate.get("latest_score"),
+        }
+    )
+    return item
+
+
+def _setup_transitions(appearances: dict[str, list[dict[str, Any]]]) -> list[dict[str, Any]]:
+    transitions: list[dict[str, Any]] = []
+    for symbol, rows in sorted(appearances.items()):
+        ordered = sorted([row for row in rows if row.get("date")], key=lambda item: str(item["date"]))
+        for previous, current in zip(ordered, ordered[1:]):
+            previous_setup = previous.get("setup_type")
+            current_setup = current.get("setup_type")
+            if previous_setup and current_setup and previous_setup != current_setup:
+                transitions.append(
+                    {
+                        "symbol": symbol,
+                        "from_date": previous.get("date"),
+                        "to_date": current.get("date"),
+                        "from_setup_type": previous_setup,
+                        "to_setup_type": current_setup,
+                        "transition": f"{previous_setup}->{current_setup}",
+                    }
+                )
+                break
+    return transitions[:TOP_WEEKLY_LIMIT]
+
+
+def _json_size_bytes(payload: dict[str, Any]) -> int:
+    return len(json.dumps(payload, ensure_ascii=False, separators=(",", ":")).encode("utf-8"))
 
 
 def _candidate_lines(candidates: list[dict[str, Any]]) -> list[str]:

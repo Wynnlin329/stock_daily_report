@@ -481,6 +481,8 @@ def _candidate_payload(metrics: dict[str, Any]) -> dict[str, Any]:
         "score_breakdown",
         "market_regime_status",
         "close",
+        "high",
+        "low",
         "change_pct",
         "volume",
         "turnover",

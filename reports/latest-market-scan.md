@@ -2,7 +2,7 @@
 
 本摘要僅供研究與人工複核，不構成買賣建議。
 
-- 執行時間：2026-06-22T16:11:52+08:00
+- 執行時間：2026-06-22T17:01:38+08:00
 - 是否足以執行全市場掃描：False
 - 整體信心等級：medium
 - 可用歷史交易日：67
@@ -108,14 +108,14 @@
 ### mops_event_candidates
 - 8937 合騏*（otc）：close=31.9 change_pct=9.2466 volume=700759 turnover=22111355
 - 3147 大綜（otc）：close=320.0 change_pct=-2.1407 volume=486775 turnover=158936619
+- 3346 麗清（listed）：close=25.0 change_pct=5.4852 volume=1851032 turnover=45681687
+- 3211 順達（otc）：close=452.5 change_pct=3.7844 volume=9442986 turnover=4210778909
 - 3711 日月光投控（listed）：close=674.0 change_pct=9.9511 volume=36387135 turnover=24425301116
 - 6485 點序（otc）：close=90.9 change_pct=2.8281 volume=1163243 turnover=106363332
 - 8941 關中（otc）：close=43.0 change_pct=-1.1494 volume=23499 turnover=1005905
+- 1541 錩泰（listed）：close=22.1 change_pct=0.4545 volume=27267 turnover=602404
 - 1593 祺驊（otc）：close=30.55 change_pct=0.3284 volume=52466 turnover=1597356
 - 1604 聲寶（listed）：close=23.15 change_pct=0.0 volume=369692 turnover=8546021
-- 2027 大成鋼（listed）：close=41.1 change_pct=0.2439 volume=14737337 turnover=609335941
-- 2539 櫻花建（listed）：close=38.65 change_pct=-3.2541 volume=1776165 turnover=68972879
-- 2542 興富發（listed）：close=42.7 change_pct=-4.581 volume=24903981 turnover=1067477558
 
 ### revenue_financial_candidates
 - 無
