@@ -68,12 +68,17 @@ data/latest-index-summary.json
 data/latest-mops-events.json
 data/latest-mops-events.csv
 data/latest-screening-summary.json
+data/chatgpt/schedule-readiness.json
+data/chatgpt/daily-qullamaggie-source-compact.json
+data/chatgpt/weekly-qullamaggie-source-compact.json
+data/chatgpt/symbol-index.json
+data/chatgpt/symbols/{symbol}.json
 reports/latest-market-scan.md
 ```
 
 ## GitHub Actions
 
-`daily-health-check.yml` 每週一至週五台灣時間 18:15 執行。GitHub Actions cron 使用 UTC，因此設定為 `15 10 * * 1-5`。流程會先執行 pytest，測試通過後才產生正式資料並提交限定產物。
+`daily-health-check.yml` 每週一至週五台灣時間 20:05 執行。GitHub Actions cron 使用 UTC，因此設定為 `5 12 * * 1-5`。流程會先執行 pytest，測試通過後才產生正式資料並提交限定產物。
 
 `bootstrap-history.yml` 僅支援手動執行，input `trading_days` 預設 60。
 
@@ -116,7 +121,9 @@ error, response_time_ms
 
 ## latest-screening-summary.json schema
 
-`data/latest-screening-summary.json` 是 ChatGPT 後續排程的主要輸入。它包含資料品質、歷史資料狀態、市場統計、成交量/成交金額/漲幅排行、初步篩選清單、coverage、缺失項目與限制。
+`data/latest-screening-summary.json` 是 pipeline 除錯、稽核與原始掃描結果追溯用輸出，不是 ChatGPT 每日排程的主要輸入。正式 ChatGPT 排程應優先讀取 `data/chatgpt/schedule-readiness.json`、`data/chatgpt/daily-qullamaggie-source-compact.json`、`data/chatgpt/weekly-qullamaggie-source-compact.json`、`data/chatgpt/symbol-index.json` 與 `data/chatgpt/symbols/{symbol}.json`。
+
+`latest-screening-summary.json` 包含資料品質、歷史資料狀態、市場統計、成交量/成交金額/漲幅排行、初步篩選清單、coverage、缺失項目與限制。由於 `rankings`、法人、資券、MOPS 與 Qullamaggie 候選共用穩定 schema，未套用於該區塊的輔助欄位會保留 `null`。不得因 `rankings` 中的法人、資券或 MOPS 欄位為 `null`，直接判斷資料源失效或降低候選股評價。
 
 `historical_data_status`、`institutional_data_status`、`margin_short_data_status` 與 `mops_event_data_status` 皆以 `data/history-index.json` 為準。`history-index.json` 由 `data/market/`、`data/institutional/`、`data/margin_short/` 與 `data/mops/` 的實際檔案掃描重建，避免單一 backfill 清空其他 section。
 
@@ -331,6 +338,9 @@ https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-heal
 https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/latest-index-summary.json
 https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/latest-mops-events.json
 https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/history-index.json
+https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/schedule-readiness.json
+https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/daily-qullamaggie-source-compact.json
+https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/weekly-qullamaggie-source-compact.json
 https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/daily-qullamaggie-source.json
 https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/weekly-qullamaggie-source.json
 https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbol-index.json
@@ -346,9 +356,11 @@ Raw URL 由 `stock_health/config.py` 的 `GITHUB_OWNER`、`GITHUB_REPO`、`GITHU
 
 ## ChatGPT 排程讀取方式
 
-ChatGPT 排程優先讀取 `data/chatgpt/daily-qullamaggie-source.json` 與 `data/chatgpt/weekly-qullamaggie-source.json`。這兩份資料包已整合 `latest.json`、screening summary、法人、資券、MOPS、history-index 與報告 URL，排程不需要再分散讀取多個舊檔。若 `full_market_scan_ready=false` 或 `paper_trading_decision_gate.can_create_new_simulated_buy_candidate=false`，應先說明限制，不得把摘要解讀成完整市場掃描或產生新的模擬候選。
+ChatGPT 排程必須先讀取 `data/chatgpt/schedule-readiness.json`，再依 gate 狀態讀取 `data/chatgpt/daily-qullamaggie-source-compact.json` 與 `data/chatgpt/weekly-qullamaggie-source-compact.json`。完整 `daily-qullamaggie-source.json`、`weekly-qullamaggie-source.json` 與 `data/latest-screening-summary.json` 僅供除錯、稽核或回查原始欄位，不應作為每日選股主輸入。
 
-若需要動能候選清單，ChatGPT 應優先讀取 `data/chatgpt/daily-qullamaggie-source.json` 的 `qullamaggie_style` 區塊，不應重新爬外部網站。`qullamaggie_style.top_candidates` 與各 setup 分組都只可作為研究與人工複核清單。
+若 `schedule_switch.can_switch_daily_scan_schedule=false`，應先說明 `blocking_reasons`，不得建立新 Watchlist 候選或 TradePlan。若 `schedule_switch.can_switch_position_management_schedule=false`，不得判斷續抱、減碼、停損或出場。`warnings` 必須揭露；法人、資券或 MOPS 輔助資料不可用不一定代表技術掃描失敗。
+
+若需要動能候選清單，ChatGPT 應優先讀取 `data/chatgpt/daily-qullamaggie-source-compact.json` 的 `top_candidates` 與各 setup 分組，不應重新爬外部網站。compact 內的候選欄位已針對 ChatGPT 排程整理，`latest-screening-summary.json.rankings` 中大量 `null` 不得用來判斷候選股資料不完整。`top_candidates` 與各 setup 分組都只可作為研究與人工複核清單。
 
 若需要查詢單一普通股技術欄位，ChatGPT 應先讀取 `data/chatgpt/symbol-index.json`，再依股票代號讀取 `data/chatgpt/symbols/{symbol}.json`。逐檔檔案只為 `scan_eligible=true` 的普通股產生，至少包含 OHLCV、MA10/20/50、20 日均量與量比、pivot、風險參考、setup 與 risk notes。
 
