@@ -78,7 +78,7 @@ reports/latest-market-scan.md
 
 ## GitHub Actions
 
-`daily-health-check.yml` 每週一至週五台灣時間 20:05 執行。GitHub Actions cron 使用 UTC，因此設定為 `5 12 * * 1-5`。流程會先執行 pytest，測試通過後才產生正式資料並提交限定產物。
+`daily-health-check.yml` 每週一至週五台灣時間 23:55 執行。GitHub Actions cron 使用 UTC，因此設定為 `55 15 * * 1-5`。流程會先執行 pytest，測試通過後才產生正式資料並提交限定產物。
 
 `bootstrap-history.yml` 僅支援手動執行，input `trading_days` 預設 60。
 
