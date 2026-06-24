@@ -1,29 +1,35 @@
 {
   "schema_version": "1.0",
-  "report_date": "2026-06-23",
-  "generated_at": "2026-06-23T20:48:05+08:00",
+  "report_date": "2026-06-25",
+  "generated_at": "2026-06-25T01:49:38+08:00",
   "timezone": "Asia/Taipei",
-  "listed_rows": 1052,
-  "otc_rows": 904,
-  "data_date": "2026-06-23",
-  "is_current": true,
-  "status": "success",
+  "listed_rows": 0,
+  "otc_rows": 0,
+  "data_date": "2026-06-25",
+  "is_current": false,
+  "status": "empty_but_valid",
   "sources": {
     "twse": {
-      "rows": 1052,
-      "data_date": "2026-06-23",
-      "is_current": true,
-      "status": "success",
-      "errors": []
+      "rows": 0,
+      "data_date": null,
+      "is_current": false,
+      "status": "source_unavailable",
+      "errors": [
+        "HTTP 307: Temporary Redirect"
+      ]
     },
     "tpex": {
-      "rows": 904,
-      "data_date": "2026-06-23",
-      "is_current": true,
-      "status": "success",
+      "rows": 0,
+      "data_date": "2026-06-25",
+      "is_current": false,
+      "status": "empty_but_valid",
       "errors": []
     }
   },
-  "errors": [],
-  "limitations": []
+  "errors": [
+    "HTTP 307: Temporary Redirect"
+  ],
+  "limitations": [
+    "官方融資融券未取得可解析逐股資料"
+  ]
 }

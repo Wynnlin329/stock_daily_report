@@ -1,46 +1,48 @@
-# ChatGPT Daily Qullamaggie Source: 2026-06-23
+# ChatGPT Daily Qullamaggie Source: 2026-06-25
 
 本資料包僅供 ChatGPT 排程研究與人工複核，不構成交易建議。
 
 ## 資料日期與 Freshness
-- data_freshness: {'report_date': '2026-06-23', 'latest_market_data_date': '2026-06-23', 'is_latest_trading_data_current': True, 'reason': 'Latest trading data is current'}
+- data_freshness: {'report_date': '2026-06-25', 'latest_market_data_date': '2026-06-24', 'is_latest_trading_data_current': False, 'reason': 'Current trading day OHLCV not fully available yet'}
 
 ## Scan Readiness
-- scan_readiness: {'can_run_technical_scan': True, 'can_run_qullamaggie_scan': True, 'can_generate_new_paper_trade_candidate': True, 'can_use_institutional_confirmation': False, 'can_use_margin_short_risk': True, 'can_use_mops_catalyst': True, 'reasons': []}
+- scan_readiness: {'can_run_technical_scan': False, 'can_run_qullamaggie_scan': False, 'can_generate_new_paper_trade_candidate': False, 'can_use_institutional_confirmation': False, 'can_use_margin_short_risk': False, 'can_use_mops_catalyst': False, 'reasons': ['listed_ohlcv unavailable', 'market_environment unavailable', 'Current trading day OHLCV not fully available yet']}
 
 ## Qullamaggie Market Regime
 - market_regime: {'status': 'risk_on', 'score': 15, 'reasons': ['benchmark regime=risk_on'], 'risk_notes': [], 'metrics': {'listed': {'close': 47100.65, 'ma20': 45015.399, 'ma50': 41669.150200000004, 'return_20d_pct': 11.4334}, 'otc': {'close': 440.81, 'ma20': 433.23, 'ma50': 410.991, 'return_20d_pct': 1.338}}}
 
 ## Setup Counts
-- setup_counts: {'breakout': 2, 'episodic_pivot': 1, 'anticipation': 49, 'extended_watch': 50, 'failed_breakout': 50, 'insufficient_data': 50}
+- setup_counts: {'breakout': 1, 'episodic_pivot': 0, 'anticipation': 35, 'extended_watch': 48, 'failed_breakout': 30, 'insufficient_data': 50}
 
 ## Top Candidates
-- 3093 港建* setup=breakout score=95
-- 5904 寶雅 setup=breakout score=85
-- 4956 光鋐 setup=episodic_pivot score=65
-- 6584 南俊國際 setup=anticipation score=80
-- 6204 艾華 setup=anticipation score=75
-- 6223 旺矽 setup=anticipation score=75
-- 2845 遠東銀 setup=anticipation score=75
-- 2476 鉅祥 setup=anticipation score=70
-- 6179 亞通 setup=anticipation score=70
-- 5536 聖暉* setup=anticipation score=70
-- 6190 萬泰科 setup=anticipation score=70
-- 3227 原相 setup=anticipation score=70
-- 3479 安勤 setup=anticipation score=70
-- 2330 台積電 setup=anticipation score=70
-- 4931 新盛力 setup=anticipation score=70
-- 2610 華航 setup=anticipation score=70
-- 6509 聚和 setup=anticipation score=70
-- 4743 合一 setup=anticipation score=70
-- 2892 第一金 setup=anticipation score=70
-- 2884 玉山金 setup=anticipation score=70
+- 6788 華景電 setup=breakout score=95
+- 5347 世界 setup=anticipation score=80
+- 6190 萬泰科 setup=anticipation score=80
+- 3294 英濟 setup=anticipation score=80
+- 3217 優群 setup=anticipation score=80
+- 3207 耀勝 setup=anticipation score=80
+- 6175 立敦 setup=anticipation score=75
+- 5371 中光電 setup=anticipation score=75
+- 3265 台星科 setup=anticipation score=75
+- 6127 九豪 setup=anticipation score=75
+- 5536 聖暉* setup=anticipation score=75
+- 6584 南俊國際 setup=anticipation score=75
+- 3479 安勤 setup=anticipation score=75
+- 6173 信昌電 setup=anticipation score=75
+- 3227 原相 setup=anticipation score=75
+- 8932 智通* setup=anticipation score=75
+- 6664 群翊 setup=anticipation score=75
+- 8091 翔名 setup=anticipation score=70
+- 1815 富喬 setup=anticipation score=70
+- 5340 建榮 setup=anticipation score=70
 
 ## Paper Trading Decision Gate
-- gate: {'can_create_new_simulated_buy_candidate': True, 'reason': ['法人資料不可用，僅停用法人確認'], 'allowed_actions': ['可產生資料狀態報告', '可產生候選股研究清單', '可更新觀察名單', '可做 MOPS 事件人工複核'], 'blocked_actions': ['不得宣稱法人確認']}
+- gate: {'can_create_new_simulated_buy_candidate': False, 'reason': ['listed_ohlcv unavailable', 'market_environment unavailable', 'Current trading day OHLCV not fully available yet', '上市 OHLCV 不完整', '法人資料不可用，僅停用法人確認', '資券資料不可用，僅停用資券風險', 'MOPS 不可用或歷史不足，僅停用事件延續性判斷'], 'allowed_actions': ['可產生資料狀態報告', '可產生候選股研究清單', '可更新觀察名單'], 'blocked_actions': ['不得產生新的模擬候選', '不得宣稱法人確認', '不得宣稱資券風險已驗證']}
 
 ## Disabled Sections
+- 不得產生新的模擬候選
 - 不得宣稱法人確認
+- 不得宣稱資券風險已驗證
 
 ## Source URLs
 - latest_json: https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/latest.json

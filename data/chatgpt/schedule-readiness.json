@@ -1,12 +1,12 @@
 {
   "schema_version": "1.0",
-  "report_date": "2026-06-23",
-  "generated_at": "2026-06-23T20:48:05+08:00",
+  "report_date": "2026-06-25",
+  "generated_at": "2026-06-25T01:49:38+08:00",
   "timezone": "Asia/Taipei",
   "checks": {
-    "latest_market_data_current": true,
-    "technical_scan_ready": true,
-    "qullamaggie_scan_ready": true,
+    "latest_market_data_current": false,
+    "technical_scan_ready": false,
+    "qullamaggie_scan_ready": false,
     "daily_compact_source_ready": true,
     "symbol_index_ready": true,
     "symbol_ohlcv_complete": true,
@@ -15,20 +15,26 @@
     "weekly_review_gate_ready": true
   },
   "compact_sizes": {
-    "daily_qullamaggie_source_compact_bytes": 133891,
+    "daily_qullamaggie_source_compact_bytes": 103988,
     "weekly_qullamaggie_source_compact_bytes": 87989,
     "limit_bytes": 1048576
   },
   "schedule_switch": {
-    "can_switch_daily_scan_schedule": true,
-    "can_switch_watchlist_schedule": true,
+    "can_switch_daily_scan_schedule": false,
+    "can_switch_watchlist_schedule": false,
     "can_switch_position_management_schedule": true,
     "can_switch_weekly_review_schedule": true,
-    "can_switch_all_schedules": true
+    "can_switch_all_schedules": false
   },
-  "blocking_reasons": [],
+  "blocking_reasons": [
+    "latest_market_data_current",
+    "technical_scan_ready",
+    "qullamaggie_scan_ready"
+  ],
   "warnings": [
-    "法人確認停用；不得宣稱法人確認。"
+    "法人確認停用；不得宣稱法人確認。",
+    "資券風險驗證停用；不得宣稱資券風險已驗證。",
+    "MOPS 催化延續性停用或不足；僅可列為人工複核素材。"
   ],
   "source_urls": {
     "daily_compact": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/daily-qullamaggie-source-compact.json",
