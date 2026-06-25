@@ -103,6 +103,10 @@ https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-heal
 
 `schedule-readiness.json` 會列出：
 
+- `report_date`
+- `as_of_date`
+- `market_data_date`
+- `latest_market_data_date`
 - `checks.latest_market_data_current`
 - `checks.technical_scan_ready`
 - `checks.qullamaggie_scan_ready`
@@ -118,7 +122,11 @@ https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-heal
 - `schedule_switch.can_switch_weekly_review_schedule`
 - `schedule_switch.can_switch_all_schedules`
 
+`report_date` 是報告產生日；`as_of_date` / `market_data_date` 是本次掃描依據的收盤行情日。若 GitHub Actions 延遲到隔天凌晨，`report_date` 可能是隔天，但 `market_data_date` 仍應是前一個交易日，ChatGPT 不得因此把前一交易日收盤資料視為過期。
+
 法人、資券與 MOPS 缺失可列入 `warnings`，但不得在 OHLCV 與技術資料完整時單獨阻止每日技術選股。若 `warnings` 顯示法人或資券停用，ChatGPT 不得宣稱法人確認，也不得宣稱資券風險已驗證。
+
+若 `schedule_switch.can_switch_watchlist_schedule=false`，ChatGPT 不得新增、移除或取消 Watchlist / Pending / 候選項目。逐股 `data/chatgpt/symbols/{symbol}.json` 只能作為只讀技術資料查詢，不得在 gate=false 時驅動狀態變更。
 
 ## Screening History
 

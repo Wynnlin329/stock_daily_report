@@ -87,8 +87,9 @@ reports/latest-market-scan.md
 `latest.json` 只保存資料源健康狀態與 coverage 摘要，不包含全市場逐檔 OHLCV 明細。主要欄位：
 
 ```text
-schema_version, report_date, generated_at, timezone,
-market_is_trading_day, latest_market_data_date, data_freshness,
+schema_version, report_date, as_of_date, market_data_date,
+generated_at, timezone, market_is_trading_day,
+market_data_is_trading_day, latest_market_data_date, data_freshness,
 sources, coverage, main_sources, backup_sources,
 catalyst_news_sources, manual_review_sources,
 not_recommended_sources, artifact_urls,
@@ -96,7 +97,7 @@ full_market_scan_ready, scan_readiness, missing_sections,
 overall_confidence, errors
 ```
 
-`data_freshness` 會標示 `report_date`、`latest_market_data_date` 與 `is_latest_trading_data_current`。當盤後資料尚未完整發布時，`full_market_scan_ready` 可維持 false，且 `scan_readiness.can_generate_new_paper_trade_candidate=false`。
+`report_date` 是報告產生日；`as_of_date` / `market_data_date` 是本次掃描依據的收盤行情日。GitHub Actions 若延遲到隔天凌晨執行，系統仍會使用前一個交易日作為 `market_data_date`，避免把正常的前一日收盤資料誤判為過期。`data_freshness` 會標示 `report_date`、`expected_market_data_date`、`latest_market_data_date` 與 `is_latest_trading_data_current`。當盤後資料尚未完整發布時，`full_market_scan_ready` 可維持 false，且 `scan_readiness.can_generate_new_paper_trade_candidate=false`。
 
 `scan_readiness` 將「能否執行技術掃描」與「是否可產生新的模擬候選」分開：
 
@@ -358,7 +359,7 @@ Raw URL 由 `stock_health/config.py` 的 `GITHUB_OWNER`、`GITHUB_REPO`、`GITHU
 
 ChatGPT 排程必須先讀取 `data/chatgpt/schedule-readiness.json`，再依 gate 狀態讀取 `data/chatgpt/daily-qullamaggie-source-compact.json` 與 `data/chatgpt/weekly-qullamaggie-source-compact.json`。完整 `daily-qullamaggie-source.json`、`weekly-qullamaggie-source.json` 與 `data/latest-screening-summary.json` 僅供除錯、稽核或回查原始欄位，不應作為每日選股主輸入。
 
-若 `schedule_switch.can_switch_daily_scan_schedule=false`，應先說明 `blocking_reasons`，不得建立新 Watchlist 候選或 TradePlan。若 `schedule_switch.can_switch_position_management_schedule=false`，不得判斷續抱、減碼、停損或出場。`warnings` 必須揭露；法人、資券或 MOPS 輔助資料不可用不一定代表技術掃描失敗。
+若 `schedule_switch.can_switch_daily_scan_schedule=false`，應先說明 `blocking_reasons`，不得建立新 Watchlist 候選或 TradePlan。若 `schedule_switch.can_switch_watchlist_schedule=false`，不得新增、移除或取消 Watchlist / Pending / 候選項目；symbol 檔只能用於只讀查詢。若 `schedule_switch.can_switch_position_management_schedule=false`，不得判斷續抱、減碼、停損或出場。`warnings` 必須揭露；法人、資券或 MOPS 輔助資料不可用不一定代表技術掃描失敗。
 
 若需要動能候選清單，ChatGPT 應優先讀取 `data/chatgpt/daily-qullamaggie-source-compact.json` 的 `top_candidates` 與各 setup 分組，不應重新爬外部網站。compact 內的候選欄位已針對 ChatGPT 排程整理，`latest-screening-summary.json.rankings` 中大量 `null` 不得用來判斷候選股資料不完整。`top_candidates` 與各 setup 分組都只可作為研究與人工複核清單。
 

@@ -27,12 +27,17 @@ def sample_report(*, fresh: bool = True, actionable_ready: bool = True) -> dict:
     return {
         "schema_version": "1.0",
         "report_date": "2026-06-15",
+        "as_of_date": "2026-06-15" if fresh else "2026-06-14",
+        "market_data_date": "2026-06-15" if fresh else "2026-06-14",
         "generated_at": "2026-06-15T18:15:00+08:00",
         "timezone": "Asia/Taipei",
         "market_is_trading_day": True,
         "latest_market_data_date": "2026-06-15" if fresh else "2026-06-14",
         "data_freshness": {
             "report_date": "2026-06-15",
+            "as_of_date": "2026-06-15" if fresh else "2026-06-14",
+            "market_data_date": "2026-06-15" if fresh else "2026-06-14",
+            "expected_market_data_date": "2026-06-15" if fresh else "2026-06-14",
             "latest_market_data_date": "2026-06-15" if fresh else "2026-06-14",
             "is_latest_trading_data_current": fresh,
             "reason": "Latest trading data is current" if fresh else "Current trading day OHLCV not fully available yet",
@@ -224,6 +229,8 @@ def test_daily_chatgpt_gate_blocks_stale_or_empty_actionable_data() -> None:
 
     assert stale_payload["paper_trading_decision_gate"]["can_create_new_simulated_buy_candidate"] is False
     assert no_candidate_payload["paper_trading_decision_gate"]["can_create_new_simulated_buy_candidate"] is False
+    assert "可更新觀察名單" not in stale_payload["paper_trading_decision_gate"]["allowed_actions"]
+    assert "不得新增、移除或取消 Watchlist / Pending / 候選項目" in stale_payload["paper_trading_decision_gate"]["blocked_actions"]
 
 
 def test_symbol_technical_payloads_and_index() -> None:
@@ -251,6 +258,8 @@ def test_symbol_technical_payloads_and_index() -> None:
     ]:
         assert field in symbol_payload
     assert symbol_payload["scan_eligible"] is True
+    assert symbol_payload["as_of_date"] == "2026-06-15"
+    assert symbol_payload["market_data_date"] == "2026-06-15"
     assert symbol_payload["schema_version"] == "1.1"
     assert symbol_payload["data_quality"]["ohlcv_complete"] is True
     assert symbol_payload["data_quality"]["technical_indicators_complete"] is True
@@ -258,6 +267,8 @@ def test_symbol_technical_payloads_and_index() -> None:
     assert symbol_payload["source_url"] == github_raw_url("data/chatgpt/symbols/2330.json")
 
     index = build_symbol_index(sample_report(), payloads)
+    assert index["as_of_date"] == "2026-06-15"
+    assert index["market_data_date"] == "2026-06-15"
     assert index["schema_version"] == "1.1"
     assert index["symbol_count"] == 1
     assert index["complete_ohlcv_count"] == 1
@@ -334,6 +345,8 @@ def test_compact_sources_include_symbol_data_url_and_stay_small() -> None:
     )
     compact = build_daily_qullamaggie_compact(daily)
 
+    assert compact["as_of_date"] == "2026-06-15"
+    assert compact["market_data_date"] == "2026-06-15"
     assert compact["top_candidates"][0]["symbol_data_url"] == github_raw_url("data/chatgpt/symbols/2330.json")
     assert len(json.dumps(compact, ensure_ascii=False).encode("utf-8")) < 1_048_576
 
@@ -366,6 +379,10 @@ def test_weekly_compact_and_schedule_readiness() -> None:
     )
 
     assert weekly_compact["paper_trading_weekly_review_gate"]["can_generate_weekly_review"] is True
+    assert weekly_compact["week_end_date"] == "2026-06-15"
+    assert readiness["as_of_date"] == "2026-06-15"
+    assert readiness["market_data_date"] == "2026-06-15"
+    assert readiness["latest_market_data_date"] == "2026-06-15"
     assert readiness["checks"]["symbol_ohlcv_complete"] is True
     assert readiness["schedule_switch"]["can_switch_daily_scan_schedule"] is True
     assert readiness["schedule_switch"]["can_switch_watchlist_schedule"] is True

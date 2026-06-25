@@ -49,7 +49,7 @@ from stock_health.models import IndexRecord, InstitutionalTradingRecord, MarginS
 from stock_health.report_writer import build_health_markdown
 from stock_health.screening import build_screening_summary
 from stock_health.source_health import check_all_sources
-from stock_health.trading_calendar import TAIPEI, is_trading_day, markdown_report_date
+from stock_health.trading_calendar import TAIPEI, expected_market_data_date, is_trading_day, markdown_report_date
 
 
 class FakeClient:
@@ -198,6 +198,16 @@ def test_asia_taipei_date_and_chinese_weekday() -> None:
 def test_non_trading_weekend_rule() -> None:
     assert is_trading_day(date(2026, 6, 13)) is False
     assert is_trading_day(date(2026, 6, 15)) is True
+
+
+def test_expected_market_data_date_handles_after_midnight_action_delay() -> None:
+    delayed_run = datetime(2026, 6, 25, 1, 49, tzinfo=TAIPEI)
+    on_time_run = datetime(2026, 6, 24, 23, 55, tzinfo=TAIPEI)
+    monday_morning = datetime(2026, 6, 22, 7, 0, tzinfo=TAIPEI)
+
+    assert expected_market_data_date(delayed_run) == date(2026, 6, 24)
+    assert expected_market_data_date(on_time_run) == date(2026, 6, 24)
+    assert expected_market_data_date(monday_morning) == date(2026, 6, 19)
 
 
 def test_latest_json_required_fields_parseable(tmp_path: Path) -> None:

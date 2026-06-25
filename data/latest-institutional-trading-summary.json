@@ -1,35 +1,31 @@
 {
   "schema_version": "1.0",
   "report_date": "2026-06-25",
-  "generated_at": "2026-06-25T01:49:38+08:00",
+  "as_of_date": "2026-06-24",
+  "market_data_date": "2026-06-24",
+  "generated_at": "2026-06-25T10:54:10+08:00",
   "timezone": "Asia/Taipei",
-  "listed_rows": 0,
-  "otc_rows": 0,
-  "data_date": "2026-06-25",
-  "is_current": false,
-  "status": "empty_but_valid",
+  "listed_rows": 13806,
+  "otc_rows": 915,
+  "data_date": "2026-06-24",
+  "is_current": true,
+  "status": "success",
   "sources": {
     "twse": {
-      "rows": 0,
-      "data_date": null,
-      "is_current": false,
-      "status": "parser_error",
-      "errors": [
-        "TWSE institutional response did not contain a parsable table with required fields ['證券代號', '證券名稱', '三大法人買賣超股數']; stat='查詢日期小於101年05月02日，請重新查詢!'; tables="
-      ]
+      "rows": 13806,
+      "data_date": "2026-06-24",
+      "is_current": true,
+      "status": "success",
+      "errors": []
     },
     "tpex": {
-      "rows": 0,
-      "data_date": "2026-06-25",
-      "is_current": false,
-      "status": "empty_but_valid",
+      "rows": 915,
+      "data_date": "2026-06-24",
+      "is_current": true,
+      "status": "success",
       "errors": []
     }
   },
-  "errors": [
-    "TWSE institutional response did not contain a parsable table with required fields ['證券代號', '證券名稱', '三大法人買賣超股數']; stat='查詢日期小於101年05月02日，請重新查詢!'; tables="
-  ],
-  "limitations": [
-    "官方法人買賣超未取得可解析逐股資料"
-  ]
+  "errors": [],
+  "limitations": []
 }
