@@ -62,7 +62,7 @@ from stock_health.index_summary import build_index_summary
 from stock_health.report_writer import build_health_markdown, build_market_scan_markdown
 from stock_health.screening import build_screening_summary
 from stock_health.source_health import check_all_sources
-from stock_health.trading_calendar import ensure_taipei, is_trading_day
+from stock_health.trading_calendar import ensure_taipei, expected_market_data_date, is_trading_day
 
 LOGGER = logging.getLogger("stock_health.run_health_check")
 
@@ -81,30 +81,32 @@ def main() -> int:
     ensure_dirs(root)
     now = ensure_taipei()
     report_date = date.fromisoformat(args.date) if args.date else now.date()
+    market_data_date = date.fromisoformat(args.date) if args.date else expected_market_data_date(now)
     generated_at = now.isoformat(timespec="seconds")
     market_is_trading_day = is_trading_day(report_date)
+    market_data_is_trading_day = is_trading_day(market_data_date)
 
-    LOGGER.info("Checking sources for %s", report_date)
-    sources = check_all_sources(now, report_date)
-    listed_result = fetch_twse_listed_ohlcv(report_date)
-    otc_result = fetch_tpex_otc_ohlcv(report_date)
-    listed_institutional = fetch_twse_institutional_trading(report_date)
-    otc_institutional = fetch_tpex_institutional_trading(report_date)
-    listed_margin_short = fetch_twse_margin_short(report_date)
-    otc_margin_short = fetch_tpex_margin_short(report_date)
-    taiex_index = fetch_twse_taiex_index(report_date)
-    tpex_index = fetch_tpex_index(report_date)
-    mops_events = fetch_mops_events(report_date)
-    _apply_ohlcv_source_result(sources["twse"], listed_result, "上市 OHLCV", report_date)
-    _apply_ohlcv_source_result(sources["tpex"], otc_result, "上櫃 OHLCV", report_date)
-    _apply_mops_source_result(sources["mops"], mops_events, report_date, market_is_trading_day)
-    write_ohlcv_outputs(root, report_date, listed_result.rows, otc_result.rows)
-    write_index_outputs(root, report_date, taiex_index.rows, tpex_index.rows)
-    write_institutional_outputs(root, report_date, listed_institutional.rows, otc_institutional.rows)
-    write_margin_short_outputs(root, report_date, listed_margin_short.rows, otc_margin_short.rows)
-    mops_is_current = mops_events.ok and _is_data_current(mops_events.data_date, report_date, market_is_trading_day)
+    LOGGER.info("Checking sources for report_date=%s market_data_date=%s", report_date, market_data_date)
+    sources = check_all_sources(now, market_data_date)
+    listed_result = fetch_twse_listed_ohlcv(market_data_date)
+    otc_result = fetch_tpex_otc_ohlcv(market_data_date)
+    listed_institutional = fetch_twse_institutional_trading(market_data_date)
+    otc_institutional = fetch_tpex_institutional_trading(market_data_date)
+    listed_margin_short = fetch_twse_margin_short(market_data_date)
+    otc_margin_short = fetch_tpex_margin_short(market_data_date)
+    taiex_index = fetch_twse_taiex_index(market_data_date)
+    tpex_index = fetch_tpex_index(market_data_date)
+    mops_events = fetch_mops_events(market_data_date)
+    _apply_ohlcv_source_result(sources["twse"], listed_result, "上市 OHLCV", market_data_date)
+    _apply_ohlcv_source_result(sources["tpex"], otc_result, "上櫃 OHLCV", market_data_date)
+    _apply_mops_source_result(sources["mops"], mops_events, market_data_date, market_data_is_trading_day)
+    write_ohlcv_outputs(root, market_data_date, listed_result.rows, otc_result.rows)
+    write_index_outputs(root, market_data_date, taiex_index.rows, tpex_index.rows)
+    write_institutional_outputs(root, market_data_date, listed_institutional.rows, otc_institutional.rows)
+    write_margin_short_outputs(root, market_data_date, listed_margin_short.rows, otc_margin_short.rows)
+    mops_is_current = mops_events.ok and _is_data_current(mops_events.data_date, market_data_date, market_data_is_trading_day)
     mops_summary = mops_events_payload(
-        f"{report_date:%Y-%m-%d}",
+        f"{market_data_date:%Y-%m-%d}",
         generated_at,
         mops_events.data_date,
         mops_is_current,
@@ -114,7 +116,10 @@ def main() -> int:
         mops_events.status,
         mops_events.source_url,
     )
-    write_mops_event_outputs(root, report_date, mops_summary, mops_events.rows)
+    mops_summary["report_date"] = f"{report_date:%Y-%m-%d}"
+    mops_summary["as_of_date"] = f"{market_data_date:%Y-%m-%d}"
+    mops_summary["market_data_date"] = f"{market_data_date:%Y-%m-%d}"
+    write_mops_event_outputs(root, market_data_date, mops_summary, mops_events.rows)
 
     history_rows = load_history_rows(root)
     index_history_rows = load_index_history_rows(root)
@@ -128,12 +133,12 @@ def main() -> int:
     has_60d_history = bool(history_index.get("has_60d_history"))
     institutional_rows = listed_institutional.rows + otc_institutional.rows
     institutional_is_current = any(
-        _is_data_current(result.data_date, report_date, market_is_trading_day) and bool(result.rows)
+        _is_data_current(result.data_date, market_data_date, market_data_is_trading_day) and bool(result.rows)
         for result in (listed_institutional, otc_institutional)
     )
     margin_short_rows = listed_margin_short.rows + otc_margin_short.rows
     margin_short_is_current = any(
-        _is_data_current(result.data_date, report_date, market_is_trading_day) and bool(result.rows)
+        _is_data_current(result.data_date, market_data_date, market_data_is_trading_day) and bool(result.rows)
         for result in (listed_margin_short, otc_margin_short)
     )
     coverage, full_market_scan_ready, missing_sections = build_coverage(
@@ -155,20 +160,22 @@ def main() -> int:
     )
     institutional_summary = _build_institutional_summary(
         report_date,
+        market_data_date,
         generated_at,
-        market_is_trading_day,
+        market_data_is_trading_day,
         listed_institutional,
         otc_institutional,
     )
     margin_short_summary = _build_margin_short_summary(
         report_date,
+        market_data_date,
         generated_at,
-        market_is_trading_day,
+        market_data_is_trading_day,
         listed_margin_short,
         otc_margin_short,
     )
     index_summary = build_index_summary(
-        report_date,
+        market_data_date,
         generated_at,
         index_history_rows,
         benchmark_history,
@@ -189,7 +196,7 @@ def main() -> int:
         errors.append("核心資料段落缺失：" + ", ".join(missing_sections))
     overall_confidence = "high" if full_market_scan_ready else ("medium" if (listed_result.rows or otc_result.rows) else "low")
     latest_market_data_date = max([value for value in [listed_result.data_date, otc_result.data_date] if value], default=None)
-    data_freshness = _build_data_freshness(report_date, latest_market_data_date, market_is_trading_day)
+    data_freshness = _build_data_freshness(report_date, market_data_date, latest_market_data_date, market_data_is_trading_day)
     artifact_urls = {
         "latest_json": github_raw_url("latest.json"),
         "screening_summary": github_raw_url("data/latest-screening-summary.json"),
@@ -211,7 +218,7 @@ def main() -> int:
     }
 
     summary = build_screening_summary(
-        f"{report_date:%Y-%m-%d}",
+        f"{market_data_date:%Y-%m-%d}",
         generated_at,
         listed_result.rows,
         otc_result.rows,
@@ -245,15 +252,21 @@ def main() -> int:
         ]
         if value
     ]
-    attach_screening_as_of_metadata(summary, f"{report_date:%Y-%m-%d}", used_input_dates, "daily_health_check")
+    attach_screening_as_of_metadata(summary, f"{market_data_date:%Y-%m-%d}", used_input_dates, "daily_health_check")
+    summary["report_date"] = f"{market_data_date:%Y-%m-%d}"
+    summary["generated_report_date"] = f"{report_date:%Y-%m-%d}"
+    summary["market_data_date"] = f"{market_data_date:%Y-%m-%d}"
     scan_readiness = _build_scan_readiness(coverage, summary, data_freshness)
 
     report = {
         "schema_version": SCHEMA_VERSION,
         "report_date": f"{report_date:%Y-%m-%d}",
+        "as_of_date": f"{market_data_date:%Y-%m-%d}",
+        "market_data_date": f"{market_data_date:%Y-%m-%d}",
         "generated_at": generated_at,
         "timezone": TIMEZONE,
         "market_is_trading_day": market_is_trading_day,
+        "market_data_is_trading_day": market_data_is_trading_day,
         "latest_market_data_date": latest_market_data_date,
         "data_freshness": data_freshness,
         "sources": {key: value.to_dict() for key, value in sources.items()},
@@ -271,7 +284,7 @@ def main() -> int:
         "errors": errors,
     }
     latest_md = build_health_markdown(report, report_date)
-    market_scan_md = build_market_scan_markdown(summary, report_date)
+    market_scan_md = build_market_scan_markdown(summary, market_data_date)
     daily_chatgpt_source = build_daily_qullamaggie_source(
         report,
         summary,
@@ -287,7 +300,7 @@ def main() -> int:
     write_json(root / "latest.json", report)
     write_text(root / "latest.md", latest_md)
     write_json(root / "data" / "latest-screening-summary.json", summary)
-    write_json(screening_history_path(root, f"{report_date:%Y-%m-%d}"), summary)
+    write_json(screening_history_path(root, f"{market_data_date:%Y-%m-%d}"), summary)
     write_json(root / "data" / "latest-institutional-trading-summary.json", institutional_summary)
     write_json(root / "data" / "latest-margin-short-summary.json", margin_short_summary)
     write_json(root / "data" / "latest-index-summary.json", index_summary)
@@ -319,7 +332,7 @@ def main() -> int:
     write_json(root / "data" / "chatgpt" / "weekly-qullamaggie-source-compact.json", weekly_chatgpt_source_compact)
     write_json(root / "data" / "chatgpt" / "schedule-readiness.json", schedule_readiness)
     write_text(root / "reports" / "chatgpt-weekly-qullamaggie-source.md", build_weekly_qullamaggie_markdown(weekly_chatgpt_source))
-    LOGGER.info("Wrote latest report for %s", report_date)
+    LOGGER.info("Wrote latest report for report_date=%s market_data_date=%s", report_date, market_data_date)
     return 0
 
 
@@ -334,13 +347,25 @@ def _merge_statuses(statuses: list[str]) -> str:
     return statuses[0] if statuses else "source_unavailable"
 
 
-def _build_data_freshness(report_date: date, latest_market_data_date: str | None, market_is_trading_day: bool) -> dict[str, object]:
-    is_current = _is_data_current(latest_market_data_date, report_date, market_is_trading_day)
+def _build_data_freshness(
+    report_date: date,
+    market_data_date: date,
+    latest_market_data_date: str | None,
+    market_data_is_trading_day: bool,
+) -> dict[str, object]:
+    is_current = _is_data_current(latest_market_data_date, market_data_date, market_data_is_trading_day)
     reason = "Latest trading data is current"
     if not is_current:
-        reason = "Current trading day OHLCV not fully available yet" if market_is_trading_day else "Latest market data date is not available"
+        reason = (
+            f"Expected market data date {market_data_date:%Y-%m-%d} is not fully available yet"
+            if market_data_is_trading_day
+            else "Latest market data date is not available"
+        )
     return {
         "report_date": f"{report_date:%Y-%m-%d}",
+        "as_of_date": f"{market_data_date:%Y-%m-%d}",
+        "market_data_date": f"{market_data_date:%Y-%m-%d}",
+        "expected_market_data_date": f"{market_data_date:%Y-%m-%d}",
         "latest_market_data_date": latest_market_data_date,
         "is_latest_trading_data_current": is_current,
         "reason": reason,
@@ -453,8 +478,9 @@ def _apply_mops_source_result(source: object, fetch_result: object, report_date:
 
 def _build_institutional_summary(
     report_date: date,
+    market_data_date: date,
     generated_at: str,
-    market_is_trading_day: bool,
+    market_data_is_trading_day: bool,
     listed_result: object,
     otc_result: object,
 ) -> dict[str, object]:
@@ -468,16 +494,18 @@ def _build_institutional_summary(
     return {
         "schema_version": SCHEMA_VERSION,
         "report_date": f"{report_date:%Y-%m-%d}",
+        "as_of_date": f"{market_data_date:%Y-%m-%d}",
+        "market_data_date": f"{market_data_date:%Y-%m-%d}",
         "generated_at": generated_at,
         "timezone": TIMEZONE,
         "listed_rows": len(listed_result.rows),
         "otc_rows": len(otc_result.rows),
         "data_date": max(data_dates) if data_dates else None,
-        "is_current": any(_is_data_current(result.data_date, report_date, market_is_trading_day) and bool(result.rows) for result in (listed_result, otc_result)),
+        "is_current": any(_is_data_current(result.data_date, market_data_date, market_data_is_trading_day) and bool(result.rows) for result in (listed_result, otc_result)),
         "status": _merge_statuses([getattr(listed_result, "status", "source_unavailable"), getattr(otc_result, "status", "source_unavailable")]),
         "sources": {
-            "twse": _institutional_source_summary(listed_result, report_date, market_is_trading_day),
-            "tpex": _institutional_source_summary(otc_result, report_date, market_is_trading_day),
+            "twse": _institutional_source_summary(listed_result, market_data_date, market_data_is_trading_day),
+            "tpex": _institutional_source_summary(otc_result, market_data_date, market_data_is_trading_day),
         },
         "errors": listed_result.errors + otc_result.errors,
         "limitations": limitations,
@@ -486,8 +514,9 @@ def _build_institutional_summary(
 
 def _build_margin_short_summary(
     report_date: date,
+    market_data_date: date,
     generated_at: str,
-    market_is_trading_day: bool,
+    market_data_is_trading_day: bool,
     listed_result: object,
     otc_result: object,
 ) -> dict[str, object]:
@@ -501,16 +530,18 @@ def _build_margin_short_summary(
     return {
         "schema_version": SCHEMA_VERSION,
         "report_date": f"{report_date:%Y-%m-%d}",
+        "as_of_date": f"{market_data_date:%Y-%m-%d}",
+        "market_data_date": f"{market_data_date:%Y-%m-%d}",
         "generated_at": generated_at,
         "timezone": TIMEZONE,
         "listed_rows": len(listed_result.rows),
         "otc_rows": len(otc_result.rows),
         "data_date": max(data_dates) if data_dates else None,
-        "is_current": any(_is_data_current(result.data_date, report_date, market_is_trading_day) and bool(result.rows) for result in (listed_result, otc_result)),
+        "is_current": any(_is_data_current(result.data_date, market_data_date, market_data_is_trading_day) and bool(result.rows) for result in (listed_result, otc_result)),
         "status": _merge_statuses([getattr(listed_result, "status", "source_unavailable"), getattr(otc_result, "status", "source_unavailable")]),
         "sources": {
-            "twse": _source_summary(listed_result, report_date, market_is_trading_day),
-            "tpex": _source_summary(otc_result, report_date, market_is_trading_day),
+            "twse": _source_summary(listed_result, market_data_date, market_data_is_trading_day),
+            "tpex": _source_summary(otc_result, market_data_date, market_data_is_trading_day),
         },
         "errors": listed_result.errors + otc_result.errors,
         "limitations": limitations,

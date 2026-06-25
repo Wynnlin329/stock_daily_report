@@ -61,6 +61,8 @@ def build_daily_qullamaggie_source(
     return {
         "schema_version": SCHEMA_VERSION,
         "report_date": report.get("report_date"),
+        "as_of_date": report.get("as_of_date") or screening_summary.get("as_of_date"),
+        "market_data_date": report.get("market_data_date") or screening_summary.get("market_data_date"),
         "generated_at": report.get("generated_at"),
         "timezone": TIMEZONE,
         "data_freshness": report.get("data_freshness", {}),
@@ -68,7 +70,10 @@ def build_daily_qullamaggie_source(
         "source_urls": _source_urls(artifact_urls),
         "market_context": {
             "latest_market_data_date": report.get("latest_market_data_date"),
+            "as_of_date": report.get("as_of_date") or screening_summary.get("as_of_date"),
+            "market_data_date": report.get("market_data_date") or screening_summary.get("market_data_date"),
             "market_is_trading_day": report.get("market_is_trading_day", False),
+            "market_data_is_trading_day": report.get("market_data_is_trading_day", False),
             "market_regime": qullamaggie.get("market_regime", {}),
             "market_summary": screening_summary.get("market_summary", {}),
             "universe_summary": screening_summary.get("universe_summary", {}),
@@ -143,6 +148,8 @@ def build_symbol_technical_payloads(
             "security_type": candidate.get("security_type"),
             "scan_eligible": candidate.get("scan_eligible"),
             "report_date": report.get("report_date"),
+            "as_of_date": report.get("as_of_date") or candidate.get("date"),
+            "market_data_date": report.get("market_data_date") or candidate.get("date"),
             "generated_at": report.get("generated_at"),
             "timezone": TIMEZONE,
             "source_url": github_raw_url(f"data/chatgpt/symbols/{symbol}.json"),
@@ -174,6 +181,8 @@ def build_symbol_index(report: dict[str, Any], symbol_payloads: dict[str, dict[s
     return {
         "schema_version": SYMBOL_SCHEMA_VERSION,
         "report_date": report.get("report_date"),
+        "as_of_date": report.get("as_of_date"),
+        "market_data_date": report.get("market_data_date"),
         "generated_at": report.get("generated_at"),
         "timezone": TIMEZONE,
         "symbol_count": len(symbols),
@@ -221,16 +230,22 @@ def build_paper_trading_decision_gate(report: dict[str, Any], screening_summary:
     if not readiness.get("can_use_mops_catalyst"):
         reasons.append("MOPS 不可用或歷史不足，僅停用事件延續性判斷")
 
+    can_update_watchlist = bool(readiness.get("can_generate_new_paper_trade_candidate")) and bool(
+        freshness.get("is_latest_trading_data_current")
+    )
     allowed_actions = [
         "可產生資料狀態報告",
         "可產生候選股研究清單",
-        "可更新觀察名單",
     ]
+    if can_update_watchlist:
+        allowed_actions.append("可更新觀察名單")
     if readiness.get("can_use_mops_catalyst"):
         allowed_actions.append("可做 MOPS 事件人工複核")
     blocked_actions: list[str] = []
     if not can_create:
         blocked_actions.append("不得產生新的模擬候選")
+        blocked_actions.append("不得新增、移除或取消 Watchlist / Pending / 候選項目")
+        blocked_actions.append("不得建立新的 TradePlan")
     if not readiness.get("can_use_institutional_confirmation"):
         blocked_actions.append("不得宣稱法人確認")
     if not readiness.get("can_use_margin_short_risk"):
@@ -293,7 +308,10 @@ def build_weekly_qullamaggie_source(
     reasons = [] if can_review else ["最近 5 個有效交易日資料不足，週度複盤僅可輸出部分觀察。"]
     return {
         "schema_version": SCHEMA_VERSION,
-        "week_end_date": report.get("report_date"),
+        "week_end_date": report.get("as_of_date") or report.get("market_data_date") or report.get("report_date"),
+        "report_date": report.get("report_date"),
+        "as_of_date": report.get("as_of_date"),
+        "market_data_date": report.get("market_data_date"),
         "generated_at": report.get("generated_at"),
         "timezone": TIMEZONE,
         "source_urls": _source_urls(report.get("artifact_urls", {})),
@@ -321,6 +339,8 @@ def build_daily_qullamaggie_compact(payload: dict[str, Any]) -> dict[str, Any]:
     return {
         "schema_version": SCHEMA_VERSION,
         "report_date": payload.get("report_date"),
+        "as_of_date": payload.get("as_of_date"),
+        "market_data_date": payload.get("market_data_date"),
         "generated_at": payload.get("generated_at"),
         "timezone": payload.get("timezone"),
         "data_freshness": payload.get("data_freshness", {}),
@@ -343,6 +363,9 @@ def build_weekly_qullamaggie_compact(payload: dict[str, Any]) -> dict[str, Any]:
     return {
         "schema_version": SCHEMA_VERSION,
         "week_end_date": payload.get("week_end_date"),
+        "report_date": payload.get("report_date"),
+        "as_of_date": payload.get("as_of_date"),
+        "market_data_date": payload.get("market_data_date"),
         "generated_at": payload.get("generated_at"),
         "timezone": payload.get("timezone"),
         "source_urls": payload.get("source_urls", {}),
@@ -485,6 +508,9 @@ def build_schedule_readiness(
     return {
         "schema_version": SCHEMA_VERSION,
         "report_date": report.get("report_date"),
+        "as_of_date": report.get("as_of_date"),
+        "market_data_date": report.get("market_data_date"),
+        "latest_market_data_date": report.get("latest_market_data_date"),
         "generated_at": report.get("generated_at"),
         "timezone": TIMEZONE,
         "checks": checks,
