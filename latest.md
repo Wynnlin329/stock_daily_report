@@ -1,6 +1,6 @@
 # 報告日期：2026/06/25（星期四）
 
-- 執行時間：2026-06-25T10:54:10+08:00
+- 執行時間：2026-06-25T11:14:57+08:00
 - 交易日判定：True
 - 最新市場資料日期：2026-06-24
 - 是否足以執行全市場掃描：False
@@ -19,7 +19,7 @@
 | 鉅亨網 Cnyes | 催化新聞源 | True | 200 |  | False | False | False | 未取得明確資料日期；不可判定為當日資料可用 |
 | MoneyDJ | 催化新聞源 | True | 200 |  | False | False | False | 未取得明確資料日期；不可判定為當日資料可用 |
 | TradingView | 人工複核源 | True | 200 |  | False | False | False | 未取得明確資料日期；不可判定為當日資料可用 |
-| WantGoo | 人工複核源 | True | 200 |  | False | False | False | 未取得明確資料日期；不可判定為當日資料可用 |
+| WantGoo | 人工複核源 | False | 403 |  | False | False | False | HTTP 403: Forbidden |
 | CMoney | 人工複核源 | True | 200 |  | False | False | False | 未取得明確資料日期；不可判定為當日資料可用 |
 | 財報狗 StatementDog | 人工複核源 | True | 200 |  | False | False | False | 未取得明確資料日期；不可判定為當日資料可用 |
 
@@ -53,7 +53,7 @@
 - 鉅亨網 Cnyes：未取得明確資料日期；不可判定為當日資料可用
 - MoneyDJ：未取得明確資料日期；不可判定為當日資料可用
 - TradingView：未取得明確資料日期；不可判定為當日資料可用
-- WantGoo：未取得明確資料日期；不可判定為當日資料可用
+- WantGoo：HTTP 403: Forbidden
 - CMoney：未取得明確資料日期；不可判定為當日資料可用
 - 財報狗 StatementDog：未取得明確資料日期；不可判定為當日資料可用
 
@@ -67,7 +67,7 @@
 - price_change_screening：True（Computed from official OHLCV）
 - limit_up_screening：True（Estimated from daily change percent）
 - volume_spike_screening：True（20-day volume history available）
-- institutional_trading：True（14721 institutional rows parsed from official sources）
+- institutional_trading：True（915 institutional rows parsed from official sources）
 - margin_short：True（1957 margin/short rows parsed from official sources）
 - material_information：False（empty_but_valid）
 - revenue_financials：False（First version does not parse revenue or financial statements yet）
@@ -80,4 +80,5 @@
 
 ## 限制
 
+- TWSE institutional response did not contain a parsable table with required fields ['證券代號', '證券名稱', '三大法人買賣超股數']; stat='查詢日期小於106年11月07日，請重新查詢!'; tables=
 - 核心資料段落缺失：material_information

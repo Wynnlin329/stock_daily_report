@@ -2,7 +2,7 @@
 
 本摘要僅供研究與人工複核，不構成買賣建議。
 
-- 執行時間：2026-06-25T10:54:10+08:00
+- 執行時間：2026-06-25T11:14:57+08:00
 - 是否足以執行全市場掃描：False
 - 整體信心等級：medium
 - 可用歷史交易日：69
@@ -91,16 +91,7 @@
 - 無
 
 ### institutional_buy_candidates
-- 2618 長榮航（listed）：close=44.0 change_pct=2.4447 volume=89685104 turnover=3945924489
-- 2610 華航（listed）：close=23.25 change_pct=4.2601 volume=146260216 turnover=3375549758
-- 1301 台塑（listed）：close=54.5 change_pct=9.9899 volume=79265972 turnover=4183526338
-- 2892 第一金（listed）：close=32.05 change_pct=-1.2327 volume=38735886 turnover=1248206625
-- 2002 中鋼（listed）：close=19.35 change_pct=0.7812 volume=44605457 turnover=859487119
-- 1326 台化（listed）：close=57.7 change_pct=0.0 volume=67367428 turnover=3821277590
-- 5880 合庫金（listed）：close=24.4 change_pct=-0.611 volume=18131110 turnover=443514572
-- 1402 遠東新（listed）：close=28.45 change_pct=-0.6981 volume=23793831 turnover=679050406
-- 2834 臺企銀（listed）：close=17.8 change_pct=0.8499 volume=35024749 turnover=620770563
-- 6770 力積電（listed）：close=85.7 change_pct=9.0331 volume=476043030 turnover=39341921758
+- 無
 
 ### margin_short_attention
 - 2409 友達（listed）：close=30.5 change_pct=4.9914 volume=894026718 turnover=27272349411

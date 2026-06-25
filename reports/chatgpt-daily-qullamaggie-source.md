@@ -6,7 +6,7 @@
 - data_freshness: {'report_date': '2026-06-25', 'as_of_date': '2026-06-24', 'market_data_date': '2026-06-24', 'expected_market_data_date': '2026-06-24', 'latest_market_data_date': '2026-06-24', 'is_latest_trading_data_current': True, 'reason': 'Latest trading data is current'}
 
 ## Scan Readiness
-- scan_readiness: {'can_run_technical_scan': True, 'can_run_qullamaggie_scan': True, 'can_generate_new_paper_trade_candidate': True, 'can_use_institutional_confirmation': True, 'can_use_margin_short_risk': True, 'can_use_mops_catalyst': False, 'reasons': []}
+- scan_readiness: {'can_run_technical_scan': True, 'can_run_qullamaggie_scan': True, 'can_generate_new_paper_trade_candidate': True, 'can_use_institutional_confirmation': False, 'can_use_margin_short_risk': True, 'can_use_mops_catalyst': False, 'reasons': []}
 
 ## Qullamaggie Market Regime
 - market_regime: {'status': 'risk_on', 'score': 15, 'reasons': ['benchmark regime=risk_on'], 'risk_notes': [], 'metrics': {'listed': {'close': 46043.6, 'ma20': 45135.359000000004, 'ma50': 41881.6656, 'return_20d_pct': 5.4972}, 'otc': {'close': 442.09, 'ma20': 433.3695, 'ma50': 412.7882, 'return_20d_pct': 0.6351}}}
@@ -37,10 +37,10 @@
 - 8932 智通* setup=anticipation score=75
 
 ## Paper Trading Decision Gate
-- gate: {'can_create_new_simulated_buy_candidate': True, 'reason': ['MOPS 不可用或歷史不足，僅停用事件延續性判斷'], 'allowed_actions': ['可產生資料狀態報告', '可產生候選股研究清單', '可更新觀察名單'], 'blocked_actions': []}
+- gate: {'can_create_new_simulated_buy_candidate': True, 'reason': ['法人資料不可用，僅停用法人確認', 'MOPS 不可用或歷史不足，僅停用事件延續性判斷'], 'allowed_actions': ['可產生資料狀態報告', '可產生候選股研究清單', '可更新觀察名單'], 'blocked_actions': ['不得宣稱法人確認']}
 
 ## Disabled Sections
-- 無
+- 不得宣稱法人確認
 
 ## Source URLs
 - latest_json: https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/latest.json
