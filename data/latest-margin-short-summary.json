@@ -1,31 +1,35 @@
 {
   "schema_version": "1.0",
-  "report_date": "2026-06-26",
-  "as_of_date": "2026-06-25",
-  "market_data_date": "2026-06-25",
-  "generated_at": "2026-06-26T02:06:01+08:00",
+  "report_date": "2026-06-27",
+  "as_of_date": "2026-06-26",
+  "market_data_date": "2026-06-26",
+  "generated_at": "2026-06-27T01:42:50+08:00",
   "timezone": "Asia/Taipei",
-  "listed_rows": 1052,
+  "listed_rows": 0,
   "otc_rows": 905,
-  "data_date": "2026-06-25",
+  "data_date": "2026-06-26",
   "is_current": true,
   "status": "success",
   "sources": {
     "twse": {
-      "rows": 1052,
-      "data_date": "2026-06-25",
-      "is_current": true,
-      "status": "success",
-      "errors": []
+      "rows": 0,
+      "data_date": null,
+      "is_current": false,
+      "status": "source_unavailable",
+      "errors": [
+        "HTTP 307: Temporary Redirect"
+      ]
     },
     "tpex": {
       "rows": 905,
-      "data_date": "2026-06-25",
+      "data_date": "2026-06-26",
       "is_current": true,
       "status": "success",
       "errors": []
     }
   },
-  "errors": [],
+  "errors": [
+    "HTTP 307: Temporary Redirect"
+  ],
   "limitations": []
 }

@@ -1,31 +1,33 @@
 {
   "schema_version": "1.0",
-  "report_date": "2026-06-26",
-  "as_of_date": "2026-06-25",
-  "market_data_date": "2026-06-25",
-  "generated_at": "2026-06-26T02:06:01+08:00",
+  "report_date": "2026-06-27",
+  "as_of_date": "2026-06-26",
+  "market_data_date": "2026-06-26",
+  "generated_at": "2026-06-27T01:42:50+08:00",
   "timezone": "Asia/Taipei",
-  "listed_rows": 13981,
-  "otc_rows": 934,
-  "data_date": "2026-06-25",
+  "listed_rows": 14361,
+  "otc_rows": 929,
+  "data_date": "2026-06-26",
   "is_current": true,
   "status": "success",
   "sources": {
     "twse": {
-      "rows": 13981,
-      "data_date": "2026-06-25",
+      "rows": 14361,
+      "data_date": "2026-06-26",
       "is_current": true,
       "status": "success",
       "errors": []
     },
     "tpex": {
-      "rows": 934,
-      "data_date": "2026-06-25",
+      "rows": 929,
+      "data_date": "2026-06-26",
       "is_current": true,
       "status": "success",
       "errors": []
     }
   },
   "errors": [],
-  "limitations": []
+  "limitations": [
+    "部分法人欄位缺失，institutional_net_buy 可能為 partial"
+  ]
 }
