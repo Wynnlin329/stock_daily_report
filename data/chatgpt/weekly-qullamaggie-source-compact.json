@@ -1,10 +1,10 @@
 {
   "schema_version": "1.0",
-  "week_end_date": "2026-06-30",
-  "report_date": "2026-07-01",
-  "as_of_date": "2026-06-30",
-  "market_data_date": "2026-06-30",
-  "generated_at": "2026-07-01T01:48:47+08:00",
+  "week_end_date": "2026-07-01",
+  "report_date": "2026-07-02",
+  "as_of_date": "2026-07-01",
+  "market_data_date": "2026-07-01",
+  "generated_at": "2026-07-02T01:49:37+08:00",
   "timezone": "Asia/Taipei",
   "source_urls": {
     "latest_json": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/latest.json",
@@ -29,11 +29,11 @@
     "available_trading_days": 5,
     "required_trading_days": 5,
     "dates": [
-      "2026-06-24",
       "2026-06-25",
       "2026-06-26",
       "2026-06-29",
-      "2026-06-30"
+      "2026-06-30",
+      "2026-07-01"
     ],
     "missing_dates": [],
     "invalid_dates": [],
@@ -41,141 +41,25 @@
     "limitations": []
   },
   "setup_counts": {
-    "breakout": 3,
-    "episodic_pivot": 3,
-    "anticipation": 185,
+    "breakout": 4,
+    "episodic_pivot": 1,
+    "anticipation": 173,
     "extended_watch": 212,
-    "failed_breakout": 190,
+    "failed_breakout": 198,
     "insufficient_data": 250
   },
   "repeated_candidates": [
-    {
-      "symbol": "2834",
-      "name": "臺企銀",
-      "market": "listed",
-      "setup_type": "anticipation",
-      "score": 58,
-      "date": "2026-06-30",
-      "close": 17.75,
-      "volume": 29470235,
-      "volume_ratio_20d": 0.6192,
-      "relative_strength_rank": 70.0863,
-      "pivot_price": 18.1,
-      "stop_reference": 15.8,
-      "extended_risk": false,
-      "risk_notes": [
-        "僅供研究與人工複核，不構成買賣建議",
-        "距離風險參考位置超過門檻"
-      ],
-      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/2834.json",
-      "seen_date": "2026-06-30",
-      "seen_count": 5,
-      "appearance_count": 5,
-      "dates": [
-        "2026-06-24",
-        "2026-06-25",
-        "2026-06-26",
-        "2026-06-29",
-        "2026-06-30"
-      ],
-      "setup_types": [
-        "anticipation",
-        "extended_watch",
-        "anticipation",
-        "anticipation",
-        "anticipation"
-      ],
-      "latest_setup_type": "anticipation",
-      "latest_score": 58
-    },
-    {
-      "symbol": "2892",
-      "name": "第一金",
-      "market": "listed",
-      "setup_type": "anticipation",
-      "score": 58,
-      "date": "2026-06-30",
-      "close": 32.75,
-      "volume": 53949829,
-      "volume_ratio_20d": 0.9176,
-      "relative_strength_rank": 67.0182,
-      "pivot_price": 33.25,
-      "stop_reference": 27.2,
-      "extended_risk": false,
-      "risk_notes": [
-        "僅供研究與人工複核，不構成買賣建議",
-        "距離風險參考位置超過門檻"
-      ],
-      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/2892.json",
-      "seen_date": "2026-06-30",
-      "seen_count": 5,
-      "appearance_count": 5,
-      "dates": [
-        "2026-06-24",
-        "2026-06-25",
-        "2026-06-26",
-        "2026-06-29",
-        "2026-06-30"
-      ],
-      "setup_types": [
-        "anticipation",
-        "extended_watch",
-        "anticipation",
-        "anticipation",
-        "anticipation"
-      ],
-      "latest_setup_type": "anticipation",
-      "latest_score": 58
-    },
-    {
-      "symbol": "5880",
-      "name": "合庫金",
-      "market": "listed",
-      "setup_type": "anticipation",
-      "score": 63,
-      "date": "2026-06-30",
-      "close": 24.85,
-      "volume": 17504216,
-      "volume_ratio_20d": 0.5697,
-      "relative_strength_rank": 55.5129,
-      "pivot_price": 25.1,
-      "stop_reference": 22.6,
-      "extended_risk": false,
-      "risk_notes": [
-        "僅供研究與人工複核，不構成買賣建議"
-      ],
-      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/5880.json",
-      "seen_date": "2026-06-30",
-      "seen_count": 5,
-      "appearance_count": 5,
-      "dates": [
-        "2026-06-24",
-        "2026-06-25",
-        "2026-06-26",
-        "2026-06-29",
-        "2026-06-30"
-      ],
-      "setup_types": [
-        "anticipation",
-        "extended_watch",
-        "anticipation",
-        "anticipation",
-        "anticipation"
-      ],
-      "latest_setup_type": "anticipation",
-      "latest_score": 63
-    },
     {
       "symbol": "2845",
       "name": "遠東銀",
       "market": "listed",
       "setup_type": "anticipation",
       "score": 53,
-      "date": "2026-06-30",
+      "date": "2026-07-01",
       "close": 13.0,
-      "volume": 14250692,
-      "volume_ratio_20d": 0.6792,
-      "relative_strength_rank": 51.0067,
+      "volume": 14794602,
+      "volume_ratio_20d": 0.7006,
+      "relative_strength_rank": 49.378,
       "pivot_price": 13.45,
       "stop_reference": 11.85,
       "extended_risk": false,
@@ -183,15 +67,15 @@
         "僅供研究與人工複核，不構成買賣建議"
       ],
       "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/2845.json",
-      "seen_date": "2026-06-30",
+      "seen_date": "2026-07-01",
       "seen_count": 5,
       "appearance_count": 5,
       "dates": [
-        "2026-06-24",
         "2026-06-25",
         "2026-06-26",
         "2026-06-29",
-        "2026-06-30"
+        "2026-06-30",
+        "2026-07-01"
       ],
       "setup_types": [
         "anticipation",
@@ -202,112 +86,34 @@
       ],
       "latest_setup_type": "anticipation",
       "latest_score": 53
-    },
-    {
-      "symbol": "4707",
-      "name": "磐亞",
-      "market": "otc",
-      "setup_type": "failed_breakout",
-      "score": 48,
-      "date": "2026-06-30",
-      "close": 29.3,
-      "volume": 23726003,
-      "volume_ratio_20d": 4.0202,
-      "relative_strength_rank": 99.3064,
-      "pivot_price": 30.3,
-      "stop_reference": 20.4,
-      "extended_risk": false,
-      "risk_notes": [
-        "僅供研究與人工複核，不構成買賣建議",
-        "距離風險參考位置超過門檻"
-      ],
-      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/4707.json",
-      "seen_date": "2026-06-30",
-      "seen_count": 5,
-      "appearance_count": 5,
-      "dates": [
-        "2026-06-24",
-        "2026-06-25",
-        "2026-06-26",
-        "2026-06-29",
-        "2026-06-30"
-      ],
-      "setup_types": [
-        "anticipation",
-        "extended_watch",
-        "extended_watch",
-        "extended_watch",
-        "failed_breakout"
-      ],
-      "latest_setup_type": "failed_breakout",
-      "latest_score": 48
-    },
-    {
-      "symbol": "2801",
-      "name": "彰銀",
-      "market": "listed",
-      "setup_type": "extended_watch",
-      "score": 78,
-      "date": "2026-06-30",
-      "close": 24.0,
-      "volume": 70965942,
-      "volume_ratio_20d": 2.0622,
-      "relative_strength_rank": 68.1687,
-      "pivot_price": 23.6,
-      "stop_reference": 20.05,
-      "extended_risk": false,
-      "risk_notes": [
-        "僅供研究與人工複核，不構成買賣建議",
-        "距離風險參考位置超過門檻"
-      ],
-      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/2801.json",
-      "seen_date": "2026-06-30",
-      "seen_count": 5,
-      "appearance_count": 5,
-      "dates": [
-        "2026-06-24",
-        "2026-06-25",
-        "2026-06-26",
-        "2026-06-29",
-        "2026-06-30"
-      ],
-      "setup_types": [
-        "anticipation",
-        "extended_watch",
-        "anticipation",
-        "anticipation",
-        "extended_watch"
-      ],
-      "latest_setup_type": "extended_watch",
-      "latest_score": 78
     },
     {
       "symbol": "3045",
       "name": "台灣大",
       "market": "listed",
       "setup_type": "anticipation",
-      "score": 53,
-      "date": "2026-06-30",
-      "close": 116.5,
-      "volume": 20275506,
-      "volume_ratio_20d": 1.7175,
-      "relative_strength_rank": 56.0882,
+      "score": 58,
+      "date": "2026-07-01",
+      "close": 118.0,
+      "volume": 20262334,
+      "volume_ratio_20d": 1.7227,
+      "relative_strength_rank": 57.3206,
       "pivot_price": 121.5,
-      "stop_reference": 106.0,
+      "stop_reference": 110.0,
       "extended_risk": false,
       "risk_notes": [
         "僅供研究與人工複核，不構成買賣建議"
       ],
       "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/3045.json",
-      "seen_date": "2026-06-30",
+      "seen_date": "2026-07-01",
       "seen_count": 5,
       "appearance_count": 5,
       "dates": [
-        "2026-06-24",
         "2026-06-25",
         "2026-06-26",
         "2026-06-29",
-        "2026-06-30"
+        "2026-06-30",
+        "2026-07-01"
       ],
       "setup_types": [
         "anticipation",
@@ -317,7 +123,7 @@
         "anticipation"
       ],
       "latest_setup_type": "anticipation",
-      "latest_score": 53
+      "latest_score": 58
     },
     {
       "symbol": "2412",
@@ -325,11 +131,11 @@
       "market": "listed",
       "setup_type": "anticipation",
       "score": 48,
-      "date": "2026-06-30",
+      "date": "2026-07-01",
       "close": 141.5,
-      "volume": 19711564,
-      "volume_ratio_20d": 1.3174,
-      "relative_strength_rank": 53.9789,
+      "volume": 20176568,
+      "volume_ratio_20d": 1.3879,
+      "relative_strength_rank": 52.823,
       "pivot_price": 147.0,
       "stop_reference": 136.0,
       "extended_risk": false,
@@ -337,15 +143,15 @@
         "僅供研究與人工複核，不構成買賣建議"
       ],
       "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/2412.json",
-      "seen_date": "2026-06-30",
+      "seen_date": "2026-07-01",
       "seen_count": 5,
       "appearance_count": 5,
       "dates": [
-        "2026-06-24",
         "2026-06-25",
         "2026-06-26",
         "2026-06-29",
-        "2026-06-30"
+        "2026-06-30",
+        "2026-07-01"
       ],
       "setup_types": [
         "anticipation",
@@ -362,32 +168,187 @@
       "name": "台灣高鐵",
       "market": "listed",
       "setup_type": "anticipation",
-      "score": 53,
-      "date": "2026-06-30",
+      "score": 63,
+      "date": "2026-07-01",
       "close": 26.5,
-      "volume": 14290837,
-      "volume_ratio_20d": 0.6021,
-      "relative_strength_rank": 44.4871,
+      "volume": 10251149,
+      "volume_ratio_20d": 0.7693,
+      "relative_strength_rank": 40.2871,
       "pivot_price": 27.0,
-      "stop_reference": 23.5,
+      "stop_reference": 24.8,
+      "extended_risk": false,
+      "risk_notes": [
+        "僅供研究與人工複核，不構成買賣建議"
+      ],
+      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/2633.json",
+      "seen_date": "2026-07-01",
+      "seen_count": 5,
+      "appearance_count": 5,
+      "dates": [
+        "2026-06-25",
+        "2026-06-26",
+        "2026-06-29",
+        "2026-06-30",
+        "2026-07-01"
+      ],
+      "setup_types": [
+        "anticipation",
+        "anticipation",
+        "anticipation",
+        "anticipation",
+        "anticipation"
+      ],
+      "latest_setup_type": "anticipation",
+      "latest_score": 63
+    },
+    {
+      "symbol": "5880",
+      "name": "合庫金",
+      "market": "listed",
+      "setup_type": "anticipation",
+      "score": 63,
+      "date": "2026-07-01",
+      "close": 24.85,
+      "volume": 12599683,
+      "volume_ratio_20d": 0.4494,
+      "relative_strength_rank": 55.1196,
+      "pivot_price": 25.1,
+      "stop_reference": 22.6,
+      "extended_risk": false,
+      "risk_notes": [
+        "僅供研究與人工複核，不構成買賣建議"
+      ],
+      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/5880.json",
+      "seen_date": "2026-07-01",
+      "seen_count": 5,
+      "appearance_count": 5,
+      "dates": [
+        "2026-06-25",
+        "2026-06-26",
+        "2026-06-29",
+        "2026-06-30",
+        "2026-07-01"
+      ],
+      "setup_types": [
+        "extended_watch",
+        "anticipation",
+        "anticipation",
+        "anticipation",
+        "anticipation"
+      ],
+      "latest_setup_type": "anticipation",
+      "latest_score": 63
+    },
+    {
+      "symbol": "2892",
+      "name": "第一金",
+      "market": "listed",
+      "setup_type": "failed_breakout",
+      "score": 68,
+      "date": "2026-07-01",
+      "close": 33.2,
+      "volume": 137250550,
+      "volume_ratio_20d": 2.4512,
+      "relative_strength_rank": 69.1866,
+      "pivot_price": 33.25,
+      "stop_reference": 27.2,
+      "extended_risk": false,
+      "risk_notes": [
+        "僅供研究與人工複核，不構成買賣建議",
+        "資券變化可能代表籌碼分歧，不可單獨視為買賣訊號",
+        "距離風險參考位置超過門檻"
+      ],
+      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/2892.json",
+      "seen_date": "2026-07-01",
+      "seen_count": 5,
+      "appearance_count": 5,
+      "dates": [
+        "2026-06-25",
+        "2026-06-26",
+        "2026-06-29",
+        "2026-06-30",
+        "2026-07-01"
+      ],
+      "setup_types": [
+        "extended_watch",
+        "anticipation",
+        "anticipation",
+        "anticipation",
+        "failed_breakout"
+      ],
+      "latest_setup_type": "failed_breakout",
+      "latest_score": 68
+    },
+    {
+      "symbol": "2801",
+      "name": "彰銀",
+      "market": "listed",
+      "setup_type": "failed_breakout",
+      "score": 63,
+      "date": "2026-07-01",
+      "close": 23.85,
+      "volume": 140473614,
+      "volume_ratio_20d": 3.978,
+      "relative_strength_rank": 68.6124,
+      "pivot_price": 24.0,
+      "stop_reference": 20.05,
       "extended_risk": false,
       "risk_notes": [
         "僅供研究與人工複核，不構成買賣建議",
         "距離風險參考位置超過門檻"
       ],
-      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/2633.json",
-      "seen_date": "2026-06-30",
+      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/2801.json",
+      "seen_date": "2026-07-01",
       "seen_count": 5,
       "appearance_count": 5,
       "dates": [
-        "2026-06-24",
         "2026-06-25",
         "2026-06-26",
         "2026-06-29",
-        "2026-06-30"
+        "2026-06-30",
+        "2026-07-01"
       ],
       "setup_types": [
+        "extended_watch",
         "anticipation",
+        "anticipation",
+        "extended_watch",
+        "failed_breakout"
+      ],
+      "latest_setup_type": "failed_breakout",
+      "latest_score": 63
+    },
+    {
+      "symbol": "2834",
+      "name": "臺企銀",
+      "market": "listed",
+      "setup_type": "anticipation",
+      "score": 53,
+      "date": "2026-07-01",
+      "close": 17.6,
+      "volume": 30320601,
+      "volume_ratio_20d": 0.6638,
+      "relative_strength_rank": 68.8038,
+      "pivot_price": 18.1,
+      "stop_reference": 15.8,
+      "extended_risk": false,
+      "risk_notes": [
+        "僅供研究與人工複核，不構成買賣建議",
+        "距離風險參考位置超過門檻"
+      ],
+      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/2834.json",
+      "seen_date": "2026-07-01",
+      "seen_count": 5,
+      "appearance_count": 5,
+      "dates": [
+        "2026-06-25",
+        "2026-06-26",
+        "2026-06-29",
+        "2026-06-30",
+        "2026-07-01"
+      ],
+      "setup_types": [
+        "extended_watch",
         "anticipation",
         "anticipation",
         "anticipation",
@@ -397,445 +358,116 @@
       "latest_score": 53
     },
     {
-      "symbol": "6190",
-      "name": "萬泰科",
-      "market": "otc",
-      "setup_type": "anticipation",
-      "score": 68,
-      "date": "2026-06-30",
-      "close": 84.0,
-      "volume": 5328613,
-      "volume_ratio_20d": 1.2542,
-      "relative_strength_rank": 90.8671,
-      "pivot_price": 85.5,
-      "stop_reference": 75.7,
+      "symbol": "2415",
+      "name": "錩新",
+      "market": "listed",
+      "setup_type": "failed_breakout",
+      "score": 33,
+      "date": "2026-07-01",
+      "close": 36.95,
+      "volume": 2460319,
+      "volume_ratio_20d": 2.712,
+      "relative_strength_rank": 75.5981,
+      "pivot_price": 38.4,
+      "stop_reference": 29.6,
       "extended_risk": false,
       "risk_notes": [
         "僅供研究與人工複核，不構成買賣建議",
         "距離風險參考位置超過門檻"
       ],
-      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/6190.json",
-      "seen_date": "2026-06-30",
-      "seen_count": 4,
-      "appearance_count": 4,
+      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/2415.json",
+      "seen_date": "2026-07-01",
+      "seen_count": 5,
+      "appearance_count": 5,
       "dates": [
-        "2026-06-24",
         "2026-06-25",
         "2026-06-26",
-        "2026-06-30"
+        "2026-06-29",
+        "2026-06-30",
+        "2026-07-01"
       ],
       "setup_types": [
-        "anticipation",
-        "anticipation",
-        "anticipation",
-        "anticipation"
+        "extended_watch",
+        "failed_breakout",
+        "extended_watch",
+        "failed_breakout",
+        "failed_breakout"
       ],
-      "latest_setup_type": "anticipation",
-      "latest_score": 68
+      "latest_setup_type": "failed_breakout",
+      "latest_score": 33
     },
     {
-      "symbol": "3227",
-      "name": "原相",
+      "symbol": "3402",
+      "name": "漢科",
       "market": "otc",
-      "setup_type": "extended_watch",
+      "setup_type": "failed_breakout",
       "score": 73,
-      "date": "2026-06-30",
-      "close": 238.0,
-      "volume": 9213006,
-      "volume_ratio_20d": 5.9576,
-      "relative_strength_rank": 91.3295,
-      "pivot_price": 237.0,
-      "stop_reference": 212.0,
+      "date": "2026-07-01",
+      "close": 148.5,
+      "volume": 2234721,
+      "volume_ratio_20d": 2.2292,
+      "relative_strength_rank": 84.4907,
+      "pivot_price": 151.0,
+      "stop_reference": 137.5,
       "extended_risk": false,
       "risk_notes": [
-        "僅供研究與人工複核，不構成買賣建議",
-        "距離風險參考位置超過門檻"
+        "僅供研究與人工複核，不構成買賣建議"
       ],
-      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/3227.json",
-      "seen_date": "2026-06-30",
+      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/3402.json",
+      "seen_date": "2026-07-01",
       "seen_count": 4,
       "appearance_count": 4,
       "dates": [
-        "2026-06-24",
         "2026-06-25",
         "2026-06-29",
-        "2026-06-30"
+        "2026-06-30",
+        "2026-07-01"
       ],
       "setup_types": [
+        "breakout",
         "anticipation",
-        "failed_breakout",
         "anticipation",
-        "extended_watch"
+        "failed_breakout"
       ],
-      "latest_setup_type": "extended_watch",
+      "latest_setup_type": "failed_breakout",
       "latest_score": 73
     },
     {
-      "symbol": "6664",
-      "name": "群翊",
+      "symbol": "4542",
+      "name": "科嶠",
       "market": "otc",
-      "setup_type": "anticipation",
-      "score": 58,
-      "date": "2026-06-30",
-      "close": 391.0,
-      "volume": 538219,
-      "volume_ratio_20d": 1.3542,
-      "relative_strength_rank": 78.8439,
-      "pivot_price": 396.5,
-      "stop_reference": 363.0,
-      "extended_risk": false,
-      "risk_notes": [
-        "僅供研究與人工複核，不構成買賣建議"
-      ],
-      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/6664.json",
-      "seen_date": "2026-06-30",
-      "seen_count": 4,
-      "appearance_count": 4,
-      "dates": [
-        "2026-06-24",
-        "2026-06-25",
-        "2026-06-29",
-        "2026-06-30"
-      ],
-      "setup_types": [
-        "anticipation",
-        "anticipation",
-        "anticipation",
-        "anticipation"
-      ],
-      "latest_setup_type": "anticipation",
-      "latest_score": 58
-    },
-    {
-      "symbol": "3596",
-      "name": "智易",
-      "market": "listed",
-      "setup_type": "anticipation",
-      "score": 63,
-      "date": "2026-06-30",
-      "close": 192.0,
-      "volume": 2909517,
-      "volume_ratio_20d": 1.2258,
-      "relative_strength_rank": 66.1553,
-      "pivot_price": 196.5,
-      "stop_reference": 175.0,
-      "extended_risk": false,
-      "risk_notes": [
-        "僅供研究與人工複核，不構成買賣建議"
-      ],
-      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/3596.json",
-      "seen_date": "2026-06-30",
-      "seen_count": 4,
-      "appearance_count": 4,
-      "dates": [
-        "2026-06-24",
-        "2026-06-25",
-        "2026-06-29",
-        "2026-06-30"
-      ],
-      "setup_types": [
-        "anticipation",
-        "anticipation",
-        "anticipation",
-        "anticipation"
-      ],
-      "latest_setup_type": "anticipation",
-      "latest_score": 63
-    },
-    {
-      "symbol": "5328",
-      "name": "華容",
-      "market": "otc",
-      "setup_type": "failed_breakout",
-      "score": 48,
-      "date": "2026-06-29",
-      "close": 64.7,
-      "volume": 78555656,
-      "volume_ratio_20d": 2.0635,
-      "relative_strength_rank": 98.6079,
-      "pivot_price": 70.2,
-      "stop_reference": 48.2,
-      "extended_risk": false,
-      "risk_notes": [
-        "僅供研究與人工複核，不構成買賣建議",
-        "距離風險參考位置超過門檻"
-      ],
-      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/5328.json",
-      "seen_date": "2026-06-29",
-      "seen_count": 4,
-      "appearance_count": 4,
-      "dates": [
-        "2026-06-24",
-        "2026-06-25",
-        "2026-06-26",
-        "2026-06-29"
-      ],
-      "setup_types": [
-        "anticipation",
-        "extended_watch",
-        "extended_watch",
-        "failed_breakout"
-      ],
-      "latest_setup_type": "failed_breakout",
-      "latest_score": 48
-    },
-    {
-      "symbol": "1102",
-      "name": "亞泥",
-      "market": "listed",
-      "setup_type": "anticipation",
-      "score": 48,
-      "date": "2026-06-30",
-      "close": 35.0,
-      "volume": 22626307,
-      "volume_ratio_20d": 0.8585,
-      "relative_strength_rank": 44.2953,
-      "pivot_price": 36.5,
-      "stop_reference": 32.4,
-      "extended_risk": false,
-      "risk_notes": [
-        "僅供研究與人工複核，不構成買賣建議"
-      ],
-      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/1102.json",
-      "seen_date": "2026-06-30",
-      "seen_count": 4,
-      "appearance_count": 4,
-      "dates": [
-        "2026-06-24",
-        "2026-06-26",
-        "2026-06-29",
-        "2026-06-30"
-      ],
-      "setup_types": [
-        "anticipation",
-        "anticipation",
-        "anticipation",
-        "anticipation"
-      ],
-      "latest_setup_type": "anticipation",
-      "latest_score": 48
-    },
-    {
-      "symbol": "2645",
-      "name": "長榮航太",
-      "market": "listed",
-      "setup_type": "extended_watch",
-      "score": 73,
-      "date": "2026-06-30",
-      "close": 185.5,
-      "volume": 6148835,
-      "volume_ratio_20d": 3.9054,
-      "relative_strength_rank": 71.908,
-      "pivot_price": 180.0,
-      "stop_reference": 149.0,
-      "extended_risk": false,
-      "risk_notes": [
-        "僅供研究與人工複核，不構成買賣建議",
-        "距離風險參考位置超過門檻"
-      ],
-      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/2645.json",
-      "seen_date": "2026-06-30",
-      "seen_count": 4,
-      "appearance_count": 4,
-      "dates": [
-        "2026-06-24",
-        "2026-06-25",
-        "2026-06-29",
-        "2026-06-30"
-      ],
-      "setup_types": [
-        "anticipation",
-        "anticipation",
-        "failed_breakout",
-        "extended_watch"
-      ],
-      "latest_setup_type": "extended_watch",
-      "latest_score": 73
-    },
-    {
-      "symbol": "3093",
-      "name": "港建*",
-      "market": "otc",
-      "setup_type": "failed_breakout",
-      "score": 63,
-      "date": "2026-06-29",
-      "close": 69.6,
-      "volume": 5533743,
-      "volume_ratio_20d": 2.0845,
-      "relative_strength_rank": 91.9954,
-      "pivot_price": 74.6,
-      "stop_reference": 62.4,
-      "extended_risk": false,
-      "risk_notes": [
-        "僅供研究與人工複核，不構成買賣建議",
-        "距離風險參考位置超過門檻"
-      ],
-      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/3093.json",
-      "seen_date": "2026-06-29",
-      "seen_count": 4,
-      "appearance_count": 4,
-      "dates": [
-        "2026-06-24",
-        "2026-06-25",
-        "2026-06-26",
-        "2026-06-29"
-      ],
-      "setup_types": [
-        "extended_watch",
-        "failed_breakout",
-        "anticipation",
-        "failed_breakout"
-      ],
-      "latest_setup_type": "failed_breakout",
-      "latest_score": 63
-    },
-    {
-      "symbol": "6446",
-      "name": "藥華藥",
-      "market": "listed",
       "setup_type": "extended_watch",
       "score": 58,
-      "date": "2026-06-30",
-      "close": 1340.0,
-      "volume": 5135963,
-      "volume_ratio_20d": 1.6584,
-      "relative_strength_rank": 95.5896,
-      "pivot_price": 1270.0,
-      "stop_reference": 948.0,
-      "extended_risk": false,
+      "date": "2026-07-01",
+      "close": 494.0,
+      "volume": 379108,
+      "volume_ratio_20d": 1.1337,
+      "relative_strength_rank": 99.0741,
+      "pivot_price": 449.5,
+      "stop_reference": 342.5,
+      "extended_risk": true,
       "risk_notes": [
         "僅供研究與人工複核，不構成買賣建議",
+        "距離 pivot 已超過延伸風險門檻",
         "距離風險參考位置超過門檻"
       ],
-      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/6446.json",
-      "seen_date": "2026-06-30",
+      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/4542.json",
+      "seen_date": "2026-07-01",
       "seen_count": 4,
       "appearance_count": 4,
       "dates": [
-        "2026-06-24",
         "2026-06-25",
         "2026-06-29",
-        "2026-06-30"
+        "2026-06-30",
+        "2026-07-01"
       ],
       "setup_types": [
-        "extended_watch",
-        "extended_watch",
+        "anticipation",
+        "anticipation",
         "extended_watch",
         "extended_watch"
       ],
       "latest_setup_type": "extended_watch",
-      "latest_score": 58
-    },
-    {
-      "symbol": "6712",
-      "name": "長聖",
-      "market": "otc",
-      "setup_type": "failed_breakout",
-      "score": 63,
-      "date": "2026-06-30",
-      "close": 158.5,
-      "volume": 1479945,
-      "volume_ratio_20d": 2.4568,
-      "relative_strength_rank": 93.2948,
-      "pivot_price": 162.0,
-      "stop_reference": 137.0,
-      "extended_risk": false,
-      "risk_notes": [
-        "僅供研究與人工複核，不構成買賣建議",
-        "距離風險參考位置超過門檻"
-      ],
-      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/6712.json",
-      "seen_date": "2026-06-30",
-      "seen_count": 4,
-      "appearance_count": 4,
-      "dates": [
-        "2026-06-24",
-        "2026-06-25",
-        "2026-06-29",
-        "2026-06-30"
-      ],
-      "setup_types": [
-        "extended_watch",
-        "anticipation",
-        "failed_breakout",
-        "failed_breakout"
-      ],
-      "latest_setup_type": "failed_breakout",
-      "latest_score": 63
-    },
-    {
-      "symbol": "7631",
-      "name": "聚賢研發-創",
-      "market": "listed",
-      "setup_type": "extended_watch",
-      "score": 58,
-      "date": "2026-06-29",
-      "close": 177.0,
-      "volume": 1311212,
-      "volume_ratio_20d": 11.6926,
-      "relative_strength_rank": 88.2917,
-      "pivot_price": 169.0,
-      "stop_reference": 124.5,
-      "extended_risk": false,
-      "risk_notes": [
-        "僅供研究與人工複核，不構成買賣建議",
-        "距離風險參考位置超過門檻"
-      ],
-      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/7631.json",
-      "seen_date": "2026-06-29",
-      "seen_count": 4,
-      "appearance_count": 4,
-      "dates": [
-        "2026-06-24",
-        "2026-06-25",
-        "2026-06-26",
-        "2026-06-29"
-      ],
-      "setup_types": [
-        "extended_watch",
-        "extended_watch",
-        "failed_breakout",
-        "extended_watch"
-      ],
-      "latest_setup_type": "extended_watch",
-      "latest_score": 58
-    },
-    {
-      "symbol": "2483",
-      "name": "百容",
-      "market": "listed",
-      "setup_type": "failed_breakout",
-      "score": 58,
-      "date": "2026-06-29",
-      "close": 55.7,
-      "volume": 25252090,
-      "volume_ratio_20d": 3.5353,
-      "relative_strength_rank": 98.8484,
-      "pivot_price": 55.7,
-      "stop_reference": 35.65,
-      "extended_risk": false,
-      "risk_notes": [
-        "僅供研究與人工複核，不構成買賣建議",
-        "資券變化可能代表籌碼分歧，不可單獨視為買賣訊號",
-        "距離風險參考位置超過門檻"
-      ],
-      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/2483.json",
-      "seen_date": "2026-06-29",
-      "seen_count": 4,
-      "appearance_count": 4,
-      "dates": [
-        "2026-06-24",
-        "2026-06-25",
-        "2026-06-26",
-        "2026-06-29"
-      ],
-      "setup_types": [
-        "extended_watch",
-        "extended_watch",
-        "extended_watch",
-        "failed_breakout"
-      ],
-      "latest_setup_type": "failed_breakout",
       "latest_score": 58
     },
     {
@@ -874,6 +506,80 @@
       ],
       "latest_setup_type": "failed_breakout",
       "latest_score": 53
+    },
+    {
+      "symbol": "3596",
+      "name": "智易",
+      "market": "listed",
+      "setup_type": "anticipation",
+      "score": 58,
+      "date": "2026-07-01",
+      "close": 193.5,
+      "volume": 1866174,
+      "volume_ratio_20d": 0.7596,
+      "relative_strength_rank": 73.3014,
+      "pivot_price": 196.5,
+      "stop_reference": 175.0,
+      "extended_risk": false,
+      "risk_notes": [
+        "僅供研究與人工複核，不構成買賣建議",
+        "距離風險參考位置超過門檻"
+      ],
+      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/3596.json",
+      "seen_date": "2026-07-01",
+      "seen_count": 4,
+      "appearance_count": 4,
+      "dates": [
+        "2026-06-25",
+        "2026-06-29",
+        "2026-06-30",
+        "2026-07-01"
+      ],
+      "setup_types": [
+        "anticipation",
+        "anticipation",
+        "anticipation",
+        "anticipation"
+      ],
+      "latest_setup_type": "anticipation",
+      "latest_score": 58
+    },
+    {
+      "symbol": "6190",
+      "name": "萬泰科",
+      "market": "otc",
+      "setup_type": "anticipation",
+      "score": 63,
+      "date": "2026-07-01",
+      "close": 84.1,
+      "volume": 6060331,
+      "volume_ratio_20d": 1.4066,
+      "relative_strength_rank": 90.625,
+      "pivot_price": 85.5,
+      "stop_reference": 75.7,
+      "extended_risk": false,
+      "risk_notes": [
+        "僅供研究與人工複核，不構成買賣建議",
+        "距離風險參考位置超過門檻"
+      ],
+      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/6190.json",
+      "seen_date": "2026-07-01",
+      "seen_count": 4,
+      "appearance_count": 4,
+      "dates": [
+        "2026-06-25",
+        "2026-06-26",
+        "2026-06-30",
+        "2026-07-01"
+      ],
+      "setup_types": [
+        "anticipation",
+        "anticipation",
+        "anticipation",
+        "anticipation"
+      ],
+      "latest_setup_type": "anticipation",
+      "latest_score": 63
     },
     {
       "symbol": "8936",
@@ -949,24 +655,134 @@
       "latest_score": 43
     },
     {
-      "symbol": "2415",
-      "name": "錩新",
+      "symbol": "1210",
+      "name": "大成",
       "market": "listed",
+      "setup_type": "anticipation",
+      "score": 68,
+      "date": "2026-07-01",
+      "close": 55.8,
+      "volume": 2774240,
+      "volume_ratio_20d": 0.515,
+      "relative_strength_rank": 46.4115,
+      "pivot_price": 56.0,
+      "stop_reference": 51.6,
+      "extended_risk": false,
+      "risk_notes": [
+        "僅供研究與人工複核，不構成買賣建議"
+      ],
+      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/1210.json",
+      "seen_date": "2026-07-01",
+      "seen_count": 4,
+      "appearance_count": 4,
+      "dates": [
+        "2026-06-25",
+        "2026-06-29",
+        "2026-06-30",
+        "2026-07-01"
+      ],
+      "setup_types": [
+        "anticipation",
+        "anticipation",
+        "anticipation",
+        "anticipation"
+      ],
+      "latest_setup_type": "anticipation",
+      "latest_score": 68
+    },
+    {
+      "symbol": "2645",
+      "name": "長榮航太",
+      "market": "listed",
+      "setup_type": "extended_watch",
+      "score": 78,
+      "date": "2026-07-01",
+      "close": 204.0,
+      "volume": 6071400,
+      "volume_ratio_20d": 3.4714,
+      "relative_strength_rank": 80.3828,
+      "pivot_price": 186.5,
+      "stop_reference": 150.0,
+      "extended_risk": true,
+      "risk_notes": [
+        "僅供研究與人工複核，不構成買賣建議",
+        "距離 pivot 已超過延伸風險門檻",
+        "距離風險參考位置超過門檻"
+      ],
+      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/2645.json",
+      "seen_date": "2026-07-01",
+      "seen_count": 4,
+      "appearance_count": 4,
+      "dates": [
+        "2026-06-25",
+        "2026-06-29",
+        "2026-06-30",
+        "2026-07-01"
+      ],
+      "setup_types": [
+        "anticipation",
+        "failed_breakout",
+        "extended_watch",
+        "extended_watch"
+      ],
+      "latest_setup_type": "extended_watch",
+      "latest_score": 78
+    },
+    {
+      "symbol": "6664",
+      "name": "群翊",
+      "market": "otc",
       "setup_type": "failed_breakout",
-      "score": 38,
+      "score": 78,
+      "date": "2026-07-01",
+      "close": 397.5,
+      "volume": 1018398,
+      "volume_ratio_20d": 2.5071,
+      "relative_strength_rank": 83.4491,
+      "pivot_price": 396.5,
+      "stop_reference": 363.0,
+      "extended_risk": false,
+      "risk_notes": [
+        "僅供研究與人工複核，不構成買賣建議"
+      ],
+      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/6664.json",
+      "seen_date": "2026-07-01",
+      "seen_count": 4,
+      "appearance_count": 4,
+      "dates": [
+        "2026-06-25",
+        "2026-06-29",
+        "2026-06-30",
+        "2026-07-01"
+      ],
+      "setup_types": [
+        "anticipation",
+        "anticipation",
+        "anticipation",
+        "failed_breakout"
+      ],
+      "latest_setup_type": "failed_breakout",
+      "latest_score": 78
+    },
+    {
+      "symbol": "4707",
+      "name": "磐亞",
+      "market": "otc",
+      "setup_type": "failed_breakout",
+      "score": 48,
       "date": "2026-06-30",
-      "close": 37.5,
-      "volume": 2796886,
-      "volume_ratio_20d": 3.6177,
-      "relative_strength_rank": 75.2637,
-      "pivot_price": 37.9,
-      "stop_reference": 28.2,
+      "close": 29.3,
+      "volume": 23726003,
+      "volume_ratio_20d": 4.0202,
+      "relative_strength_rank": 99.3064,
+      "pivot_price": 30.3,
+      "stop_reference": 20.4,
       "extended_risk": false,
       "risk_notes": [
         "僅供研究與人工複核，不構成買賣建議",
         "距離風險參考位置超過門檻"
       ],
-      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/2415.json",
+      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/4707.json",
       "seen_date": "2026-06-30",
       "seen_count": 4,
       "appearance_count": 4,
@@ -978,328 +794,380 @@
       ],
       "setup_types": [
         "extended_watch",
-        "failed_breakout",
+        "extended_watch",
         "extended_watch",
         "failed_breakout"
       ],
       "latest_setup_type": "failed_breakout",
-      "latest_score": 38
+      "latest_score": 48
     },
     {
-      "symbol": "6584",
-      "name": "南俊國際",
+      "symbol": "5328",
+      "name": "華容",
       "market": "otc",
-      "setup_type": "failed_breakout",
-      "score": 68,
-      "date": "2026-06-26",
-      "close": 708.0,
-      "volume": 2286804,
-      "volume_ratio_20d": 3.4346,
-      "relative_strength_rank": 95.9491,
-      "pivot_price": 728.0,
-      "stop_reference": 591.0,
+      "setup_type": "extended_watch",
+      "score": 58,
+      "date": "2026-07-01",
+      "close": 78.2,
+      "volume": 25456215,
+      "volume_ratio_20d": 0.6402,
+      "relative_strength_rank": 99.6528,
+      "pivot_price": 74.3,
+      "stop_reference": 48.2,
       "extended_risk": false,
       "risk_notes": [
         "僅供研究與人工複核，不構成買賣建議",
+        "資券變化可能代表籌碼分歧，不可單獨視為買賣訊號",
         "距離風險參考位置超過門檻"
       ],
-      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/6584.json",
-      "seen_date": "2026-06-26",
-      "seen_count": 3,
-      "appearance_count": 3,
+      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/5328.json",
+      "seen_date": "2026-07-01",
+      "seen_count": 4,
+      "appearance_count": 4,
       "dates": [
-        "2026-06-24",
         "2026-06-25",
-        "2026-06-26"
+        "2026-06-26",
+        "2026-06-29",
+        "2026-07-01"
       ],
       "setup_types": [
-        "anticipation",
         "extended_watch",
-        "failed_breakout"
+        "extended_watch",
+        "failed_breakout",
+        "extended_watch"
       ],
-      "latest_setup_type": "failed_breakout",
-      "latest_score": 68
+      "latest_setup_type": "extended_watch",
+      "latest_score": 58
     },
     {
-      "symbol": "3217",
-      "name": "優群",
+      "symbol": "4743",
+      "name": "合一",
       "market": "otc",
       "setup_type": "anticipation",
-      "score": 68,
-      "date": "2026-06-26",
-      "close": 182.0,
-      "volume": 1745813,
-      "volume_ratio_20d": 1.7678,
-      "relative_strength_rank": 92.2454,
-      "pivot_price": 188.5,
-      "stop_reference": 166.5,
+      "score": 63,
+      "date": "2026-07-01",
+      "close": 51.8,
+      "volume": 2505873,
+      "volume_ratio_20d": 1.2695,
+      "relative_strength_rank": 88.3102,
+      "pivot_price": 53.7,
+      "stop_reference": 47.3,
       "extended_risk": false,
       "risk_notes": [
         "僅供研究與人工複核，不構成買賣建議"
       ],
-      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/3217.json",
-      "seen_date": "2026-06-26",
-      "seen_count": 3,
-      "appearance_count": 3,
+      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/4743.json",
+      "seen_date": "2026-07-01",
+      "seen_count": 4,
+      "appearance_count": 4,
       "dates": [
-        "2026-06-24",
         "2026-06-25",
-        "2026-06-26"
+        "2026-06-29",
+        "2026-06-30",
+        "2026-07-01"
       ],
       "setup_types": [
+        "failed_breakout",
         "anticipation",
         "extended_watch",
         "anticipation"
       ],
       "latest_setup_type": "anticipation",
-      "latest_score": 68
+      "latest_score": 63
     },
     {
-      "symbol": "5371",
-      "name": "中光電",
+      "symbol": "3093",
+      "name": "港建*",
+      "market": "otc",
+      "setup_type": "anticipation",
+      "score": 58,
+      "date": "2026-07-01",
+      "close": 75.0,
+      "volume": 6706062,
+      "volume_ratio_20d": 2.3233,
+      "relative_strength_rank": 94.5602,
+      "pivot_price": 77.7,
+      "stop_reference": 62.4,
+      "extended_risk": false,
+      "risk_notes": [
+        "僅供研究與人工複核，不構成買賣建議",
+        "距離風險參考位置超過門檻"
+      ],
+      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/3093.json",
+      "seen_date": "2026-07-01",
+      "seen_count": 4,
+      "appearance_count": 4,
+      "dates": [
+        "2026-06-25",
+        "2026-06-26",
+        "2026-06-29",
+        "2026-07-01"
+      ],
+      "setup_types": [
+        "failed_breakout",
+        "anticipation",
+        "failed_breakout",
+        "anticipation"
+      ],
+      "latest_setup_type": "anticipation",
+      "latest_score": 58
+    },
+    {
+      "symbol": "3227",
+      "name": "原相",
+      "market": "otc",
+      "setup_type": "failed_breakout",
+      "score": 63,
+      "date": "2026-07-01",
+      "close": 230.5,
+      "volume": 10336418,
+      "volume_ratio_20d": 5.2286,
+      "relative_strength_rank": 85.4167,
+      "pivot_price": 241.0,
+      "stop_reference": 212.0,
+      "extended_risk": false,
+      "risk_notes": [
+        "僅供研究與人工複核，不構成買賣建議"
+      ],
+      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/3227.json",
+      "seen_date": "2026-07-01",
+      "seen_count": 4,
+      "appearance_count": 4,
+      "dates": [
+        "2026-06-25",
+        "2026-06-29",
+        "2026-06-30",
+        "2026-07-01"
+      ],
+      "setup_types": [
+        "failed_breakout",
+        "anticipation",
+        "extended_watch",
+        "failed_breakout"
+      ],
+      "latest_setup_type": "failed_breakout",
+      "latest_score": 63
+    },
+    {
+      "symbol": "5876",
+      "name": "上海商銀",
+      "market": "listed",
+      "setup_type": "anticipation",
+      "score": 63,
+      "date": "2026-07-01",
+      "close": 42.4,
+      "volume": 6454257,
+      "volume_ratio_20d": 0.4543,
+      "relative_strength_rank": 55.5024,
+      "pivot_price": 43.5,
+      "stop_reference": 38.65,
+      "extended_risk": false,
+      "risk_notes": [
+        "僅供研究與人工複核，不構成買賣建議"
+      ],
+      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/5876.json",
+      "seen_date": "2026-07-01",
+      "seen_count": 4,
+      "appearance_count": 4,
+      "dates": [
+        "2026-06-26",
+        "2026-06-29",
+        "2026-06-30",
+        "2026-07-01"
+      ],
+      "setup_types": [
+        "anticipation",
+        "anticipation",
+        "anticipation",
+        "anticipation"
+      ],
+      "latest_setup_type": "anticipation",
+      "latest_score": 63
+    },
+    {
+      "symbol": "1102",
+      "name": "亞泥",
+      "market": "listed",
+      "setup_type": "anticipation",
+      "score": 53,
+      "date": "2026-07-01",
+      "close": 35.1,
+      "volume": 86002108,
+      "volume_ratio_20d": 4.9925,
+      "relative_strength_rank": 40.0,
+      "pivot_price": 36.5,
+      "stop_reference": 32.4,
+      "extended_risk": false,
+      "risk_notes": [
+        "僅供研究與人工複核，不構成買賣建議"
+      ],
+      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/1102.json",
+      "seen_date": "2026-07-01",
+      "seen_count": 4,
+      "appearance_count": 4,
+      "dates": [
+        "2026-06-26",
+        "2026-06-29",
+        "2026-06-30",
+        "2026-07-01"
+      ],
+      "setup_types": [
+        "anticipation",
+        "anticipation",
+        "anticipation",
+        "anticipation"
+      ],
+      "latest_setup_type": "anticipation",
+      "latest_score": 53
+    },
+    {
+      "symbol": "2634",
+      "name": "漢翔",
+      "market": "listed",
+      "setup_type": "failed_breakout",
+      "score": 58,
+      "date": "2026-07-01",
+      "close": 56.2,
+      "volume": 57139262,
+      "volume_ratio_20d": 5.9967,
+      "relative_strength_rank": 66.5072,
+      "pivot_price": 57.2,
+      "stop_reference": 46.05,
+      "extended_risk": false,
+      "risk_notes": [
+        "僅供研究與人工複核，不構成買賣建議",
+        "距離風險參考位置超過門檻"
+      ],
+      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/2634.json",
+      "seen_date": "2026-07-01",
+      "seen_count": 4,
+      "appearance_count": 4,
+      "dates": [
+        "2026-06-26",
+        "2026-06-29",
+        "2026-06-30",
+        "2026-07-01"
+      ],
+      "setup_types": [
+        "anticipation",
+        "extended_watch",
+        "extended_watch",
+        "failed_breakout"
+      ],
+      "latest_setup_type": "failed_breakout",
+      "latest_score": 58
+    },
+    {
+      "symbol": "1718",
+      "name": "中纖",
+      "market": "listed",
+      "setup_type": "failed_breakout",
+      "score": 53,
+      "date": "2026-07-01",
+      "close": 12.4,
+      "volume": 292901081,
+      "volume_ratio_20d": 7.1439,
+      "relative_strength_rank": 88.8995,
+      "pivot_price": 13.45,
+      "stop_reference": 8.96,
+      "extended_risk": false,
+      "risk_notes": [
+        "僅供研究與人工複核，不構成買賣建議",
+        "距離風險參考位置超過門檻"
+      ],
+      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/1718.json",
+      "seen_date": "2026-07-01",
+      "seen_count": 4,
+      "appearance_count": 4,
+      "dates": [
+        "2026-06-26",
+        "2026-06-29",
+        "2026-06-30",
+        "2026-07-01"
+      ],
+      "setup_types": [
+        "extended_watch",
+        "extended_watch",
+        "extended_watch",
+        "failed_breakout"
+      ],
+      "latest_setup_type": "failed_breakout",
+      "latest_score": 53
+    },
+    {
+      "symbol": "3230",
+      "name": "錦明",
       "market": "otc",
       "setup_type": "extended_watch",
-      "score": 73,
-      "date": "2026-06-30",
-      "close": 86.9,
-      "volume": 42625360,
-      "volume_ratio_20d": 8.231,
-      "relative_strength_rank": 98.2659,
-      "pivot_price": 80.4,
-      "stop_reference": 67.0,
+      "score": 53,
+      "date": "2026-07-01",
+      "close": 47.6,
+      "volume": 1930748,
+      "volume_ratio_20d": 0.918,
+      "relative_strength_rank": 100.0,
+      "pivot_price": 46.45,
+      "stop_reference": 28.2,
+      "extended_risk": false,
+      "risk_notes": [
+        "僅供研究與人工複核，不構成買賣建議",
+        "距離風險參考位置超過門檻"
+      ],
+      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/3230.json",
+      "seen_date": "2026-07-01",
+      "seen_count": 4,
+      "appearance_count": 4,
+      "dates": [
+        "2026-06-26",
+        "2026-06-29",
+        "2026-06-30",
+        "2026-07-01"
+      ],
+      "setup_types": [
+        "extended_watch",
+        "extended_watch",
+        "extended_watch",
+        "extended_watch"
+      ],
+      "latest_setup_type": "extended_watch",
+      "latest_score": 53
+    },
+    {
+      "symbol": "1617",
+      "name": "榮星",
+      "market": "listed",
+      "setup_type": "extended_watch",
+      "score": 53,
+      "date": "2026-07-01",
+      "close": 22.85,
+      "volume": 1058759,
+      "volume_ratio_20d": 1.9141,
+      "relative_strength_rank": 87.6555,
+      "pivot_price": 20.8,
+      "stop_reference": 15.75,
       "extended_risk": true,
       "risk_notes": [
         "僅供研究與人工複核，不構成買賣建議",
-        "資券變化可能代表籌碼分歧，不可單獨視為買賣訊號",
         "距離 pivot 已超過延伸風險門檻",
         "距離風險參考位置超過門檻"
       ],
-      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/5371.json",
-      "seen_date": "2026-06-30",
-      "seen_count": 3,
-      "appearance_count": 3,
+      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/1617.json",
+      "seen_date": "2026-07-01",
+      "seen_count": 4,
+      "appearance_count": 4,
       "dates": [
-        "2026-06-24",
+        "2026-06-26",
         "2026-06-29",
-        "2026-06-30"
+        "2026-06-30",
+        "2026-07-01"
       ],
       "setup_types": [
-        "anticipation",
-        "anticipation",
+        "failed_breakout",
+        "extended_watch",
+        "extended_watch",
         "extended_watch"
       ],
       "latest_setup_type": "extended_watch",
-      "latest_score": 73
-    },
-    {
-      "symbol": "1815",
-      "name": "富喬",
-      "market": "otc",
-      "setup_type": "extended_watch",
-      "score": 83,
-      "date": "2026-06-30",
-      "close": 111.0,
-      "volume": 68687816,
-      "volume_ratio_20d": 2.546,
-      "relative_strength_rank": 94.7977,
-      "pivot_price": 110.5,
-      "stop_reference": 94.2,
-      "extended_risk": false,
-      "risk_notes": [
-        "僅供研究與人工複核，不構成買賣建議",
-        "資券變化可能代表籌碼分歧，不可單獨視為買賣訊號",
-        "距離風險參考位置超過門檻"
-      ],
-      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/1815.json",
-      "seen_date": "2026-06-30",
-      "seen_count": 3,
-      "appearance_count": 3,
-      "dates": [
-        "2026-06-24",
-        "2026-06-25",
-        "2026-06-30"
-      ],
-      "setup_types": [
-        "anticipation",
-        "anticipation",
-        "extended_watch"
-      ],
-      "latest_setup_type": "extended_watch",
-      "latest_score": 83
-    },
-    {
-      "symbol": "6127",
-      "name": "九豪",
-      "market": "otc",
-      "setup_type": "failed_breakout",
-      "score": 68,
-      "date": "2026-06-26",
-      "close": 91.4,
-      "volume": 8985186,
-      "volume_ratio_20d": 1.8781,
-      "relative_strength_rank": 97.1065,
-      "pivot_price": 93.6,
-      "stop_reference": 76.0,
-      "extended_risk": false,
-      "risk_notes": [
-        "僅供研究與人工複核，不構成買賣建議",
-        "距離風險參考位置超過門檻"
-      ],
-      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/6127.json",
-      "seen_date": "2026-06-26",
-      "seen_count": 3,
-      "appearance_count": 3,
-      "dates": [
-        "2026-06-24",
-        "2026-06-25",
-        "2026-06-26"
-      ],
-      "setup_types": [
-        "anticipation",
-        "extended_watch",
-        "failed_breakout"
-      ],
-      "latest_setup_type": "failed_breakout",
-      "latest_score": 68
-    },
-    {
-      "symbol": "3479",
-      "name": "安勤",
-      "market": "otc",
-      "setup_type": "failed_breakout",
-      "score": 68,
-      "date": "2026-06-26",
-      "close": 142.5,
-      "volume": 5946205,
-      "volume_ratio_20d": 3.9708,
-      "relative_strength_rank": 94.5602,
-      "pivot_price": 146.5,
-      "stop_reference": 125.5,
-      "extended_risk": false,
-      "risk_notes": [
-        "僅供研究與人工複核，不構成買賣建議",
-        "距離風險參考位置超過門檻"
-      ],
-      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/3479.json",
-      "seen_date": "2026-06-26",
-      "seen_count": 3,
-      "appearance_count": 3,
-      "dates": [
-        "2026-06-24",
-        "2026-06-25",
-        "2026-06-26"
-      ],
-      "setup_types": [
-        "anticipation",
-        "extended_watch",
-        "failed_breakout"
-      ],
-      "latest_setup_type": "failed_breakout",
-      "latest_score": 68
-    },
-    {
-      "symbol": "6173",
-      "name": "信昌電",
-      "market": "otc",
-      "setup_type": "anticipation",
-      "score": 68,
-      "date": "2026-06-30",
-      "close": 310.5,
-      "volume": 1236119,
-      "volume_ratio_20d": 0.0599,
-      "relative_strength_rank": 88.0925,
-      "pivot_price": 318.0,
-      "stop_reference": 267.0,
-      "extended_risk": false,
-      "risk_notes": [
-        "僅供研究與人工複核，不構成買賣建議",
-        "距離風險參考位置超過門檻"
-      ],
-      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/6173.json",
-      "seen_date": "2026-06-30",
-      "seen_count": 3,
-      "appearance_count": 3,
-      "dates": [
-        "2026-06-24",
-        "2026-06-25",
-        "2026-06-30"
-      ],
-      "setup_types": [
-        "anticipation",
-        "anticipation",
-        "anticipation"
-      ],
-      "latest_setup_type": "anticipation",
-      "latest_score": 68
-    },
-    {
-      "symbol": "8932",
-      "name": "智通*",
-      "market": "otc",
-      "setup_type": "failed_breakout",
-      "score": 63,
-      "date": "2026-06-26",
-      "close": 111.0,
-      "volume": 20427607,
-      "volume_ratio_20d": 5.9326,
-      "relative_strength_rank": 92.7083,
-      "pivot_price": 114.5,
-      "stop_reference": 98.5,
-      "extended_risk": false,
-      "risk_notes": [
-        "僅供研究與人工複核，不構成買賣建議",
-        "距離風險參考位置超過門檻"
-      ],
-      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/8932.json",
-      "seen_date": "2026-06-26",
-      "seen_count": 3,
-      "appearance_count": 3,
-      "dates": [
-        "2026-06-24",
-        "2026-06-25",
-        "2026-06-26"
-      ],
-      "setup_types": [
-        "anticipation",
-        "extended_watch",
-        "failed_breakout"
-      ],
-      "latest_setup_type": "failed_breakout",
-      "latest_score": 63
-    },
-    {
-      "symbol": "8096",
-      "name": "擎亞",
-      "market": "otc",
-      "setup_type": "anticipation",
-      "score": 63,
-      "date": "2026-06-30",
-      "close": 154.5,
-      "volume": 1658342,
-      "volume_ratio_20d": 0.1362,
-      "relative_strength_rank": 88.4393,
-      "pivot_price": 162.0,
-      "stop_reference": 141.5,
-      "extended_risk": false,
-      "risk_notes": [
-        "僅供研究與人工複核，不構成買賣建議"
-      ],
-      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/8096.json",
-      "seen_date": "2026-06-30",
-      "seen_count": 3,
-      "appearance_count": 3,
-      "dates": [
-        "2026-06-24",
-        "2026-06-25",
-        "2026-06-30"
-      ],
-      "setup_types": [
-        "anticipation",
-        "anticipation",
-        "anticipation"
-      ],
-      "latest_setup_type": "anticipation",
-      "latest_score": 63
+      "latest_score": 53
     },
     {
       "symbol": "6290",
@@ -1307,11 +1175,11 @@
       "market": "otc",
       "setup_type": "anticipation",
       "score": 58,
-      "date": "2026-06-30",
-      "close": 308.5,
-      "volume": 2479742,
-      "volume_ratio_20d": 0.7035,
-      "relative_strength_rank": 79.0751,
+      "date": "2026-07-01",
+      "close": 308.0,
+      "volume": 4208862,
+      "volume_ratio_20d": 1.201,
+      "relative_strength_rank": 76.9676,
       "pivot_price": 321.0,
       "stop_reference": 291.5,
       "extended_risk": false,
@@ -1319,13 +1187,13 @@
         "僅供研究與人工複核，不構成買賣建議"
       ],
       "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/6290.json",
-      "seen_date": "2026-06-30",
+      "seen_date": "2026-07-01",
       "seen_count": 3,
       "appearance_count": 3,
       "dates": [
-        "2026-06-24",
         "2026-06-25",
-        "2026-06-30"
+        "2026-06-30",
+        "2026-07-01"
       ],
       "setup_types": [
         "anticipation",
@@ -1336,101 +1204,30 @@
       "latest_score": 58
     },
     {
-      "symbol": "6491",
-      "name": "晶碩",
+      "symbol": "2727",
+      "name": "王品",
       "market": "listed",
-      "setup_type": "extended_watch",
-      "score": 73,
-      "date": "2026-06-30",
-      "close": 345.0,
-      "volume": 975032,
-      "volume_ratio_20d": 2.1757,
-      "relative_strength_rank": 74.4008,
-      "pivot_price": 332.5,
-      "stop_reference": 286.0,
-      "extended_risk": false,
-      "risk_notes": [
-        "僅供研究與人工複核，不構成買賣建議",
-        "距離風險參考位置超過門檻"
-      ],
-      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/6491.json",
-      "seen_date": "2026-06-30",
-      "seen_count": 3,
-      "appearance_count": 3,
-      "dates": [
-        "2026-06-24",
-        "2026-06-29",
-        "2026-06-30"
-      ],
-      "setup_types": [
-        "anticipation",
-        "anticipation",
-        "extended_watch"
-      ],
-      "latest_setup_type": "extended_watch",
-      "latest_score": 73
-    },
-    {
-      "symbol": "5314",
-      "name": "世紀*",
-      "market": "otc",
-      "setup_type": "extended_watch",
-      "score": 78,
-      "date": "2026-06-30",
-      "close": 66.8,
-      "volume": 17703130,
-      "volume_ratio_20d": 6.2767,
-      "relative_strength_rank": 95.2601,
-      "pivot_price": 62.5,
-      "stop_reference": 55.3,
-      "extended_risk": false,
-      "risk_notes": [
-        "僅供研究與人工複核，不構成買賣建議",
-        "資券變化可能代表籌碼分歧，不可單獨視為買賣訊號",
-        "距離風險參考位置超過門檻"
-      ],
-      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/5314.json",
-      "seen_date": "2026-06-30",
-      "seen_count": 3,
-      "appearance_count": 3,
-      "dates": [
-        "2026-06-24",
-        "2026-06-29",
-        "2026-06-30"
-      ],
-      "setup_types": [
-        "anticipation",
-        "anticipation",
-        "extended_watch"
-      ],
-      "latest_setup_type": "extended_watch",
-      "latest_score": 78
-    },
-    {
-      "symbol": "3088",
-      "name": "艾訊",
-      "market": "otc",
       "setup_type": "anticipation",
-      "score": 73,
-      "date": "2026-06-30",
-      "close": 143.5,
-      "volume": 910239,
-      "volume_ratio_20d": 0.6243,
-      "relative_strength_rank": 82.0809,
-      "pivot_price": 146.5,
-      "stop_reference": 133.5,
+      "score": 68,
+      "date": "2026-07-01",
+      "close": 247.5,
+      "volume": 531045,
+      "volume_ratio_20d": 1.1008,
+      "relative_strength_rank": 58.756,
+      "pivot_price": 251.5,
+      "stop_reference": 228.0,
       "extended_risk": false,
       "risk_notes": [
         "僅供研究與人工複核，不構成買賣建議"
       ],
-      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/3088.json",
-      "seen_date": "2026-06-30",
+      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/2727.json",
+      "seen_date": "2026-07-01",
       "seen_count": 3,
       "appearance_count": 3,
       "dates": [
-        "2026-06-24",
         "2026-06-25",
-        "2026-06-30"
+        "2026-06-26",
+        "2026-07-01"
       ],
       "setup_types": [
         "anticipation",
@@ -1438,6 +1235,216 @@
         "anticipation"
       ],
       "latest_setup_type": "anticipation",
+      "latest_score": 68
+    },
+    {
+      "symbol": "1815",
+      "name": "富喬",
+      "market": "otc",
+      "setup_type": "failed_breakout",
+      "score": 63,
+      "date": "2026-07-01",
+      "close": 104.0,
+      "volume": 94589543,
+      "volume_ratio_20d": 3.2407,
+      "relative_strength_rank": 90.0463,
+      "pivot_price": 111.0,
+      "stop_reference": 94.2,
+      "extended_risk": false,
+      "risk_notes": [
+        "僅供研究與人工複核，不構成買賣建議",
+        "距離風險參考位置超過門檻"
+      ],
+      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/1815.json",
+      "seen_date": "2026-07-01",
+      "seen_count": 3,
+      "appearance_count": 3,
+      "dates": [
+        "2026-06-25",
+        "2026-06-30",
+        "2026-07-01"
+      ],
+      "setup_types": [
+        "anticipation",
+        "extended_watch",
+        "failed_breakout"
+      ],
+      "latest_setup_type": "failed_breakout",
+      "latest_score": 63
+    },
+    {
+      "symbol": "6712",
+      "name": "長聖",
+      "market": "otc",
+      "setup_type": "failed_breakout",
+      "score": 63,
+      "date": "2026-06-30",
+      "close": 158.5,
+      "volume": 1479945,
+      "volume_ratio_20d": 2.4568,
+      "relative_strength_rank": 93.2948,
+      "pivot_price": 162.0,
+      "stop_reference": 137.0,
+      "extended_risk": false,
+      "risk_notes": [
+        "僅供研究與人工複核，不構成買賣建議",
+        "距離風險參考位置超過門檻"
+      ],
+      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/6712.json",
+      "seen_date": "2026-06-30",
+      "seen_count": 3,
+      "appearance_count": 3,
+      "dates": [
+        "2026-06-25",
+        "2026-06-29",
+        "2026-06-30"
+      ],
+      "setup_types": [
+        "anticipation",
+        "failed_breakout",
+        "failed_breakout"
+      ],
+      "latest_setup_type": "failed_breakout",
+      "latest_score": 63
+    },
+    {
+      "symbol": "5434",
+      "name": "崇越",
+      "market": "listed",
+      "setup_type": "failed_breakout",
+      "score": 78,
+      "date": "2026-06-30",
+      "close": 549.0,
+      "volume": 5191915,
+      "volume_ratio_20d": 4.3125,
+      "relative_strength_rank": 91.5628,
+      "pivot_price": 539.0,
+      "stop_reference": 434.5,
+      "extended_risk": false,
+      "risk_notes": [
+        "僅供研究與人工複核，不構成買賣建議",
+        "距離風險參考位置超過門檻"
+      ],
+      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/5434.json",
+      "seen_date": "2026-06-30",
+      "seen_count": 3,
+      "appearance_count": 3,
+      "dates": [
+        "2026-06-25",
+        "2026-06-29",
+        "2026-06-30"
+      ],
+      "setup_types": [
+        "anticipation",
+        "extended_watch",
+        "failed_breakout"
+      ],
+      "latest_setup_type": "failed_breakout",
+      "latest_score": 78
+    },
+    {
+      "symbol": "5904",
+      "name": "寶雅",
+      "market": "otc",
+      "setup_type": "failed_breakout",
+      "score": 68,
+      "date": "2026-07-01",
+      "close": 682.0,
+      "volume": 667397,
+      "volume_ratio_20d": 2.1224,
+      "relative_strength_rank": 89.2361,
+      "pivot_price": 688.0,
+      "stop_reference": 612.0,
+      "extended_risk": false,
+      "risk_notes": [
+        "僅供研究與人工複核，不構成買賣建議",
+        "距離風險參考位置超過門檻"
+      ],
+      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/5904.json",
+      "seen_date": "2026-07-01",
+      "seen_count": 3,
+      "appearance_count": 3,
+      "dates": [
+        "2026-06-25",
+        "2026-06-30",
+        "2026-07-01"
+      ],
+      "setup_types": [
+        "anticipation",
+        "anticipation",
+        "failed_breakout"
+      ],
+      "latest_setup_type": "failed_breakout",
+      "latest_score": 68
+    },
+    {
+      "symbol": "2476",
+      "name": "鉅祥",
+      "market": "listed",
+      "setup_type": "anticipation",
+      "score": 58,
+      "date": "2026-07-01",
+      "close": 128.5,
+      "volume": 4229302,
+      "volume_ratio_20d": 0.9321,
+      "relative_strength_rank": 86.3158,
+      "pivot_price": 135.0,
+      "stop_reference": 108.0,
+      "extended_risk": false,
+      "risk_notes": [
+        "僅供研究與人工複核，不構成買賣建議",
+        "距離風險參考位置超過門檻"
+      ],
+      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/2476.json",
+      "seen_date": "2026-07-01",
+      "seen_count": 3,
+      "appearance_count": 3,
+      "dates": [
+        "2026-06-25",
+        "2026-06-30",
+        "2026-07-01"
+      ],
+      "setup_types": [
+        "anticipation",
+        "anticipation",
+        "anticipation"
+      ],
+      "latest_setup_type": "anticipation",
+      "latest_score": 58
+    },
+    {
+      "symbol": "6173",
+      "name": "信昌電",
+      "market": "otc",
+      "setup_type": "extended_watch",
+      "score": 73,
+      "date": "2026-07-01",
+      "close": 341.5,
+      "volume": 3051874,
+      "volume_ratio_20d": 0.1604,
+      "relative_strength_rank": 95.6019,
+      "pivot_price": 318.0,
+      "stop_reference": 267.0,
+      "extended_risk": false,
+      "risk_notes": [
+        "僅供研究與人工複核，不構成買賣建議",
+        "距離風險參考位置超過門檻"
+      ],
+      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/6173.json",
+      "seen_date": "2026-07-01",
+      "seen_count": 3,
+      "appearance_count": 3,
+      "dates": [
+        "2026-06-25",
+        "2026-06-30",
+        "2026-07-01"
+      ],
+      "setup_types": [
+        "anticipation",
+        "anticipation",
+        "extended_watch"
+      ],
+      "latest_setup_type": "extended_watch",
       "latest_score": 73
     },
     {
@@ -1446,11 +1453,11 @@
       "market": "listed",
       "setup_type": "anticipation",
       "score": 53,
-      "date": "2026-06-26",
-      "close": 92.8,
-      "volume": 7519776,
-      "volume_ratio_20d": 0.7664,
-      "relative_strength_rank": 71.785,
+      "date": "2026-07-01",
+      "close": 93.6,
+      "volume": 8224043,
+      "volume_ratio_20d": 0.7934,
+      "relative_strength_rank": 72.5359,
       "pivot_price": 97.1,
       "stop_reference": 81.6,
       "extended_risk": false,
@@ -1459,13 +1466,13 @@
         "距離風險參考位置超過門檻"
       ],
       "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/2347.json",
-      "seen_date": "2026-06-26",
+      "seen_date": "2026-07-01",
       "seen_count": 3,
       "appearance_count": 3,
       "dates": [
-        "2026-06-24",
         "2026-06-25",
-        "2026-06-26"
+        "2026-06-26",
+        "2026-07-01"
       ],
       "setup_types": [
         "anticipation",
@@ -1476,50 +1483,16 @@
       "latest_score": 53
     },
     {
-      "symbol": "3689",
-      "name": "湧德",
-      "market": "otc",
-      "setup_type": "anticipation",
-      "score": 63,
-      "date": "2026-06-30",
-      "close": 120.0,
-      "volume": 1536151,
-      "volume_ratio_20d": 1.1624,
-      "relative_strength_rank": 72.1387,
-      "pivot_price": 122.0,
-      "stop_reference": 112.0,
-      "extended_risk": false,
-      "risk_notes": [
-        "僅供研究與人工複核，不構成買賣建議"
-      ],
-      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/3689.json",
-      "seen_date": "2026-06-30",
-      "seen_count": 3,
-      "appearance_count": 3,
-      "dates": [
-        "2026-06-24",
-        "2026-06-25",
-        "2026-06-30"
-      ],
-      "setup_types": [
-        "anticipation",
-        "anticipation",
-        "anticipation"
-      ],
-      "latest_setup_type": "anticipation",
-      "latest_score": 63
-    },
-    {
       "symbol": "3592",
       "name": "瑞鼎",
       "market": "listed",
       "setup_type": "anticipation",
       "score": 58,
-      "date": "2026-06-30",
-      "close": 278.5,
-      "volume": 2491138,
-      "volume_ratio_20d": 2.8975,
-      "relative_strength_rank": 74.976,
+      "date": "2026-07-01",
+      "close": 281.5,
+      "volume": 1900590,
+      "volume_ratio_20d": 2.0116,
+      "relative_strength_rank": 76.3636,
       "pivot_price": 292.0,
       "stop_reference": 242.5,
       "extended_risk": false,
@@ -1528,13 +1501,13 @@
         "距離風險參考位置超過門檻"
       ],
       "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/3592.json",
-      "seen_date": "2026-06-30",
+      "seen_date": "2026-07-01",
       "seen_count": 3,
       "appearance_count": 3,
       "dates": [
-        "2026-06-24",
         "2026-06-25",
-        "2026-06-30"
+        "2026-06-30",
+        "2026-07-01"
       ],
       "setup_types": [
         "anticipation",
@@ -1545,66 +1518,347 @@
       "latest_score": 58
     },
     {
-      "symbol": "6234",
-      "name": "高僑",
-      "market": "otc",
-      "setup_type": "anticipation",
-      "score": 68,
+      "symbol": "3023",
+      "name": "信邦",
+      "market": "listed",
+      "setup_type": "failed_breakout",
+      "score": 58,
       "date": "2026-06-30",
-      "close": 48.6,
-      "volume": 2433639,
-      "volume_ratio_20d": 1.5792,
-      "relative_strength_rank": 94.6821,
-      "pivot_price": 50.5,
-      "stop_reference": 41.0,
+      "close": 328.5,
+      "volume": 4172491,
+      "volume_ratio_20d": 2.0336,
+      "relative_strength_rank": 74.6884,
+      "pivot_price": 340.0,
+      "stop_reference": 278.0,
       "extended_risk": false,
       "risk_notes": [
         "僅供研究與人工複核，不構成買賣建議",
         "距離風險參考位置超過門檻"
       ],
-      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/6234.json",
+      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/3023.json",
       "seen_date": "2026-06-30",
       "seen_count": 3,
       "appearance_count": 3,
       "dates": [
-        "2026-06-24",
         "2026-06-25",
+        "2026-06-29",
         "2026-06-30"
       ],
       "setup_types": [
-        "extended_watch",
-        "failed_breakout",
+        "anticipation",
+        "anticipation",
+        "failed_breakout"
+      ],
+      "latest_setup_type": "failed_breakout",
+      "latest_score": 58
+    },
+    {
+      "symbol": "3689",
+      "name": "湧德",
+      "market": "otc",
+      "setup_type": "anticipation",
+      "score": 68,
+      "date": "2026-07-01",
+      "close": 122.0,
+      "volume": 1526651,
+      "volume_ratio_20d": 1.1465,
+      "relative_strength_rank": 76.5046,
+      "pivot_price": 122.0,
+      "stop_reference": 112.0,
+      "extended_risk": false,
+      "risk_notes": [
+        "僅供研究與人工複核，不構成買賣建議",
+        "資券變化可能代表籌碼分歧，不可單獨視為買賣訊號"
+      ],
+      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/3689.json",
+      "seen_date": "2026-07-01",
+      "seen_count": 3,
+      "appearance_count": 3,
+      "dates": [
+        "2026-06-25",
+        "2026-06-30",
+        "2026-07-01"
+      ],
+      "setup_types": [
+        "anticipation",
+        "anticipation",
         "anticipation"
       ],
       "latest_setup_type": "anticipation",
       "latest_score": 68
     },
     {
-      "symbol": "2740",
-      "name": "華軒",
+      "symbol": "6182",
+      "name": "合晶",
       "market": "otc",
       "setup_type": "extended_watch",
       "score": 58,
-      "date": "2026-06-29",
-      "close": 32.05,
-      "volume": 4572,
-      "volume_ratio_20d": 0.2261,
-      "relative_strength_rank": 98.4919,
-      "pivot_price": 31.3,
-      "stop_reference": 23.9,
+      "date": "2026-07-01",
+      "close": 135.0,
+      "volume": 30712667,
+      "volume_ratio_20d": 0.5618,
+      "relative_strength_rank": 97.338,
+      "pivot_price": 134.5,
+      "stop_reference": 103.0,
       "extended_risk": false,
       "risk_notes": [
         "僅供研究與人工複核，不構成買賣建議",
         "距離風險參考位置超過門檻"
       ],
-      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/2740.json",
+      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/6182.json",
+      "seen_date": "2026-07-01",
+      "seen_count": 3,
+      "appearance_count": 3,
+      "dates": [
+        "2026-06-25",
+        "2026-06-26",
+        "2026-07-01"
+      ],
+      "setup_types": [
+        "extended_watch",
+        "failed_breakout",
+        "extended_watch"
+      ],
+      "latest_setup_type": "extended_watch",
+      "latest_score": 58
+    },
+    {
+      "symbol": "3189",
+      "name": "景碩",
+      "market": "listed",
+      "setup_type": "failed_breakout",
+      "score": 58,
+      "date": "2026-07-01",
+      "close": 888.0,
+      "volume": 38728579,
+      "volume_ratio_20d": 1.659,
+      "relative_strength_rank": 97.799,
+      "pivot_price": 893.0,
+      "stop_reference": 637.0,
+      "extended_risk": false,
+      "risk_notes": [
+        "僅供研究與人工複核，不構成買賣建議",
+        "距離風險參考位置超過門檻"
+      ],
+      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/3189.json",
+      "seen_date": "2026-07-01",
+      "seen_count": 3,
+      "appearance_count": 3,
+      "dates": [
+        "2026-06-25",
+        "2026-06-26",
+        "2026-07-01"
+      ],
+      "setup_types": [
+        "extended_watch",
+        "failed_breakout",
+        "failed_breakout"
+      ],
+      "latest_setup_type": "failed_breakout",
+      "latest_score": 58
+    },
+    {
+      "symbol": "6127",
+      "name": "九豪",
+      "market": "otc",
+      "setup_type": "failed_breakout",
+      "score": 48,
+      "date": "2026-07-01",
+      "close": 96.9,
+      "volume": 49653066,
+      "volume_ratio_20d": 7.4966,
+      "relative_strength_rank": 97.4537,
+      "pivot_price": 100.0,
+      "stop_reference": 76.0,
+      "extended_risk": false,
+      "risk_notes": [
+        "僅供研究與人工複核，不構成買賣建議",
+        "距離風險參考位置超過門檻"
+      ],
+      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/6127.json",
+      "seen_date": "2026-07-01",
+      "seen_count": 3,
+      "appearance_count": 3,
+      "dates": [
+        "2026-06-25",
+        "2026-06-26",
+        "2026-07-01"
+      ],
+      "setup_types": [
+        "extended_watch",
+        "failed_breakout",
+        "failed_breakout"
+      ],
+      "latest_setup_type": "failed_breakout",
+      "latest_score": 48
+    },
+    {
+      "symbol": "8046",
+      "name": "南電",
+      "market": "listed",
+      "setup_type": "extended_watch",
+      "score": 63,
+      "date": "2026-06-30",
+      "close": 1185.0,
+      "volume": 6270925,
+      "volume_ratio_20d": 0.3245,
+      "relative_strength_rank": 95.6855,
+      "pivot_price": 1145.0,
+      "stop_reference": 830.0,
+      "extended_risk": false,
+      "risk_notes": [
+        "僅供研究與人工複核，不構成買賣建議",
+        "資券變化可能代表籌碼分歧，不可單獨視為買賣訊號",
+        "距離風險參考位置超過門檻"
+      ],
+      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/8046.json",
+      "seen_date": "2026-06-30",
+      "seen_count": 3,
+      "appearance_count": 3,
+      "dates": [
+        "2026-06-25",
+        "2026-06-26",
+        "2026-06-30"
+      ],
+      "setup_types": [
+        "extended_watch",
+        "extended_watch",
+        "extended_watch"
+      ],
+      "latest_setup_type": "extended_watch",
+      "latest_score": 63
+    },
+    {
+      "symbol": "6409",
+      "name": "旭隼",
+      "market": "listed",
+      "setup_type": "extended_watch",
+      "score": 73,
+      "date": "2026-07-01",
+      "close": 1130.0,
+      "volume": 2313655,
+      "volume_ratio_20d": 1.3729,
+      "relative_strength_rank": 86.0287,
+      "pivot_price": 1120.0,
+      "stop_reference": 900.0,
+      "extended_risk": false,
+      "risk_notes": [
+        "僅供研究與人工複核，不構成買賣建議",
+        "距離風險參考位置超過門檻"
+      ],
+      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/6409.json",
+      "seen_date": "2026-07-01",
+      "seen_count": 3,
+      "appearance_count": 3,
+      "dates": [
+        "2026-06-25",
+        "2026-06-30",
+        "2026-07-01"
+      ],
+      "setup_types": [
+        "extended_watch",
+        "extended_watch",
+        "extended_watch"
+      ],
+      "latest_setup_type": "extended_watch",
+      "latest_score": 73
+    },
+    {
+      "symbol": "6271",
+      "name": "同欣電",
+      "market": "listed",
+      "setup_type": "extended_watch",
+      "score": 63,
+      "date": "2026-07-01",
+      "close": 287.5,
+      "volume": 42671326,
+      "volume_ratio_20d": 4.0492,
+      "relative_strength_rank": 93.3014,
+      "pivot_price": 280.0,
+      "stop_reference": 221.5,
+      "extended_risk": false,
+      "risk_notes": [
+        "僅供研究與人工複核，不構成買賣建議",
+        "距離風險參考位置超過門檻"
+      ],
+      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/6271.json",
+      "seen_date": "2026-07-01",
+      "seen_count": 3,
+      "appearance_count": 3,
+      "dates": [
+        "2026-06-25",
+        "2026-06-26",
+        "2026-07-01"
+      ],
+      "setup_types": [
+        "extended_watch",
+        "failed_breakout",
+        "extended_watch"
+      ],
+      "latest_setup_type": "extended_watch",
+      "latest_score": 63
+    },
+    {
+      "symbol": "7631",
+      "name": "聚賢研發-創",
+      "market": "listed",
+      "setup_type": "extended_watch",
+      "score": 58,
+      "date": "2026-06-29",
+      "close": 177.0,
+      "volume": 1311212,
+      "volume_ratio_20d": 11.6926,
+      "relative_strength_rank": 88.2917,
+      "pivot_price": 169.0,
+      "stop_reference": 124.5,
+      "extended_risk": false,
+      "risk_notes": [
+        "僅供研究與人工複核，不構成買賣建議",
+        "距離風險參考位置超過門檻"
+      ],
+      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/7631.json",
       "seen_date": "2026-06-29",
       "seen_count": 3,
       "appearance_count": 3,
       "dates": [
-        "2026-06-24",
         "2026-06-25",
+        "2026-06-26",
         "2026-06-29"
+      ],
+      "setup_types": [
+        "extended_watch",
+        "failed_breakout",
+        "extended_watch"
+      ],
+      "latest_setup_type": "extended_watch",
+      "latest_score": 58
+    },
+    {
+      "symbol": "6446",
+      "name": "藥華藥",
+      "market": "listed",
+      "setup_type": "extended_watch",
+      "score": 58,
+      "date": "2026-06-30",
+      "close": 1340.0,
+      "volume": 5135963,
+      "volume_ratio_20d": 1.6584,
+      "relative_strength_rank": 95.5896,
+      "pivot_price": 1270.0,
+      "stop_reference": 948.0,
+      "extended_risk": false,
+      "risk_notes": [
+        "僅供研究與人工複核，不構成買賣建議",
+        "距離風險參考位置超過門檻"
+      ],
+      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/6446.json",
+      "seen_date": "2026-06-30",
+      "seen_count": 3,
+      "appearance_count": 3,
+      "dates": [
+        "2026-06-25",
+        "2026-06-29",
+        "2026-06-30"
       ],
       "setup_types": [
         "extended_watch",
@@ -1613,249 +1867,6 @@
       ],
       "latest_setup_type": "extended_watch",
       "latest_score": 58
-    },
-    {
-      "symbol": "5464",
-      "name": "霖宏",
-      "market": "otc",
-      "setup_type": "failed_breakout",
-      "score": 48,
-      "date": "2026-06-26",
-      "close": 100.0,
-      "volume": 5877767,
-      "volume_ratio_20d": 5.1278,
-      "relative_strength_rank": 99.537,
-      "pivot_price": 107.5,
-      "stop_reference": 68.0,
-      "extended_risk": false,
-      "risk_notes": [
-        "僅供研究與人工複核，不構成買賣建議",
-        "距離風險參考位置超過門檻"
-      ],
-      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/5464.json",
-      "seen_date": "2026-06-26",
-      "seen_count": 3,
-      "appearance_count": 3,
-      "dates": [
-        "2026-06-24",
-        "2026-06-25",
-        "2026-06-26"
-      ],
-      "setup_types": [
-        "extended_watch",
-        "extended_watch",
-        "failed_breakout"
-      ],
-      "latest_setup_type": "failed_breakout",
-      "latest_score": 48
-    },
-    {
-      "symbol": "4147",
-      "name": "中裕",
-      "market": "otc",
-      "setup_type": "anticipation",
-      "score": 63,
-      "date": "2026-06-30",
-      "close": 65.0,
-      "volume": 2440754,
-      "volume_ratio_20d": 1.7557,
-      "relative_strength_rank": 93.1792,
-      "pivot_price": 66.7,
-      "stop_reference": 55.7,
-      "extended_risk": false,
-      "risk_notes": [
-        "僅供研究與人工複核，不構成買賣建議",
-        "距離風險參考位置超過門檻"
-      ],
-      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/4147.json",
-      "seen_date": "2026-06-30",
-      "seen_count": 3,
-      "appearance_count": 3,
-      "dates": [
-        "2026-06-24",
-        "2026-06-29",
-        "2026-06-30"
-      ],
-      "setup_types": [
-        "failed_breakout",
-        "anticipation",
-        "anticipation"
-      ],
-      "latest_setup_type": "anticipation",
-      "latest_score": 63
-    },
-    {
-      "symbol": "8383",
-      "name": "千附",
-      "market": "otc",
-      "setup_type": "failed_breakout",
-      "score": 68,
-      "date": "2026-06-30",
-      "close": 65.4,
-      "volume": 3641859,
-      "volume_ratio_20d": 1.5057,
-      "relative_strength_rank": 88.9017,
-      "pivot_price": 66.0,
-      "stop_reference": 59.4,
-      "extended_risk": false,
-      "risk_notes": [
-        "僅供研究與人工複核，不構成買賣建議",
-        "距離風險參考位置超過門檻"
-      ],
-      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/8383.json",
-      "seen_date": "2026-06-30",
-      "seen_count": 3,
-      "appearance_count": 3,
-      "dates": [
-        "2026-06-24",
-        "2026-06-25",
-        "2026-06-30"
-      ],
-      "setup_types": [
-        "failed_breakout",
-        "anticipation",
-        "failed_breakout"
-      ],
-      "latest_setup_type": "failed_breakout",
-      "latest_score": 68
-    },
-    {
-      "symbol": "5904",
-      "name": "寶雅",
-      "market": "otc",
-      "setup_type": "anticipation",
-      "score": 63,
-      "date": "2026-06-30",
-      "close": 667.0,
-      "volume": 692204,
-      "volume_ratio_20d": 2.3935,
-      "relative_strength_rank": 85.5491,
-      "pivot_price": 688.0,
-      "stop_reference": 612.0,
-      "extended_risk": false,
-      "risk_notes": [
-        "僅供研究與人工複核，不構成買賣建議"
-      ],
-      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/5904.json",
-      "seen_date": "2026-06-30",
-      "seen_count": 3,
-      "appearance_count": 3,
-      "dates": [
-        "2026-06-24",
-        "2026-06-25",
-        "2026-06-30"
-      ],
-      "setup_types": [
-        "failed_breakout",
-        "anticipation",
-        "anticipation"
-      ],
-      "latest_setup_type": "anticipation",
-      "latest_score": 63
-    },
-    {
-      "symbol": "4716",
-      "name": "大立",
-      "market": "otc",
-      "setup_type": "failed_breakout",
-      "score": 48,
-      "date": "2026-06-26",
-      "close": 23.6,
-      "volume": 15681807,
-      "volume_ratio_20d": 7.8566,
-      "relative_strength_rank": 99.3056,
-      "pivot_price": 24.2,
-      "stop_reference": 16.9,
-      "extended_risk": false,
-      "risk_notes": [
-        "僅供研究與人工複核，不構成買賣建議",
-        "距離風險參考位置超過門檻"
-      ],
-      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/4716.json",
-      "seen_date": "2026-06-26",
-      "seen_count": 3,
-      "appearance_count": 3,
-      "dates": [
-        "2026-06-24",
-        "2026-06-25",
-        "2026-06-26"
-      ],
-      "setup_types": [
-        "failed_breakout",
-        "extended_watch",
-        "failed_breakout"
-      ],
-      "latest_setup_type": "failed_breakout",
-      "latest_score": 48
-    },
-    {
-      "symbol": "8476",
-      "name": "台境*",
-      "market": "listed",
-      "setup_type": "failed_breakout",
-      "score": 38,
-      "date": "2026-06-30",
-      "close": 24.75,
-      "volume": 2721251,
-      "volume_ratio_20d": 1.6463,
-      "relative_strength_rank": 75.1678,
-      "pivot_price": 25.0,
-      "stop_reference": 19.5,
-      "extended_risk": false,
-      "risk_notes": [
-        "僅供研究與人工複核，不構成買賣建議",
-        "距離風險參考位置超過門檻"
-      ],
-      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/8476.json",
-      "seen_date": "2026-06-30",
-      "seen_count": 3,
-      "appearance_count": 3,
-      "dates": [
-        "2026-06-24",
-        "2026-06-26",
-        "2026-06-30"
-      ],
-      "setup_types": [
-        "failed_breakout",
-        "failed_breakout",
-        "failed_breakout"
-      ],
-      "latest_setup_type": "failed_breakout",
-      "latest_score": 38
-    },
-    {
-      "symbol": "3402",
-      "name": "漢科",
-      "market": "otc",
-      "setup_type": "anticipation",
-      "score": 68,
-      "date": "2026-06-30",
-      "close": 148.0,
-      "volume": 1374351,
-      "volume_ratio_20d": 1.3924,
-      "relative_strength_rank": 83.237,
-      "pivot_price": 150.0,
-      "stop_reference": 137.5,
-      "extended_risk": false,
-      "risk_notes": [
-        "僅供研究與人工複核，不構成買賣建議"
-      ],
-      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/3402.json",
-      "seen_date": "2026-06-30",
-      "seen_count": 3,
-      "appearance_count": 3,
-      "dates": [
-        "2026-06-25",
-        "2026-06-29",
-        "2026-06-30"
-      ],
-      "setup_types": [
-        "breakout",
-        "anticipation",
-        "anticipation"
-      ],
-      "latest_setup_type": "anticipation",
-      "latest_score": 68
     }
   ],
   "setup_transitions": [
@@ -1866,6 +1877,14 @@
       "from_setup_type": "failed_breakout",
       "to_setup_type": "extended_watch",
       "transition": "failed_breakout->extended_watch"
+    },
+    {
+      "symbol": "1718",
+      "from_date": "2026-06-30",
+      "to_date": "2026-07-01",
+      "from_setup_type": "extended_watch",
+      "to_setup_type": "failed_breakout",
+      "transition": "extended_watch->failed_breakout"
     },
     {
       "symbol": "1815",
@@ -1908,12 +1927,28 @@
       "transition": "extended_watch->failed_breakout"
     },
     {
+      "symbol": "2425",
+      "from_date": "2026-06-30",
+      "to_date": "2026-07-01",
+      "from_setup_type": "extended_watch",
+      "to_setup_type": "failed_breakout",
+      "transition": "extended_watch->failed_breakout"
+    },
+    {
       "symbol": "2458",
       "from_date": "2026-06-29",
       "to_date": "2026-06-30",
       "from_setup_type": "failed_breakout",
       "to_setup_type": "extended_watch",
       "transition": "failed_breakout->extended_watch"
+    },
+    {
+      "symbol": "2472",
+      "from_date": "2026-06-30",
+      "to_date": "2026-07-01",
+      "from_setup_type": "extended_watch",
+      "to_setup_type": "failed_breakout",
+      "transition": "extended_watch->failed_breakout"
     },
     {
       "symbol": "2483",
@@ -1932,9 +1967,9 @@
       "transition": "extended_watch->failed_breakout"
     },
     {
-      "symbol": "2610",
-      "from_date": "2026-06-24",
-      "to_date": "2026-06-25",
+      "symbol": "2630",
+      "from_date": "2026-06-30",
+      "to_date": "2026-07-01",
       "from_setup_type": "extended_watch",
       "to_setup_type": "failed_breakout",
       "transition": "extended_watch->failed_breakout"
@@ -1957,27 +1992,27 @@
     },
     {
       "symbol": "2801",
-      "from_date": "2026-06-24",
-      "to_date": "2026-06-25",
-      "from_setup_type": "anticipation",
-      "to_setup_type": "extended_watch",
-      "transition": "anticipation->extended_watch"
+      "from_date": "2026-06-25",
+      "to_date": "2026-06-26",
+      "from_setup_type": "extended_watch",
+      "to_setup_type": "anticipation",
+      "transition": "extended_watch->anticipation"
     },
     {
       "symbol": "2834",
-      "from_date": "2026-06-24",
-      "to_date": "2026-06-25",
-      "from_setup_type": "anticipation",
-      "to_setup_type": "extended_watch",
-      "transition": "anticipation->extended_watch"
+      "from_date": "2026-06-25",
+      "to_date": "2026-06-26",
+      "from_setup_type": "extended_watch",
+      "to_setup_type": "anticipation",
+      "transition": "extended_watch->anticipation"
     },
     {
       "symbol": "2892",
-      "from_date": "2026-06-24",
-      "to_date": "2026-06-25",
-      "from_setup_type": "anticipation",
-      "to_setup_type": "extended_watch",
-      "transition": "anticipation->extended_watch"
+      "from_date": "2026-06-25",
+      "to_date": "2026-06-26",
+      "from_setup_type": "extended_watch",
+      "to_setup_type": "anticipation",
+      "transition": "extended_watch->anticipation"
     },
     {
       "symbol": "2906",
@@ -1997,27 +2032,11 @@
     },
     {
       "symbol": "3093",
-      "from_date": "2026-06-24",
-      "to_date": "2026-06-25",
-      "from_setup_type": "extended_watch",
-      "to_setup_type": "failed_breakout",
-      "transition": "extended_watch->failed_breakout"
-    },
-    {
-      "symbol": "3122",
-      "from_date": "2026-06-24",
-      "to_date": "2026-06-25",
-      "from_setup_type": "extended_watch",
-      "to_setup_type": "failed_breakout",
-      "transition": "extended_watch->failed_breakout"
-    },
-    {
-      "symbol": "3147",
-      "from_date": "2026-06-24",
-      "to_date": "2026-06-25",
-      "from_setup_type": "anticipation",
-      "to_setup_type": "failed_breakout",
-      "transition": "anticipation->failed_breakout"
+      "from_date": "2026-06-25",
+      "to_date": "2026-06-26",
+      "from_setup_type": "failed_breakout",
+      "to_setup_type": "anticipation",
+      "transition": "failed_breakout->anticipation"
     },
     {
       "symbol": "3189",
@@ -2029,24 +2048,32 @@
     },
     {
       "symbol": "3217",
-      "from_date": "2026-06-24",
-      "to_date": "2026-06-25",
-      "from_setup_type": "anticipation",
-      "to_setup_type": "extended_watch",
-      "transition": "anticipation->extended_watch"
+      "from_date": "2026-06-25",
+      "to_date": "2026-06-26",
+      "from_setup_type": "extended_watch",
+      "to_setup_type": "anticipation",
+      "transition": "extended_watch->anticipation"
     },
     {
       "symbol": "3227",
-      "from_date": "2026-06-24",
-      "to_date": "2026-06-25",
-      "from_setup_type": "anticipation",
-      "to_setup_type": "failed_breakout",
-      "transition": "anticipation->failed_breakout"
+      "from_date": "2026-06-25",
+      "to_date": "2026-06-29",
+      "from_setup_type": "failed_breakout",
+      "to_setup_type": "anticipation",
+      "transition": "failed_breakout->anticipation"
     },
     {
-      "symbol": "3374",
-      "from_date": "2026-06-24",
-      "to_date": "2026-06-25",
+      "symbol": "3293",
+      "from_date": "2026-06-30",
+      "to_date": "2026-07-01",
+      "from_setup_type": "anticipation",
+      "to_setup_type": "breakout",
+      "transition": "anticipation->breakout"
+    },
+    {
+      "symbol": "3360",
+      "from_date": "2026-06-30",
+      "to_date": "2026-07-01",
       "from_setup_type": "extended_watch",
       "to_setup_type": "failed_breakout",
       "transition": "extended_watch->failed_breakout"
@@ -2060,49 +2087,49 @@
       "transition": "breakout->anticipation"
     },
     {
-      "symbol": "3430",
-      "from_date": "2026-06-24",
-      "to_date": "2026-06-25",
-      "from_setup_type": "extended_watch",
-      "to_setup_type": "failed_breakout",
-      "transition": "extended_watch->failed_breakout"
-    },
-    {
       "symbol": "3479",
-      "from_date": "2026-06-24",
-      "to_date": "2026-06-25",
-      "from_setup_type": "anticipation",
-      "to_setup_type": "extended_watch",
-      "transition": "anticipation->extended_watch"
-    },
-    {
-      "symbol": "3522",
-      "from_date": "2026-06-24",
-      "to_date": "2026-06-25",
+      "from_date": "2026-06-25",
+      "to_date": "2026-06-26",
       "from_setup_type": "extended_watch",
       "to_setup_type": "failed_breakout",
       "transition": "extended_watch->failed_breakout"
     },
     {
-      "symbol": "3588",
-      "from_date": "2026-06-24",
-      "to_date": "2026-06-25",
-      "from_setup_type": "extended_watch",
-      "to_setup_type": "failed_breakout",
-      "transition": "extended_watch->failed_breakout"
-    },
-    {
-      "symbol": "4147",
-      "from_date": "2026-06-24",
-      "to_date": "2026-06-29",
+      "symbol": "4105",
+      "from_date": "2026-06-30",
+      "to_date": "2026-07-01",
       "from_setup_type": "failed_breakout",
-      "to_setup_type": "anticipation",
-      "transition": "failed_breakout->anticipation"
+      "to_setup_type": "breakout",
+      "transition": "failed_breakout->breakout"
+    },
+    {
+      "symbol": "4162",
+      "from_date": "2026-06-29",
+      "to_date": "2026-07-01",
+      "from_setup_type": "failed_breakout",
+      "to_setup_type": "extended_watch",
+      "transition": "failed_breakout->extended_watch"
+    },
+    {
+      "symbol": "4169",
+      "from_date": "2026-06-29",
+      "to_date": "2026-07-01",
+      "from_setup_type": "extended_watch",
+      "to_setup_type": "failed_breakout",
+      "transition": "extended_watch->failed_breakout"
     },
     {
       "symbol": "4419",
       "from_date": "2026-06-25",
       "to_date": "2026-06-26",
+      "from_setup_type": "extended_watch",
+      "to_setup_type": "failed_breakout",
+      "transition": "extended_watch->failed_breakout"
+    },
+    {
+      "symbol": "4503",
+      "from_date": "2026-06-30",
+      "to_date": "2026-07-01",
       "from_setup_type": "extended_watch",
       "to_setup_type": "failed_breakout",
       "transition": "extended_watch->failed_breakout"
@@ -2116,6 +2143,14 @@
       "transition": "extended_watch->failed_breakout"
     },
     {
+      "symbol": "4541",
+      "from_date": "2026-06-30",
+      "to_date": "2026-07-01",
+      "from_setup_type": "anticipation",
+      "to_setup_type": "extended_watch",
+      "transition": "anticipation->extended_watch"
+    },
+    {
       "symbol": "4542",
       "from_date": "2026-06-29",
       "to_date": "2026-06-30",
@@ -2124,28 +2159,20 @@
       "transition": "anticipation->extended_watch"
     },
     {
-      "symbol": "4577",
-      "from_date": "2026-06-24",
-      "to_date": "2026-06-25",
+      "symbol": "4707",
+      "from_date": "2026-06-29",
+      "to_date": "2026-06-30",
       "from_setup_type": "extended_watch",
       "to_setup_type": "failed_breakout",
       "transition": "extended_watch->failed_breakout"
     },
     {
-      "symbol": "4707",
-      "from_date": "2026-06-24",
-      "to_date": "2026-06-25",
-      "from_setup_type": "anticipation",
-      "to_setup_type": "extended_watch",
-      "transition": "anticipation->extended_watch"
-    },
-    {
       "symbol": "4716",
-      "from_date": "2026-06-24",
-      "to_date": "2026-06-25",
-      "from_setup_type": "failed_breakout",
-      "to_setup_type": "extended_watch",
-      "transition": "failed_breakout->extended_watch"
+      "from_date": "2026-06-25",
+      "to_date": "2026-06-26",
+      "from_setup_type": "extended_watch",
+      "to_setup_type": "failed_breakout",
+      "transition": "extended_watch->failed_breakout"
     },
     {
       "symbol": "4743",
@@ -2164,36 +2191,12 @@
       "transition": "extended_watch->failed_breakout"
     },
     {
-      "symbol": "4924",
-      "from_date": "2026-06-24",
-      "to_date": "2026-06-30",
-      "from_setup_type": "extended_watch",
-      "to_setup_type": "failed_breakout",
-      "transition": "extended_watch->failed_breakout"
-    },
-    {
       "symbol": "5230",
       "from_date": "2026-06-26",
       "to_date": "2026-06-29",
       "from_setup_type": "extended_watch",
       "to_setup_type": "failed_breakout",
       "transition": "extended_watch->failed_breakout"
-    },
-    {
-      "symbol": "5251",
-      "from_date": "2026-06-24",
-      "to_date": "2026-06-25",
-      "from_setup_type": "extended_watch",
-      "to_setup_type": "failed_breakout",
-      "transition": "extended_watch->failed_breakout"
-    },
-    {
-      "symbol": "5285",
-      "from_date": "2026-06-24",
-      "to_date": "2026-06-25",
-      "from_setup_type": "episodic_pivot",
-      "to_setup_type": "failed_breakout",
-      "transition": "episodic_pivot->failed_breakout"
     },
     {
       "symbol": "5314",
@@ -2213,19 +2216,11 @@
     },
     {
       "symbol": "5328",
-      "from_date": "2026-06-24",
-      "to_date": "2026-06-25",
-      "from_setup_type": "anticipation",
-      "to_setup_type": "extended_watch",
-      "transition": "anticipation->extended_watch"
-    },
-    {
-      "symbol": "5347",
-      "from_date": "2026-06-24",
-      "to_date": "2026-06-25",
-      "from_setup_type": "anticipation",
-      "to_setup_type": "extended_watch",
-      "transition": "anticipation->extended_watch"
+      "from_date": "2026-06-26",
+      "to_date": "2026-06-29",
+      "from_setup_type": "extended_watch",
+      "to_setup_type": "failed_breakout",
+      "transition": "extended_watch->failed_breakout"
     },
     {
       "symbol": "5348",
@@ -2258,136 +2253,36 @@
       "from_setup_type": "anticipation",
       "to_setup_type": "failed_breakout",
       "transition": "anticipation->failed_breakout"
+    },
+    {
+      "symbol": "5434",
+      "from_date": "2026-06-25",
+      "to_date": "2026-06-29",
+      "from_setup_type": "anticipation",
+      "to_setup_type": "extended_watch",
+      "transition": "anticipation->extended_watch"
+    },
+    {
+      "symbol": "5443",
+      "from_date": "2026-06-29",
+      "to_date": "2026-06-30",
+      "from_setup_type": "anticipation",
+      "to_setup_type": "failed_breakout",
+      "transition": "anticipation->failed_breakout"
     }
   ],
   "next_week_watchlist_candidates": [
-    {
-      "symbol": "2834",
-      "name": "臺企銀",
-      "market": "listed",
-      "setup_type": "anticipation",
-      "score": 58,
-      "date": "2026-06-30",
-      "close": 17.75,
-      "volume": 29470235,
-      "volume_ratio_20d": 0.6192,
-      "relative_strength_rank": 70.0863,
-      "pivot_price": 18.1,
-      "stop_reference": 15.8,
-      "extended_risk": false,
-      "risk_notes": [
-        "僅供研究與人工複核，不構成買賣建議",
-        "距離風險參考位置超過門檻"
-      ],
-      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/2834.json",
-      "seen_date": "2026-06-30",
-      "seen_count": 5,
-      "appearance_count": 5,
-      "dates": [
-        "2026-06-24",
-        "2026-06-25",
-        "2026-06-26",
-        "2026-06-29",
-        "2026-06-30"
-      ],
-      "setup_types": [
-        "anticipation",
-        "extended_watch",
-        "anticipation",
-        "anticipation",
-        "anticipation"
-      ],
-      "latest_setup_type": "anticipation",
-      "latest_score": 58
-    },
-    {
-      "symbol": "2892",
-      "name": "第一金",
-      "market": "listed",
-      "setup_type": "anticipation",
-      "score": 58,
-      "date": "2026-06-30",
-      "close": 32.75,
-      "volume": 53949829,
-      "volume_ratio_20d": 0.9176,
-      "relative_strength_rank": 67.0182,
-      "pivot_price": 33.25,
-      "stop_reference": 27.2,
-      "extended_risk": false,
-      "risk_notes": [
-        "僅供研究與人工複核，不構成買賣建議",
-        "距離風險參考位置超過門檻"
-      ],
-      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/2892.json",
-      "seen_date": "2026-06-30",
-      "seen_count": 5,
-      "appearance_count": 5,
-      "dates": [
-        "2026-06-24",
-        "2026-06-25",
-        "2026-06-26",
-        "2026-06-29",
-        "2026-06-30"
-      ],
-      "setup_types": [
-        "anticipation",
-        "extended_watch",
-        "anticipation",
-        "anticipation",
-        "anticipation"
-      ],
-      "latest_setup_type": "anticipation",
-      "latest_score": 58
-    },
-    {
-      "symbol": "5880",
-      "name": "合庫金",
-      "market": "listed",
-      "setup_type": "anticipation",
-      "score": 63,
-      "date": "2026-06-30",
-      "close": 24.85,
-      "volume": 17504216,
-      "volume_ratio_20d": 0.5697,
-      "relative_strength_rank": 55.5129,
-      "pivot_price": 25.1,
-      "stop_reference": 22.6,
-      "extended_risk": false,
-      "risk_notes": [
-        "僅供研究與人工複核，不構成買賣建議"
-      ],
-      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/5880.json",
-      "seen_date": "2026-06-30",
-      "seen_count": 5,
-      "appearance_count": 5,
-      "dates": [
-        "2026-06-24",
-        "2026-06-25",
-        "2026-06-26",
-        "2026-06-29",
-        "2026-06-30"
-      ],
-      "setup_types": [
-        "anticipation",
-        "extended_watch",
-        "anticipation",
-        "anticipation",
-        "anticipation"
-      ],
-      "latest_setup_type": "anticipation",
-      "latest_score": 63
-    },
     {
       "symbol": "2845",
       "name": "遠東銀",
       "market": "listed",
       "setup_type": "anticipation",
       "score": 53,
-      "date": "2026-06-30",
+      "date": "2026-07-01",
       "close": 13.0,
-      "volume": 14250692,
-      "volume_ratio_20d": 0.6792,
-      "relative_strength_rank": 51.0067,
+      "volume": 14794602,
+      "volume_ratio_20d": 0.7006,
+      "relative_strength_rank": 49.378,
       "pivot_price": 13.45,
       "stop_reference": 11.85,
       "extended_risk": false,
@@ -2395,15 +2290,15 @@
         "僅供研究與人工複核，不構成買賣建議"
       ],
       "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/2845.json",
-      "seen_date": "2026-06-30",
+      "seen_date": "2026-07-01",
       "seen_count": 5,
       "appearance_count": 5,
       "dates": [
-        "2026-06-24",
         "2026-06-25",
         "2026-06-26",
         "2026-06-29",
-        "2026-06-30"
+        "2026-06-30",
+        "2026-07-01"
       ],
       "setup_types": [
         "anticipation",
@@ -2414,112 +2309,34 @@
       ],
       "latest_setup_type": "anticipation",
       "latest_score": 53
-    },
-    {
-      "symbol": "4707",
-      "name": "磐亞",
-      "market": "otc",
-      "setup_type": "failed_breakout",
-      "score": 48,
-      "date": "2026-06-30",
-      "close": 29.3,
-      "volume": 23726003,
-      "volume_ratio_20d": 4.0202,
-      "relative_strength_rank": 99.3064,
-      "pivot_price": 30.3,
-      "stop_reference": 20.4,
-      "extended_risk": false,
-      "risk_notes": [
-        "僅供研究與人工複核，不構成買賣建議",
-        "距離風險參考位置超過門檻"
-      ],
-      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/4707.json",
-      "seen_date": "2026-06-30",
-      "seen_count": 5,
-      "appearance_count": 5,
-      "dates": [
-        "2026-06-24",
-        "2026-06-25",
-        "2026-06-26",
-        "2026-06-29",
-        "2026-06-30"
-      ],
-      "setup_types": [
-        "anticipation",
-        "extended_watch",
-        "extended_watch",
-        "extended_watch",
-        "failed_breakout"
-      ],
-      "latest_setup_type": "failed_breakout",
-      "latest_score": 48
-    },
-    {
-      "symbol": "2801",
-      "name": "彰銀",
-      "market": "listed",
-      "setup_type": "extended_watch",
-      "score": 78,
-      "date": "2026-06-30",
-      "close": 24.0,
-      "volume": 70965942,
-      "volume_ratio_20d": 2.0622,
-      "relative_strength_rank": 68.1687,
-      "pivot_price": 23.6,
-      "stop_reference": 20.05,
-      "extended_risk": false,
-      "risk_notes": [
-        "僅供研究與人工複核，不構成買賣建議",
-        "距離風險參考位置超過門檻"
-      ],
-      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/2801.json",
-      "seen_date": "2026-06-30",
-      "seen_count": 5,
-      "appearance_count": 5,
-      "dates": [
-        "2026-06-24",
-        "2026-06-25",
-        "2026-06-26",
-        "2026-06-29",
-        "2026-06-30"
-      ],
-      "setup_types": [
-        "anticipation",
-        "extended_watch",
-        "anticipation",
-        "anticipation",
-        "extended_watch"
-      ],
-      "latest_setup_type": "extended_watch",
-      "latest_score": 78
     },
     {
       "symbol": "3045",
       "name": "台灣大",
       "market": "listed",
       "setup_type": "anticipation",
-      "score": 53,
-      "date": "2026-06-30",
-      "close": 116.5,
-      "volume": 20275506,
-      "volume_ratio_20d": 1.7175,
-      "relative_strength_rank": 56.0882,
+      "score": 58,
+      "date": "2026-07-01",
+      "close": 118.0,
+      "volume": 20262334,
+      "volume_ratio_20d": 1.7227,
+      "relative_strength_rank": 57.3206,
       "pivot_price": 121.5,
-      "stop_reference": 106.0,
+      "stop_reference": 110.0,
       "extended_risk": false,
       "risk_notes": [
         "僅供研究與人工複核，不構成買賣建議"
       ],
       "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/3045.json",
-      "seen_date": "2026-06-30",
+      "seen_date": "2026-07-01",
       "seen_count": 5,
       "appearance_count": 5,
       "dates": [
-        "2026-06-24",
         "2026-06-25",
         "2026-06-26",
         "2026-06-29",
-        "2026-06-30"
+        "2026-06-30",
+        "2026-07-01"
       ],
       "setup_types": [
         "anticipation",
@@ -2529,7 +2346,7 @@
         "anticipation"
       ],
       "latest_setup_type": "anticipation",
-      "latest_score": 53
+      "latest_score": 58
     },
     {
       "symbol": "2412",
@@ -2537,11 +2354,11 @@
       "market": "listed",
       "setup_type": "anticipation",
       "score": 48,
-      "date": "2026-06-30",
+      "date": "2026-07-01",
       "close": 141.5,
-      "volume": 19711564,
-      "volume_ratio_20d": 1.3174,
-      "relative_strength_rank": 53.9789,
+      "volume": 20176568,
+      "volume_ratio_20d": 1.3879,
+      "relative_strength_rank": 52.823,
       "pivot_price": 147.0,
       "stop_reference": 136.0,
       "extended_risk": false,
@@ -2549,15 +2366,15 @@
         "僅供研究與人工複核，不構成買賣建議"
       ],
       "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/2412.json",
-      "seen_date": "2026-06-30",
+      "seen_date": "2026-07-01",
       "seen_count": 5,
       "appearance_count": 5,
       "dates": [
-        "2026-06-24",
         "2026-06-25",
         "2026-06-26",
         "2026-06-29",
-        "2026-06-30"
+        "2026-06-30",
+        "2026-07-01"
       ],
       "setup_types": [
         "anticipation",
@@ -2574,32 +2391,187 @@
       "name": "台灣高鐵",
       "market": "listed",
       "setup_type": "anticipation",
-      "score": 53,
-      "date": "2026-06-30",
+      "score": 63,
+      "date": "2026-07-01",
       "close": 26.5,
-      "volume": 14290837,
-      "volume_ratio_20d": 0.6021,
-      "relative_strength_rank": 44.4871,
+      "volume": 10251149,
+      "volume_ratio_20d": 0.7693,
+      "relative_strength_rank": 40.2871,
       "pivot_price": 27.0,
-      "stop_reference": 23.5,
+      "stop_reference": 24.8,
+      "extended_risk": false,
+      "risk_notes": [
+        "僅供研究與人工複核，不構成買賣建議"
+      ],
+      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/2633.json",
+      "seen_date": "2026-07-01",
+      "seen_count": 5,
+      "appearance_count": 5,
+      "dates": [
+        "2026-06-25",
+        "2026-06-26",
+        "2026-06-29",
+        "2026-06-30",
+        "2026-07-01"
+      ],
+      "setup_types": [
+        "anticipation",
+        "anticipation",
+        "anticipation",
+        "anticipation",
+        "anticipation"
+      ],
+      "latest_setup_type": "anticipation",
+      "latest_score": 63
+    },
+    {
+      "symbol": "5880",
+      "name": "合庫金",
+      "market": "listed",
+      "setup_type": "anticipation",
+      "score": 63,
+      "date": "2026-07-01",
+      "close": 24.85,
+      "volume": 12599683,
+      "volume_ratio_20d": 0.4494,
+      "relative_strength_rank": 55.1196,
+      "pivot_price": 25.1,
+      "stop_reference": 22.6,
+      "extended_risk": false,
+      "risk_notes": [
+        "僅供研究與人工複核，不構成買賣建議"
+      ],
+      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/5880.json",
+      "seen_date": "2026-07-01",
+      "seen_count": 5,
+      "appearance_count": 5,
+      "dates": [
+        "2026-06-25",
+        "2026-06-26",
+        "2026-06-29",
+        "2026-06-30",
+        "2026-07-01"
+      ],
+      "setup_types": [
+        "extended_watch",
+        "anticipation",
+        "anticipation",
+        "anticipation",
+        "anticipation"
+      ],
+      "latest_setup_type": "anticipation",
+      "latest_score": 63
+    },
+    {
+      "symbol": "2892",
+      "name": "第一金",
+      "market": "listed",
+      "setup_type": "failed_breakout",
+      "score": 68,
+      "date": "2026-07-01",
+      "close": 33.2,
+      "volume": 137250550,
+      "volume_ratio_20d": 2.4512,
+      "relative_strength_rank": 69.1866,
+      "pivot_price": 33.25,
+      "stop_reference": 27.2,
+      "extended_risk": false,
+      "risk_notes": [
+        "僅供研究與人工複核，不構成買賣建議",
+        "資券變化可能代表籌碼分歧，不可單獨視為買賣訊號",
+        "距離風險參考位置超過門檻"
+      ],
+      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/2892.json",
+      "seen_date": "2026-07-01",
+      "seen_count": 5,
+      "appearance_count": 5,
+      "dates": [
+        "2026-06-25",
+        "2026-06-26",
+        "2026-06-29",
+        "2026-06-30",
+        "2026-07-01"
+      ],
+      "setup_types": [
+        "extended_watch",
+        "anticipation",
+        "anticipation",
+        "anticipation",
+        "failed_breakout"
+      ],
+      "latest_setup_type": "failed_breakout",
+      "latest_score": 68
+    },
+    {
+      "symbol": "2801",
+      "name": "彰銀",
+      "market": "listed",
+      "setup_type": "failed_breakout",
+      "score": 63,
+      "date": "2026-07-01",
+      "close": 23.85,
+      "volume": 140473614,
+      "volume_ratio_20d": 3.978,
+      "relative_strength_rank": 68.6124,
+      "pivot_price": 24.0,
+      "stop_reference": 20.05,
       "extended_risk": false,
       "risk_notes": [
         "僅供研究與人工複核，不構成買賣建議",
         "距離風險參考位置超過門檻"
       ],
-      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/2633.json",
-      "seen_date": "2026-06-30",
+      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/2801.json",
+      "seen_date": "2026-07-01",
       "seen_count": 5,
       "appearance_count": 5,
       "dates": [
-        "2026-06-24",
         "2026-06-25",
         "2026-06-26",
         "2026-06-29",
-        "2026-06-30"
+        "2026-06-30",
+        "2026-07-01"
       ],
       "setup_types": [
+        "extended_watch",
         "anticipation",
+        "anticipation",
+        "extended_watch",
+        "failed_breakout"
+      ],
+      "latest_setup_type": "failed_breakout",
+      "latest_score": 63
+    },
+    {
+      "symbol": "2834",
+      "name": "臺企銀",
+      "market": "listed",
+      "setup_type": "anticipation",
+      "score": 53,
+      "date": "2026-07-01",
+      "close": 17.6,
+      "volume": 30320601,
+      "volume_ratio_20d": 0.6638,
+      "relative_strength_rank": 68.8038,
+      "pivot_price": 18.1,
+      "stop_reference": 15.8,
+      "extended_risk": false,
+      "risk_notes": [
+        "僅供研究與人工複核，不構成買賣建議",
+        "距離風險參考位置超過門檻"
+      ],
+      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/2834.json",
+      "seen_date": "2026-07-01",
+      "seen_count": 5,
+      "appearance_count": 5,
+      "dates": [
+        "2026-06-25",
+        "2026-06-26",
+        "2026-06-29",
+        "2026-06-30",
+        "2026-07-01"
+      ],
+      "setup_types": [
+        "extended_watch",
         "anticipation",
         "anticipation",
         "anticipation",
@@ -2609,445 +2581,116 @@
       "latest_score": 53
     },
     {
-      "symbol": "6190",
-      "name": "萬泰科",
-      "market": "otc",
-      "setup_type": "anticipation",
-      "score": 68,
-      "date": "2026-06-30",
-      "close": 84.0,
-      "volume": 5328613,
-      "volume_ratio_20d": 1.2542,
-      "relative_strength_rank": 90.8671,
-      "pivot_price": 85.5,
-      "stop_reference": 75.7,
+      "symbol": "2415",
+      "name": "錩新",
+      "market": "listed",
+      "setup_type": "failed_breakout",
+      "score": 33,
+      "date": "2026-07-01",
+      "close": 36.95,
+      "volume": 2460319,
+      "volume_ratio_20d": 2.712,
+      "relative_strength_rank": 75.5981,
+      "pivot_price": 38.4,
+      "stop_reference": 29.6,
       "extended_risk": false,
       "risk_notes": [
         "僅供研究與人工複核，不構成買賣建議",
         "距離風險參考位置超過門檻"
       ],
-      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/6190.json",
-      "seen_date": "2026-06-30",
-      "seen_count": 4,
-      "appearance_count": 4,
+      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/2415.json",
+      "seen_date": "2026-07-01",
+      "seen_count": 5,
+      "appearance_count": 5,
       "dates": [
-        "2026-06-24",
         "2026-06-25",
         "2026-06-26",
-        "2026-06-30"
+        "2026-06-29",
+        "2026-06-30",
+        "2026-07-01"
       ],
       "setup_types": [
-        "anticipation",
-        "anticipation",
-        "anticipation",
-        "anticipation"
+        "extended_watch",
+        "failed_breakout",
+        "extended_watch",
+        "failed_breakout",
+        "failed_breakout"
       ],
-      "latest_setup_type": "anticipation",
-      "latest_score": 68
+      "latest_setup_type": "failed_breakout",
+      "latest_score": 33
     },
     {
-      "symbol": "3227",
-      "name": "原相",
+      "symbol": "3402",
+      "name": "漢科",
       "market": "otc",
-      "setup_type": "extended_watch",
+      "setup_type": "failed_breakout",
       "score": 73,
-      "date": "2026-06-30",
-      "close": 238.0,
-      "volume": 9213006,
-      "volume_ratio_20d": 5.9576,
-      "relative_strength_rank": 91.3295,
-      "pivot_price": 237.0,
-      "stop_reference": 212.0,
+      "date": "2026-07-01",
+      "close": 148.5,
+      "volume": 2234721,
+      "volume_ratio_20d": 2.2292,
+      "relative_strength_rank": 84.4907,
+      "pivot_price": 151.0,
+      "stop_reference": 137.5,
       "extended_risk": false,
       "risk_notes": [
-        "僅供研究與人工複核，不構成買賣建議",
-        "距離風險參考位置超過門檻"
+        "僅供研究與人工複核，不構成買賣建議"
       ],
-      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/3227.json",
-      "seen_date": "2026-06-30",
+      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/3402.json",
+      "seen_date": "2026-07-01",
       "seen_count": 4,
       "appearance_count": 4,
       "dates": [
-        "2026-06-24",
         "2026-06-25",
         "2026-06-29",
-        "2026-06-30"
+        "2026-06-30",
+        "2026-07-01"
       ],
       "setup_types": [
+        "breakout",
         "anticipation",
-        "failed_breakout",
         "anticipation",
-        "extended_watch"
+        "failed_breakout"
       ],
-      "latest_setup_type": "extended_watch",
+      "latest_setup_type": "failed_breakout",
       "latest_score": 73
     },
     {
-      "symbol": "6664",
-      "name": "群翊",
+      "symbol": "4542",
+      "name": "科嶠",
       "market": "otc",
-      "setup_type": "anticipation",
-      "score": 58,
-      "date": "2026-06-30",
-      "close": 391.0,
-      "volume": 538219,
-      "volume_ratio_20d": 1.3542,
-      "relative_strength_rank": 78.8439,
-      "pivot_price": 396.5,
-      "stop_reference": 363.0,
-      "extended_risk": false,
-      "risk_notes": [
-        "僅供研究與人工複核，不構成買賣建議"
-      ],
-      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/6664.json",
-      "seen_date": "2026-06-30",
-      "seen_count": 4,
-      "appearance_count": 4,
-      "dates": [
-        "2026-06-24",
-        "2026-06-25",
-        "2026-06-29",
-        "2026-06-30"
-      ],
-      "setup_types": [
-        "anticipation",
-        "anticipation",
-        "anticipation",
-        "anticipation"
-      ],
-      "latest_setup_type": "anticipation",
-      "latest_score": 58
-    },
-    {
-      "symbol": "3596",
-      "name": "智易",
-      "market": "listed",
-      "setup_type": "anticipation",
-      "score": 63,
-      "date": "2026-06-30",
-      "close": 192.0,
-      "volume": 2909517,
-      "volume_ratio_20d": 1.2258,
-      "relative_strength_rank": 66.1553,
-      "pivot_price": 196.5,
-      "stop_reference": 175.0,
-      "extended_risk": false,
-      "risk_notes": [
-        "僅供研究與人工複核，不構成買賣建議"
-      ],
-      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/3596.json",
-      "seen_date": "2026-06-30",
-      "seen_count": 4,
-      "appearance_count": 4,
-      "dates": [
-        "2026-06-24",
-        "2026-06-25",
-        "2026-06-29",
-        "2026-06-30"
-      ],
-      "setup_types": [
-        "anticipation",
-        "anticipation",
-        "anticipation",
-        "anticipation"
-      ],
-      "latest_setup_type": "anticipation",
-      "latest_score": 63
-    },
-    {
-      "symbol": "5328",
-      "name": "華容",
-      "market": "otc",
-      "setup_type": "failed_breakout",
-      "score": 48,
-      "date": "2026-06-29",
-      "close": 64.7,
-      "volume": 78555656,
-      "volume_ratio_20d": 2.0635,
-      "relative_strength_rank": 98.6079,
-      "pivot_price": 70.2,
-      "stop_reference": 48.2,
-      "extended_risk": false,
-      "risk_notes": [
-        "僅供研究與人工複核，不構成買賣建議",
-        "距離風險參考位置超過門檻"
-      ],
-      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/5328.json",
-      "seen_date": "2026-06-29",
-      "seen_count": 4,
-      "appearance_count": 4,
-      "dates": [
-        "2026-06-24",
-        "2026-06-25",
-        "2026-06-26",
-        "2026-06-29"
-      ],
-      "setup_types": [
-        "anticipation",
-        "extended_watch",
-        "extended_watch",
-        "failed_breakout"
-      ],
-      "latest_setup_type": "failed_breakout",
-      "latest_score": 48
-    },
-    {
-      "symbol": "1102",
-      "name": "亞泥",
-      "market": "listed",
-      "setup_type": "anticipation",
-      "score": 48,
-      "date": "2026-06-30",
-      "close": 35.0,
-      "volume": 22626307,
-      "volume_ratio_20d": 0.8585,
-      "relative_strength_rank": 44.2953,
-      "pivot_price": 36.5,
-      "stop_reference": 32.4,
-      "extended_risk": false,
-      "risk_notes": [
-        "僅供研究與人工複核，不構成買賣建議"
-      ],
-      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/1102.json",
-      "seen_date": "2026-06-30",
-      "seen_count": 4,
-      "appearance_count": 4,
-      "dates": [
-        "2026-06-24",
-        "2026-06-26",
-        "2026-06-29",
-        "2026-06-30"
-      ],
-      "setup_types": [
-        "anticipation",
-        "anticipation",
-        "anticipation",
-        "anticipation"
-      ],
-      "latest_setup_type": "anticipation",
-      "latest_score": 48
-    },
-    {
-      "symbol": "2645",
-      "name": "長榮航太",
-      "market": "listed",
-      "setup_type": "extended_watch",
-      "score": 73,
-      "date": "2026-06-30",
-      "close": 185.5,
-      "volume": 6148835,
-      "volume_ratio_20d": 3.9054,
-      "relative_strength_rank": 71.908,
-      "pivot_price": 180.0,
-      "stop_reference": 149.0,
-      "extended_risk": false,
-      "risk_notes": [
-        "僅供研究與人工複核，不構成買賣建議",
-        "距離風險參考位置超過門檻"
-      ],
-      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/2645.json",
-      "seen_date": "2026-06-30",
-      "seen_count": 4,
-      "appearance_count": 4,
-      "dates": [
-        "2026-06-24",
-        "2026-06-25",
-        "2026-06-29",
-        "2026-06-30"
-      ],
-      "setup_types": [
-        "anticipation",
-        "anticipation",
-        "failed_breakout",
-        "extended_watch"
-      ],
-      "latest_setup_type": "extended_watch",
-      "latest_score": 73
-    },
-    {
-      "symbol": "3093",
-      "name": "港建*",
-      "market": "otc",
-      "setup_type": "failed_breakout",
-      "score": 63,
-      "date": "2026-06-29",
-      "close": 69.6,
-      "volume": 5533743,
-      "volume_ratio_20d": 2.0845,
-      "relative_strength_rank": 91.9954,
-      "pivot_price": 74.6,
-      "stop_reference": 62.4,
-      "extended_risk": false,
-      "risk_notes": [
-        "僅供研究與人工複核，不構成買賣建議",
-        "距離風險參考位置超過門檻"
-      ],
-      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/3093.json",
-      "seen_date": "2026-06-29",
-      "seen_count": 4,
-      "appearance_count": 4,
-      "dates": [
-        "2026-06-24",
-        "2026-06-25",
-        "2026-06-26",
-        "2026-06-29"
-      ],
-      "setup_types": [
-        "extended_watch",
-        "failed_breakout",
-        "anticipation",
-        "failed_breakout"
-      ],
-      "latest_setup_type": "failed_breakout",
-      "latest_score": 63
-    },
-    {
-      "symbol": "6446",
-      "name": "藥華藥",
-      "market": "listed",
       "setup_type": "extended_watch",
       "score": 58,
-      "date": "2026-06-30",
-      "close": 1340.0,
-      "volume": 5135963,
-      "volume_ratio_20d": 1.6584,
-      "relative_strength_rank": 95.5896,
-      "pivot_price": 1270.0,
-      "stop_reference": 948.0,
-      "extended_risk": false,
+      "date": "2026-07-01",
+      "close": 494.0,
+      "volume": 379108,
+      "volume_ratio_20d": 1.1337,
+      "relative_strength_rank": 99.0741,
+      "pivot_price": 449.5,
+      "stop_reference": 342.5,
+      "extended_risk": true,
       "risk_notes": [
         "僅供研究與人工複核，不構成買賣建議",
+        "距離 pivot 已超過延伸風險門檻",
         "距離風險參考位置超過門檻"
       ],
-      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/6446.json",
-      "seen_date": "2026-06-30",
+      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/4542.json",
+      "seen_date": "2026-07-01",
       "seen_count": 4,
       "appearance_count": 4,
       "dates": [
-        "2026-06-24",
         "2026-06-25",
         "2026-06-29",
-        "2026-06-30"
+        "2026-06-30",
+        "2026-07-01"
       ],
       "setup_types": [
-        "extended_watch",
-        "extended_watch",
+        "anticipation",
+        "anticipation",
         "extended_watch",
         "extended_watch"
       ],
       "latest_setup_type": "extended_watch",
-      "latest_score": 58
-    },
-    {
-      "symbol": "6712",
-      "name": "長聖",
-      "market": "otc",
-      "setup_type": "failed_breakout",
-      "score": 63,
-      "date": "2026-06-30",
-      "close": 158.5,
-      "volume": 1479945,
-      "volume_ratio_20d": 2.4568,
-      "relative_strength_rank": 93.2948,
-      "pivot_price": 162.0,
-      "stop_reference": 137.0,
-      "extended_risk": false,
-      "risk_notes": [
-        "僅供研究與人工複核，不構成買賣建議",
-        "距離風險參考位置超過門檻"
-      ],
-      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/6712.json",
-      "seen_date": "2026-06-30",
-      "seen_count": 4,
-      "appearance_count": 4,
-      "dates": [
-        "2026-06-24",
-        "2026-06-25",
-        "2026-06-29",
-        "2026-06-30"
-      ],
-      "setup_types": [
-        "extended_watch",
-        "anticipation",
-        "failed_breakout",
-        "failed_breakout"
-      ],
-      "latest_setup_type": "failed_breakout",
-      "latest_score": 63
-    },
-    {
-      "symbol": "7631",
-      "name": "聚賢研發-創",
-      "market": "listed",
-      "setup_type": "extended_watch",
-      "score": 58,
-      "date": "2026-06-29",
-      "close": 177.0,
-      "volume": 1311212,
-      "volume_ratio_20d": 11.6926,
-      "relative_strength_rank": 88.2917,
-      "pivot_price": 169.0,
-      "stop_reference": 124.5,
-      "extended_risk": false,
-      "risk_notes": [
-        "僅供研究與人工複核，不構成買賣建議",
-        "距離風險參考位置超過門檻"
-      ],
-      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/7631.json",
-      "seen_date": "2026-06-29",
-      "seen_count": 4,
-      "appearance_count": 4,
-      "dates": [
-        "2026-06-24",
-        "2026-06-25",
-        "2026-06-26",
-        "2026-06-29"
-      ],
-      "setup_types": [
-        "extended_watch",
-        "extended_watch",
-        "failed_breakout",
-        "extended_watch"
-      ],
-      "latest_setup_type": "extended_watch",
-      "latest_score": 58
-    },
-    {
-      "symbol": "2483",
-      "name": "百容",
-      "market": "listed",
-      "setup_type": "failed_breakout",
-      "score": 58,
-      "date": "2026-06-29",
-      "close": 55.7,
-      "volume": 25252090,
-      "volume_ratio_20d": 3.5353,
-      "relative_strength_rank": 98.8484,
-      "pivot_price": 55.7,
-      "stop_reference": 35.65,
-      "extended_risk": false,
-      "risk_notes": [
-        "僅供研究與人工複核，不構成買賣建議",
-        "資券變化可能代表籌碼分歧，不可單獨視為買賣訊號",
-        "距離風險參考位置超過門檻"
-      ],
-      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/2483.json",
-      "seen_date": "2026-06-29",
-      "seen_count": 4,
-      "appearance_count": 4,
-      "dates": [
-        "2026-06-24",
-        "2026-06-25",
-        "2026-06-26",
-        "2026-06-29"
-      ],
-      "setup_types": [
-        "extended_watch",
-        "extended_watch",
-        "extended_watch",
-        "failed_breakout"
-      ],
-      "latest_setup_type": "failed_breakout",
       "latest_score": 58
     },
     {
@@ -3086,6 +2729,80 @@
       ],
       "latest_setup_type": "failed_breakout",
       "latest_score": 53
+    },
+    {
+      "symbol": "3596",
+      "name": "智易",
+      "market": "listed",
+      "setup_type": "anticipation",
+      "score": 58,
+      "date": "2026-07-01",
+      "close": 193.5,
+      "volume": 1866174,
+      "volume_ratio_20d": 0.7596,
+      "relative_strength_rank": 73.3014,
+      "pivot_price": 196.5,
+      "stop_reference": 175.0,
+      "extended_risk": false,
+      "risk_notes": [
+        "僅供研究與人工複核，不構成買賣建議",
+        "距離風險參考位置超過門檻"
+      ],
+      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/3596.json",
+      "seen_date": "2026-07-01",
+      "seen_count": 4,
+      "appearance_count": 4,
+      "dates": [
+        "2026-06-25",
+        "2026-06-29",
+        "2026-06-30",
+        "2026-07-01"
+      ],
+      "setup_types": [
+        "anticipation",
+        "anticipation",
+        "anticipation",
+        "anticipation"
+      ],
+      "latest_setup_type": "anticipation",
+      "latest_score": 58
+    },
+    {
+      "symbol": "6190",
+      "name": "萬泰科",
+      "market": "otc",
+      "setup_type": "anticipation",
+      "score": 63,
+      "date": "2026-07-01",
+      "close": 84.1,
+      "volume": 6060331,
+      "volume_ratio_20d": 1.4066,
+      "relative_strength_rank": 90.625,
+      "pivot_price": 85.5,
+      "stop_reference": 75.7,
+      "extended_risk": false,
+      "risk_notes": [
+        "僅供研究與人工複核，不構成買賣建議",
+        "距離風險參考位置超過門檻"
+      ],
+      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/6190.json",
+      "seen_date": "2026-07-01",
+      "seen_count": 4,
+      "appearance_count": 4,
+      "dates": [
+        "2026-06-25",
+        "2026-06-26",
+        "2026-06-30",
+        "2026-07-01"
+      ],
+      "setup_types": [
+        "anticipation",
+        "anticipation",
+        "anticipation",
+        "anticipation"
+      ],
+      "latest_setup_type": "anticipation",
+      "latest_score": 63
     },
     {
       "symbol": "8936",
@@ -3161,24 +2878,134 @@
       "latest_score": 43
     },
     {
-      "symbol": "2415",
-      "name": "錩新",
+      "symbol": "1210",
+      "name": "大成",
       "market": "listed",
+      "setup_type": "anticipation",
+      "score": 68,
+      "date": "2026-07-01",
+      "close": 55.8,
+      "volume": 2774240,
+      "volume_ratio_20d": 0.515,
+      "relative_strength_rank": 46.4115,
+      "pivot_price": 56.0,
+      "stop_reference": 51.6,
+      "extended_risk": false,
+      "risk_notes": [
+        "僅供研究與人工複核，不構成買賣建議"
+      ],
+      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/1210.json",
+      "seen_date": "2026-07-01",
+      "seen_count": 4,
+      "appearance_count": 4,
+      "dates": [
+        "2026-06-25",
+        "2026-06-29",
+        "2026-06-30",
+        "2026-07-01"
+      ],
+      "setup_types": [
+        "anticipation",
+        "anticipation",
+        "anticipation",
+        "anticipation"
+      ],
+      "latest_setup_type": "anticipation",
+      "latest_score": 68
+    },
+    {
+      "symbol": "2645",
+      "name": "長榮航太",
+      "market": "listed",
+      "setup_type": "extended_watch",
+      "score": 78,
+      "date": "2026-07-01",
+      "close": 204.0,
+      "volume": 6071400,
+      "volume_ratio_20d": 3.4714,
+      "relative_strength_rank": 80.3828,
+      "pivot_price": 186.5,
+      "stop_reference": 150.0,
+      "extended_risk": true,
+      "risk_notes": [
+        "僅供研究與人工複核，不構成買賣建議",
+        "距離 pivot 已超過延伸風險門檻",
+        "距離風險參考位置超過門檻"
+      ],
+      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/2645.json",
+      "seen_date": "2026-07-01",
+      "seen_count": 4,
+      "appearance_count": 4,
+      "dates": [
+        "2026-06-25",
+        "2026-06-29",
+        "2026-06-30",
+        "2026-07-01"
+      ],
+      "setup_types": [
+        "anticipation",
+        "failed_breakout",
+        "extended_watch",
+        "extended_watch"
+      ],
+      "latest_setup_type": "extended_watch",
+      "latest_score": 78
+    },
+    {
+      "symbol": "6664",
+      "name": "群翊",
+      "market": "otc",
       "setup_type": "failed_breakout",
-      "score": 38,
+      "score": 78,
+      "date": "2026-07-01",
+      "close": 397.5,
+      "volume": 1018398,
+      "volume_ratio_20d": 2.5071,
+      "relative_strength_rank": 83.4491,
+      "pivot_price": 396.5,
+      "stop_reference": 363.0,
+      "extended_risk": false,
+      "risk_notes": [
+        "僅供研究與人工複核，不構成買賣建議"
+      ],
+      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/6664.json",
+      "seen_date": "2026-07-01",
+      "seen_count": 4,
+      "appearance_count": 4,
+      "dates": [
+        "2026-06-25",
+        "2026-06-29",
+        "2026-06-30",
+        "2026-07-01"
+      ],
+      "setup_types": [
+        "anticipation",
+        "anticipation",
+        "anticipation",
+        "failed_breakout"
+      ],
+      "latest_setup_type": "failed_breakout",
+      "latest_score": 78
+    },
+    {
+      "symbol": "4707",
+      "name": "磐亞",
+      "market": "otc",
+      "setup_type": "failed_breakout",
+      "score": 48,
       "date": "2026-06-30",
-      "close": 37.5,
-      "volume": 2796886,
-      "volume_ratio_20d": 3.6177,
-      "relative_strength_rank": 75.2637,
-      "pivot_price": 37.9,
-      "stop_reference": 28.2,
+      "close": 29.3,
+      "volume": 23726003,
+      "volume_ratio_20d": 4.0202,
+      "relative_strength_rank": 99.3064,
+      "pivot_price": 30.3,
+      "stop_reference": 20.4,
       "extended_risk": false,
       "risk_notes": [
         "僅供研究與人工複核，不構成買賣建議",
         "距離風險參考位置超過門檻"
       ],
-      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/2415.json",
+      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/4707.json",
       "seen_date": "2026-06-30",
       "seen_count": 4,
       "appearance_count": 4,
@@ -3190,328 +3017,380 @@
       ],
       "setup_types": [
         "extended_watch",
-        "failed_breakout",
+        "extended_watch",
         "extended_watch",
         "failed_breakout"
       ],
       "latest_setup_type": "failed_breakout",
-      "latest_score": 38
+      "latest_score": 48
     },
     {
-      "symbol": "6584",
-      "name": "南俊國際",
+      "symbol": "5328",
+      "name": "華容",
       "market": "otc",
-      "setup_type": "failed_breakout",
-      "score": 68,
-      "date": "2026-06-26",
-      "close": 708.0,
-      "volume": 2286804,
-      "volume_ratio_20d": 3.4346,
-      "relative_strength_rank": 95.9491,
-      "pivot_price": 728.0,
-      "stop_reference": 591.0,
+      "setup_type": "extended_watch",
+      "score": 58,
+      "date": "2026-07-01",
+      "close": 78.2,
+      "volume": 25456215,
+      "volume_ratio_20d": 0.6402,
+      "relative_strength_rank": 99.6528,
+      "pivot_price": 74.3,
+      "stop_reference": 48.2,
       "extended_risk": false,
       "risk_notes": [
         "僅供研究與人工複核，不構成買賣建議",
+        "資券變化可能代表籌碼分歧，不可單獨視為買賣訊號",
         "距離風險參考位置超過門檻"
       ],
-      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/6584.json",
-      "seen_date": "2026-06-26",
-      "seen_count": 3,
-      "appearance_count": 3,
+      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/5328.json",
+      "seen_date": "2026-07-01",
+      "seen_count": 4,
+      "appearance_count": 4,
       "dates": [
-        "2026-06-24",
         "2026-06-25",
-        "2026-06-26"
+        "2026-06-26",
+        "2026-06-29",
+        "2026-07-01"
       ],
       "setup_types": [
-        "anticipation",
         "extended_watch",
-        "failed_breakout"
+        "extended_watch",
+        "failed_breakout",
+        "extended_watch"
       ],
-      "latest_setup_type": "failed_breakout",
-      "latest_score": 68
+      "latest_setup_type": "extended_watch",
+      "latest_score": 58
     },
     {
-      "symbol": "3217",
-      "name": "優群",
+      "symbol": "4743",
+      "name": "合一",
       "market": "otc",
       "setup_type": "anticipation",
-      "score": 68,
-      "date": "2026-06-26",
-      "close": 182.0,
-      "volume": 1745813,
-      "volume_ratio_20d": 1.7678,
-      "relative_strength_rank": 92.2454,
-      "pivot_price": 188.5,
-      "stop_reference": 166.5,
+      "score": 63,
+      "date": "2026-07-01",
+      "close": 51.8,
+      "volume": 2505873,
+      "volume_ratio_20d": 1.2695,
+      "relative_strength_rank": 88.3102,
+      "pivot_price": 53.7,
+      "stop_reference": 47.3,
       "extended_risk": false,
       "risk_notes": [
         "僅供研究與人工複核，不構成買賣建議"
       ],
-      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/3217.json",
-      "seen_date": "2026-06-26",
-      "seen_count": 3,
-      "appearance_count": 3,
+      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/4743.json",
+      "seen_date": "2026-07-01",
+      "seen_count": 4,
+      "appearance_count": 4,
       "dates": [
-        "2026-06-24",
         "2026-06-25",
-        "2026-06-26"
+        "2026-06-29",
+        "2026-06-30",
+        "2026-07-01"
       ],
       "setup_types": [
+        "failed_breakout",
         "anticipation",
         "extended_watch",
         "anticipation"
       ],
       "latest_setup_type": "anticipation",
-      "latest_score": 68
+      "latest_score": 63
     },
     {
-      "symbol": "5371",
-      "name": "中光電",
+      "symbol": "3093",
+      "name": "港建*",
+      "market": "otc",
+      "setup_type": "anticipation",
+      "score": 58,
+      "date": "2026-07-01",
+      "close": 75.0,
+      "volume": 6706062,
+      "volume_ratio_20d": 2.3233,
+      "relative_strength_rank": 94.5602,
+      "pivot_price": 77.7,
+      "stop_reference": 62.4,
+      "extended_risk": false,
+      "risk_notes": [
+        "僅供研究與人工複核，不構成買賣建議",
+        "距離風險參考位置超過門檻"
+      ],
+      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/3093.json",
+      "seen_date": "2026-07-01",
+      "seen_count": 4,
+      "appearance_count": 4,
+      "dates": [
+        "2026-06-25",
+        "2026-06-26",
+        "2026-06-29",
+        "2026-07-01"
+      ],
+      "setup_types": [
+        "failed_breakout",
+        "anticipation",
+        "failed_breakout",
+        "anticipation"
+      ],
+      "latest_setup_type": "anticipation",
+      "latest_score": 58
+    },
+    {
+      "symbol": "3227",
+      "name": "原相",
+      "market": "otc",
+      "setup_type": "failed_breakout",
+      "score": 63,
+      "date": "2026-07-01",
+      "close": 230.5,
+      "volume": 10336418,
+      "volume_ratio_20d": 5.2286,
+      "relative_strength_rank": 85.4167,
+      "pivot_price": 241.0,
+      "stop_reference": 212.0,
+      "extended_risk": false,
+      "risk_notes": [
+        "僅供研究與人工複核，不構成買賣建議"
+      ],
+      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/3227.json",
+      "seen_date": "2026-07-01",
+      "seen_count": 4,
+      "appearance_count": 4,
+      "dates": [
+        "2026-06-25",
+        "2026-06-29",
+        "2026-06-30",
+        "2026-07-01"
+      ],
+      "setup_types": [
+        "failed_breakout",
+        "anticipation",
+        "extended_watch",
+        "failed_breakout"
+      ],
+      "latest_setup_type": "failed_breakout",
+      "latest_score": 63
+    },
+    {
+      "symbol": "5876",
+      "name": "上海商銀",
+      "market": "listed",
+      "setup_type": "anticipation",
+      "score": 63,
+      "date": "2026-07-01",
+      "close": 42.4,
+      "volume": 6454257,
+      "volume_ratio_20d": 0.4543,
+      "relative_strength_rank": 55.5024,
+      "pivot_price": 43.5,
+      "stop_reference": 38.65,
+      "extended_risk": false,
+      "risk_notes": [
+        "僅供研究與人工複核，不構成買賣建議"
+      ],
+      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/5876.json",
+      "seen_date": "2026-07-01",
+      "seen_count": 4,
+      "appearance_count": 4,
+      "dates": [
+        "2026-06-26",
+        "2026-06-29",
+        "2026-06-30",
+        "2026-07-01"
+      ],
+      "setup_types": [
+        "anticipation",
+        "anticipation",
+        "anticipation",
+        "anticipation"
+      ],
+      "latest_setup_type": "anticipation",
+      "latest_score": 63
+    },
+    {
+      "symbol": "1102",
+      "name": "亞泥",
+      "market": "listed",
+      "setup_type": "anticipation",
+      "score": 53,
+      "date": "2026-07-01",
+      "close": 35.1,
+      "volume": 86002108,
+      "volume_ratio_20d": 4.9925,
+      "relative_strength_rank": 40.0,
+      "pivot_price": 36.5,
+      "stop_reference": 32.4,
+      "extended_risk": false,
+      "risk_notes": [
+        "僅供研究與人工複核，不構成買賣建議"
+      ],
+      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/1102.json",
+      "seen_date": "2026-07-01",
+      "seen_count": 4,
+      "appearance_count": 4,
+      "dates": [
+        "2026-06-26",
+        "2026-06-29",
+        "2026-06-30",
+        "2026-07-01"
+      ],
+      "setup_types": [
+        "anticipation",
+        "anticipation",
+        "anticipation",
+        "anticipation"
+      ],
+      "latest_setup_type": "anticipation",
+      "latest_score": 53
+    },
+    {
+      "symbol": "2634",
+      "name": "漢翔",
+      "market": "listed",
+      "setup_type": "failed_breakout",
+      "score": 58,
+      "date": "2026-07-01",
+      "close": 56.2,
+      "volume": 57139262,
+      "volume_ratio_20d": 5.9967,
+      "relative_strength_rank": 66.5072,
+      "pivot_price": 57.2,
+      "stop_reference": 46.05,
+      "extended_risk": false,
+      "risk_notes": [
+        "僅供研究與人工複核，不構成買賣建議",
+        "距離風險參考位置超過門檻"
+      ],
+      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/2634.json",
+      "seen_date": "2026-07-01",
+      "seen_count": 4,
+      "appearance_count": 4,
+      "dates": [
+        "2026-06-26",
+        "2026-06-29",
+        "2026-06-30",
+        "2026-07-01"
+      ],
+      "setup_types": [
+        "anticipation",
+        "extended_watch",
+        "extended_watch",
+        "failed_breakout"
+      ],
+      "latest_setup_type": "failed_breakout",
+      "latest_score": 58
+    },
+    {
+      "symbol": "1718",
+      "name": "中纖",
+      "market": "listed",
+      "setup_type": "failed_breakout",
+      "score": 53,
+      "date": "2026-07-01",
+      "close": 12.4,
+      "volume": 292901081,
+      "volume_ratio_20d": 7.1439,
+      "relative_strength_rank": 88.8995,
+      "pivot_price": 13.45,
+      "stop_reference": 8.96,
+      "extended_risk": false,
+      "risk_notes": [
+        "僅供研究與人工複核，不構成買賣建議",
+        "距離風險參考位置超過門檻"
+      ],
+      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/1718.json",
+      "seen_date": "2026-07-01",
+      "seen_count": 4,
+      "appearance_count": 4,
+      "dates": [
+        "2026-06-26",
+        "2026-06-29",
+        "2026-06-30",
+        "2026-07-01"
+      ],
+      "setup_types": [
+        "extended_watch",
+        "extended_watch",
+        "extended_watch",
+        "failed_breakout"
+      ],
+      "latest_setup_type": "failed_breakout",
+      "latest_score": 53
+    },
+    {
+      "symbol": "3230",
+      "name": "錦明",
       "market": "otc",
       "setup_type": "extended_watch",
-      "score": 73,
-      "date": "2026-06-30",
-      "close": 86.9,
-      "volume": 42625360,
-      "volume_ratio_20d": 8.231,
-      "relative_strength_rank": 98.2659,
-      "pivot_price": 80.4,
-      "stop_reference": 67.0,
+      "score": 53,
+      "date": "2026-07-01",
+      "close": 47.6,
+      "volume": 1930748,
+      "volume_ratio_20d": 0.918,
+      "relative_strength_rank": 100.0,
+      "pivot_price": 46.45,
+      "stop_reference": 28.2,
+      "extended_risk": false,
+      "risk_notes": [
+        "僅供研究與人工複核，不構成買賣建議",
+        "距離風險參考位置超過門檻"
+      ],
+      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/3230.json",
+      "seen_date": "2026-07-01",
+      "seen_count": 4,
+      "appearance_count": 4,
+      "dates": [
+        "2026-06-26",
+        "2026-06-29",
+        "2026-06-30",
+        "2026-07-01"
+      ],
+      "setup_types": [
+        "extended_watch",
+        "extended_watch",
+        "extended_watch",
+        "extended_watch"
+      ],
+      "latest_setup_type": "extended_watch",
+      "latest_score": 53
+    },
+    {
+      "symbol": "1617",
+      "name": "榮星",
+      "market": "listed",
+      "setup_type": "extended_watch",
+      "score": 53,
+      "date": "2026-07-01",
+      "close": 22.85,
+      "volume": 1058759,
+      "volume_ratio_20d": 1.9141,
+      "relative_strength_rank": 87.6555,
+      "pivot_price": 20.8,
+      "stop_reference": 15.75,
       "extended_risk": true,
       "risk_notes": [
         "僅供研究與人工複核，不構成買賣建議",
-        "資券變化可能代表籌碼分歧，不可單獨視為買賣訊號",
         "距離 pivot 已超過延伸風險門檻",
         "距離風險參考位置超過門檻"
       ],
-      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/5371.json",
-      "seen_date": "2026-06-30",
-      "seen_count": 3,
-      "appearance_count": 3,
+      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/1617.json",
+      "seen_date": "2026-07-01",
+      "seen_count": 4,
+      "appearance_count": 4,
       "dates": [
-        "2026-06-24",
+        "2026-06-26",
         "2026-06-29",
-        "2026-06-30"
+        "2026-06-30",
+        "2026-07-01"
       ],
       "setup_types": [
-        "anticipation",
-        "anticipation",
+        "failed_breakout",
+        "extended_watch",
+        "extended_watch",
         "extended_watch"
       ],
       "latest_setup_type": "extended_watch",
-      "latest_score": 73
-    },
-    {
-      "symbol": "1815",
-      "name": "富喬",
-      "market": "otc",
-      "setup_type": "extended_watch",
-      "score": 83,
-      "date": "2026-06-30",
-      "close": 111.0,
-      "volume": 68687816,
-      "volume_ratio_20d": 2.546,
-      "relative_strength_rank": 94.7977,
-      "pivot_price": 110.5,
-      "stop_reference": 94.2,
-      "extended_risk": false,
-      "risk_notes": [
-        "僅供研究與人工複核，不構成買賣建議",
-        "資券變化可能代表籌碼分歧，不可單獨視為買賣訊號",
-        "距離風險參考位置超過門檻"
-      ],
-      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/1815.json",
-      "seen_date": "2026-06-30",
-      "seen_count": 3,
-      "appearance_count": 3,
-      "dates": [
-        "2026-06-24",
-        "2026-06-25",
-        "2026-06-30"
-      ],
-      "setup_types": [
-        "anticipation",
-        "anticipation",
-        "extended_watch"
-      ],
-      "latest_setup_type": "extended_watch",
-      "latest_score": 83
-    },
-    {
-      "symbol": "6127",
-      "name": "九豪",
-      "market": "otc",
-      "setup_type": "failed_breakout",
-      "score": 68,
-      "date": "2026-06-26",
-      "close": 91.4,
-      "volume": 8985186,
-      "volume_ratio_20d": 1.8781,
-      "relative_strength_rank": 97.1065,
-      "pivot_price": 93.6,
-      "stop_reference": 76.0,
-      "extended_risk": false,
-      "risk_notes": [
-        "僅供研究與人工複核，不構成買賣建議",
-        "距離風險參考位置超過門檻"
-      ],
-      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/6127.json",
-      "seen_date": "2026-06-26",
-      "seen_count": 3,
-      "appearance_count": 3,
-      "dates": [
-        "2026-06-24",
-        "2026-06-25",
-        "2026-06-26"
-      ],
-      "setup_types": [
-        "anticipation",
-        "extended_watch",
-        "failed_breakout"
-      ],
-      "latest_setup_type": "failed_breakout",
-      "latest_score": 68
-    },
-    {
-      "symbol": "3479",
-      "name": "安勤",
-      "market": "otc",
-      "setup_type": "failed_breakout",
-      "score": 68,
-      "date": "2026-06-26",
-      "close": 142.5,
-      "volume": 5946205,
-      "volume_ratio_20d": 3.9708,
-      "relative_strength_rank": 94.5602,
-      "pivot_price": 146.5,
-      "stop_reference": 125.5,
-      "extended_risk": false,
-      "risk_notes": [
-        "僅供研究與人工複核，不構成買賣建議",
-        "距離風險參考位置超過門檻"
-      ],
-      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/3479.json",
-      "seen_date": "2026-06-26",
-      "seen_count": 3,
-      "appearance_count": 3,
-      "dates": [
-        "2026-06-24",
-        "2026-06-25",
-        "2026-06-26"
-      ],
-      "setup_types": [
-        "anticipation",
-        "extended_watch",
-        "failed_breakout"
-      ],
-      "latest_setup_type": "failed_breakout",
-      "latest_score": 68
-    },
-    {
-      "symbol": "6173",
-      "name": "信昌電",
-      "market": "otc",
-      "setup_type": "anticipation",
-      "score": 68,
-      "date": "2026-06-30",
-      "close": 310.5,
-      "volume": 1236119,
-      "volume_ratio_20d": 0.0599,
-      "relative_strength_rank": 88.0925,
-      "pivot_price": 318.0,
-      "stop_reference": 267.0,
-      "extended_risk": false,
-      "risk_notes": [
-        "僅供研究與人工複核，不構成買賣建議",
-        "距離風險參考位置超過門檻"
-      ],
-      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/6173.json",
-      "seen_date": "2026-06-30",
-      "seen_count": 3,
-      "appearance_count": 3,
-      "dates": [
-        "2026-06-24",
-        "2026-06-25",
-        "2026-06-30"
-      ],
-      "setup_types": [
-        "anticipation",
-        "anticipation",
-        "anticipation"
-      ],
-      "latest_setup_type": "anticipation",
-      "latest_score": 68
-    },
-    {
-      "symbol": "8932",
-      "name": "智通*",
-      "market": "otc",
-      "setup_type": "failed_breakout",
-      "score": 63,
-      "date": "2026-06-26",
-      "close": 111.0,
-      "volume": 20427607,
-      "volume_ratio_20d": 5.9326,
-      "relative_strength_rank": 92.7083,
-      "pivot_price": 114.5,
-      "stop_reference": 98.5,
-      "extended_risk": false,
-      "risk_notes": [
-        "僅供研究與人工複核，不構成買賣建議",
-        "距離風險參考位置超過門檻"
-      ],
-      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/8932.json",
-      "seen_date": "2026-06-26",
-      "seen_count": 3,
-      "appearance_count": 3,
-      "dates": [
-        "2026-06-24",
-        "2026-06-25",
-        "2026-06-26"
-      ],
-      "setup_types": [
-        "anticipation",
-        "extended_watch",
-        "failed_breakout"
-      ],
-      "latest_setup_type": "failed_breakout",
-      "latest_score": 63
-    },
-    {
-      "symbol": "8096",
-      "name": "擎亞",
-      "market": "otc",
-      "setup_type": "anticipation",
-      "score": 63,
-      "date": "2026-06-30",
-      "close": 154.5,
-      "volume": 1658342,
-      "volume_ratio_20d": 0.1362,
-      "relative_strength_rank": 88.4393,
-      "pivot_price": 162.0,
-      "stop_reference": 141.5,
-      "extended_risk": false,
-      "risk_notes": [
-        "僅供研究與人工複核，不構成買賣建議"
-      ],
-      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/8096.json",
-      "seen_date": "2026-06-30",
-      "seen_count": 3,
-      "appearance_count": 3,
-      "dates": [
-        "2026-06-24",
-        "2026-06-25",
-        "2026-06-30"
-      ],
-      "setup_types": [
-        "anticipation",
-        "anticipation",
-        "anticipation"
-      ],
-      "latest_setup_type": "anticipation",
-      "latest_score": 63
+      "latest_score": 53
     },
     {
       "symbol": "6290",
@@ -3519,11 +3398,11 @@
       "market": "otc",
       "setup_type": "anticipation",
       "score": 58,
-      "date": "2026-06-30",
-      "close": 308.5,
-      "volume": 2479742,
-      "volume_ratio_20d": 0.7035,
-      "relative_strength_rank": 79.0751,
+      "date": "2026-07-01",
+      "close": 308.0,
+      "volume": 4208862,
+      "volume_ratio_20d": 1.201,
+      "relative_strength_rank": 76.9676,
       "pivot_price": 321.0,
       "stop_reference": 291.5,
       "extended_risk": false,
@@ -3531,13 +3410,13 @@
         "僅供研究與人工複核，不構成買賣建議"
       ],
       "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/6290.json",
-      "seen_date": "2026-06-30",
+      "seen_date": "2026-07-01",
       "seen_count": 3,
       "appearance_count": 3,
       "dates": [
-        "2026-06-24",
         "2026-06-25",
-        "2026-06-30"
+        "2026-06-30",
+        "2026-07-01"
       ],
       "setup_types": [
         "anticipation",
@@ -3548,101 +3427,30 @@
       "latest_score": 58
     },
     {
-      "symbol": "6491",
-      "name": "晶碩",
+      "symbol": "2727",
+      "name": "王品",
       "market": "listed",
-      "setup_type": "extended_watch",
-      "score": 73,
-      "date": "2026-06-30",
-      "close": 345.0,
-      "volume": 975032,
-      "volume_ratio_20d": 2.1757,
-      "relative_strength_rank": 74.4008,
-      "pivot_price": 332.5,
-      "stop_reference": 286.0,
-      "extended_risk": false,
-      "risk_notes": [
-        "僅供研究與人工複核，不構成買賣建議",
-        "距離風險參考位置超過門檻"
-      ],
-      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/6491.json",
-      "seen_date": "2026-06-30",
-      "seen_count": 3,
-      "appearance_count": 3,
-      "dates": [
-        "2026-06-24",
-        "2026-06-29",
-        "2026-06-30"
-      ],
-      "setup_types": [
-        "anticipation",
-        "anticipation",
-        "extended_watch"
-      ],
-      "latest_setup_type": "extended_watch",
-      "latest_score": 73
-    },
-    {
-      "symbol": "5314",
-      "name": "世紀*",
-      "market": "otc",
-      "setup_type": "extended_watch",
-      "score": 78,
-      "date": "2026-06-30",
-      "close": 66.8,
-      "volume": 17703130,
-      "volume_ratio_20d": 6.2767,
-      "relative_strength_rank": 95.2601,
-      "pivot_price": 62.5,
-      "stop_reference": 55.3,
-      "extended_risk": false,
-      "risk_notes": [
-        "僅供研究與人工複核，不構成買賣建議",
-        "資券變化可能代表籌碼分歧，不可單獨視為買賣訊號",
-        "距離風險參考位置超過門檻"
-      ],
-      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/5314.json",
-      "seen_date": "2026-06-30",
-      "seen_count": 3,
-      "appearance_count": 3,
-      "dates": [
-        "2026-06-24",
-        "2026-06-29",
-        "2026-06-30"
-      ],
-      "setup_types": [
-        "anticipation",
-        "anticipation",
-        "extended_watch"
-      ],
-      "latest_setup_type": "extended_watch",
-      "latest_score": 78
-    },
-    {
-      "symbol": "3088",
-      "name": "艾訊",
-      "market": "otc",
       "setup_type": "anticipation",
-      "score": 73,
-      "date": "2026-06-30",
-      "close": 143.5,
-      "volume": 910239,
-      "volume_ratio_20d": 0.6243,
-      "relative_strength_rank": 82.0809,
-      "pivot_price": 146.5,
-      "stop_reference": 133.5,
+      "score": 68,
+      "date": "2026-07-01",
+      "close": 247.5,
+      "volume": 531045,
+      "volume_ratio_20d": 1.1008,
+      "relative_strength_rank": 58.756,
+      "pivot_price": 251.5,
+      "stop_reference": 228.0,
       "extended_risk": false,
       "risk_notes": [
         "僅供研究與人工複核，不構成買賣建議"
       ],
-      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/3088.json",
-      "seen_date": "2026-06-30",
+      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/2727.json",
+      "seen_date": "2026-07-01",
       "seen_count": 3,
       "appearance_count": 3,
       "dates": [
-        "2026-06-24",
         "2026-06-25",
-        "2026-06-30"
+        "2026-06-26",
+        "2026-07-01"
       ],
       "setup_types": [
         "anticipation",
@@ -3650,6 +3458,216 @@
         "anticipation"
       ],
       "latest_setup_type": "anticipation",
+      "latest_score": 68
+    },
+    {
+      "symbol": "1815",
+      "name": "富喬",
+      "market": "otc",
+      "setup_type": "failed_breakout",
+      "score": 63,
+      "date": "2026-07-01",
+      "close": 104.0,
+      "volume": 94589543,
+      "volume_ratio_20d": 3.2407,
+      "relative_strength_rank": 90.0463,
+      "pivot_price": 111.0,
+      "stop_reference": 94.2,
+      "extended_risk": false,
+      "risk_notes": [
+        "僅供研究與人工複核，不構成買賣建議",
+        "距離風險參考位置超過門檻"
+      ],
+      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/1815.json",
+      "seen_date": "2026-07-01",
+      "seen_count": 3,
+      "appearance_count": 3,
+      "dates": [
+        "2026-06-25",
+        "2026-06-30",
+        "2026-07-01"
+      ],
+      "setup_types": [
+        "anticipation",
+        "extended_watch",
+        "failed_breakout"
+      ],
+      "latest_setup_type": "failed_breakout",
+      "latest_score": 63
+    },
+    {
+      "symbol": "6712",
+      "name": "長聖",
+      "market": "otc",
+      "setup_type": "failed_breakout",
+      "score": 63,
+      "date": "2026-06-30",
+      "close": 158.5,
+      "volume": 1479945,
+      "volume_ratio_20d": 2.4568,
+      "relative_strength_rank": 93.2948,
+      "pivot_price": 162.0,
+      "stop_reference": 137.0,
+      "extended_risk": false,
+      "risk_notes": [
+        "僅供研究與人工複核，不構成買賣建議",
+        "距離風險參考位置超過門檻"
+      ],
+      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/6712.json",
+      "seen_date": "2026-06-30",
+      "seen_count": 3,
+      "appearance_count": 3,
+      "dates": [
+        "2026-06-25",
+        "2026-06-29",
+        "2026-06-30"
+      ],
+      "setup_types": [
+        "anticipation",
+        "failed_breakout",
+        "failed_breakout"
+      ],
+      "latest_setup_type": "failed_breakout",
+      "latest_score": 63
+    },
+    {
+      "symbol": "5434",
+      "name": "崇越",
+      "market": "listed",
+      "setup_type": "failed_breakout",
+      "score": 78,
+      "date": "2026-06-30",
+      "close": 549.0,
+      "volume": 5191915,
+      "volume_ratio_20d": 4.3125,
+      "relative_strength_rank": 91.5628,
+      "pivot_price": 539.0,
+      "stop_reference": 434.5,
+      "extended_risk": false,
+      "risk_notes": [
+        "僅供研究與人工複核，不構成買賣建議",
+        "距離風險參考位置超過門檻"
+      ],
+      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/5434.json",
+      "seen_date": "2026-06-30",
+      "seen_count": 3,
+      "appearance_count": 3,
+      "dates": [
+        "2026-06-25",
+        "2026-06-29",
+        "2026-06-30"
+      ],
+      "setup_types": [
+        "anticipation",
+        "extended_watch",
+        "failed_breakout"
+      ],
+      "latest_setup_type": "failed_breakout",
+      "latest_score": 78
+    },
+    {
+      "symbol": "5904",
+      "name": "寶雅",
+      "market": "otc",
+      "setup_type": "failed_breakout",
+      "score": 68,
+      "date": "2026-07-01",
+      "close": 682.0,
+      "volume": 667397,
+      "volume_ratio_20d": 2.1224,
+      "relative_strength_rank": 89.2361,
+      "pivot_price": 688.0,
+      "stop_reference": 612.0,
+      "extended_risk": false,
+      "risk_notes": [
+        "僅供研究與人工複核，不構成買賣建議",
+        "距離風險參考位置超過門檻"
+      ],
+      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/5904.json",
+      "seen_date": "2026-07-01",
+      "seen_count": 3,
+      "appearance_count": 3,
+      "dates": [
+        "2026-06-25",
+        "2026-06-30",
+        "2026-07-01"
+      ],
+      "setup_types": [
+        "anticipation",
+        "anticipation",
+        "failed_breakout"
+      ],
+      "latest_setup_type": "failed_breakout",
+      "latest_score": 68
+    },
+    {
+      "symbol": "2476",
+      "name": "鉅祥",
+      "market": "listed",
+      "setup_type": "anticipation",
+      "score": 58,
+      "date": "2026-07-01",
+      "close": 128.5,
+      "volume": 4229302,
+      "volume_ratio_20d": 0.9321,
+      "relative_strength_rank": 86.3158,
+      "pivot_price": 135.0,
+      "stop_reference": 108.0,
+      "extended_risk": false,
+      "risk_notes": [
+        "僅供研究與人工複核，不構成買賣建議",
+        "距離風險參考位置超過門檻"
+      ],
+      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/2476.json",
+      "seen_date": "2026-07-01",
+      "seen_count": 3,
+      "appearance_count": 3,
+      "dates": [
+        "2026-06-25",
+        "2026-06-30",
+        "2026-07-01"
+      ],
+      "setup_types": [
+        "anticipation",
+        "anticipation",
+        "anticipation"
+      ],
+      "latest_setup_type": "anticipation",
+      "latest_score": 58
+    },
+    {
+      "symbol": "6173",
+      "name": "信昌電",
+      "market": "otc",
+      "setup_type": "extended_watch",
+      "score": 73,
+      "date": "2026-07-01",
+      "close": 341.5,
+      "volume": 3051874,
+      "volume_ratio_20d": 0.1604,
+      "relative_strength_rank": 95.6019,
+      "pivot_price": 318.0,
+      "stop_reference": 267.0,
+      "extended_risk": false,
+      "risk_notes": [
+        "僅供研究與人工複核，不構成買賣建議",
+        "距離風險參考位置超過門檻"
+      ],
+      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/6173.json",
+      "seen_date": "2026-07-01",
+      "seen_count": 3,
+      "appearance_count": 3,
+      "dates": [
+        "2026-06-25",
+        "2026-06-30",
+        "2026-07-01"
+      ],
+      "setup_types": [
+        "anticipation",
+        "anticipation",
+        "extended_watch"
+      ],
+      "latest_setup_type": "extended_watch",
       "latest_score": 73
     },
     {
@@ -3658,11 +3676,11 @@
       "market": "listed",
       "setup_type": "anticipation",
       "score": 53,
-      "date": "2026-06-26",
-      "close": 92.8,
-      "volume": 7519776,
-      "volume_ratio_20d": 0.7664,
-      "relative_strength_rank": 71.785,
+      "date": "2026-07-01",
+      "close": 93.6,
+      "volume": 8224043,
+      "volume_ratio_20d": 0.7934,
+      "relative_strength_rank": 72.5359,
       "pivot_price": 97.1,
       "stop_reference": 81.6,
       "extended_risk": false,
@@ -3671,13 +3689,13 @@
         "距離風險參考位置超過門檻"
       ],
       "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/2347.json",
-      "seen_date": "2026-06-26",
+      "seen_date": "2026-07-01",
       "seen_count": 3,
       "appearance_count": 3,
       "dates": [
-        "2026-06-24",
         "2026-06-25",
-        "2026-06-26"
+        "2026-06-26",
+        "2026-07-01"
       ],
       "setup_types": [
         "anticipation",
@@ -3688,50 +3706,16 @@
       "latest_score": 53
     },
     {
-      "symbol": "3689",
-      "name": "湧德",
-      "market": "otc",
-      "setup_type": "anticipation",
-      "score": 63,
-      "date": "2026-06-30",
-      "close": 120.0,
-      "volume": 1536151,
-      "volume_ratio_20d": 1.1624,
-      "relative_strength_rank": 72.1387,
-      "pivot_price": 122.0,
-      "stop_reference": 112.0,
-      "extended_risk": false,
-      "risk_notes": [
-        "僅供研究與人工複核，不構成買賣建議"
-      ],
-      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/3689.json",
-      "seen_date": "2026-06-30",
-      "seen_count": 3,
-      "appearance_count": 3,
-      "dates": [
-        "2026-06-24",
-        "2026-06-25",
-        "2026-06-30"
-      ],
-      "setup_types": [
-        "anticipation",
-        "anticipation",
-        "anticipation"
-      ],
-      "latest_setup_type": "anticipation",
-      "latest_score": 63
-    },
-    {
       "symbol": "3592",
       "name": "瑞鼎",
       "market": "listed",
       "setup_type": "anticipation",
       "score": 58,
-      "date": "2026-06-30",
-      "close": 278.5,
-      "volume": 2491138,
-      "volume_ratio_20d": 2.8975,
-      "relative_strength_rank": 74.976,
+      "date": "2026-07-01",
+      "close": 281.5,
+      "volume": 1900590,
+      "volume_ratio_20d": 2.0116,
+      "relative_strength_rank": 76.3636,
       "pivot_price": 292.0,
       "stop_reference": 242.5,
       "extended_risk": false,
@@ -3740,13 +3724,13 @@
         "距離風險參考位置超過門檻"
       ],
       "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/3592.json",
-      "seen_date": "2026-06-30",
+      "seen_date": "2026-07-01",
       "seen_count": 3,
       "appearance_count": 3,
       "dates": [
-        "2026-06-24",
         "2026-06-25",
-        "2026-06-30"
+        "2026-06-30",
+        "2026-07-01"
       ],
       "setup_types": [
         "anticipation",
@@ -3757,66 +3741,347 @@
       "latest_score": 58
     },
     {
-      "symbol": "6234",
-      "name": "高僑",
-      "market": "otc",
-      "setup_type": "anticipation",
-      "score": 68,
+      "symbol": "3023",
+      "name": "信邦",
+      "market": "listed",
+      "setup_type": "failed_breakout",
+      "score": 58,
       "date": "2026-06-30",
-      "close": 48.6,
-      "volume": 2433639,
-      "volume_ratio_20d": 1.5792,
-      "relative_strength_rank": 94.6821,
-      "pivot_price": 50.5,
-      "stop_reference": 41.0,
+      "close": 328.5,
+      "volume": 4172491,
+      "volume_ratio_20d": 2.0336,
+      "relative_strength_rank": 74.6884,
+      "pivot_price": 340.0,
+      "stop_reference": 278.0,
       "extended_risk": false,
       "risk_notes": [
         "僅供研究與人工複核，不構成買賣建議",
         "距離風險參考位置超過門檻"
       ],
-      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/6234.json",
+      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/3023.json",
       "seen_date": "2026-06-30",
       "seen_count": 3,
       "appearance_count": 3,
       "dates": [
-        "2026-06-24",
         "2026-06-25",
+        "2026-06-29",
         "2026-06-30"
       ],
       "setup_types": [
-        "extended_watch",
-        "failed_breakout",
+        "anticipation",
+        "anticipation",
+        "failed_breakout"
+      ],
+      "latest_setup_type": "failed_breakout",
+      "latest_score": 58
+    },
+    {
+      "symbol": "3689",
+      "name": "湧德",
+      "market": "otc",
+      "setup_type": "anticipation",
+      "score": 68,
+      "date": "2026-07-01",
+      "close": 122.0,
+      "volume": 1526651,
+      "volume_ratio_20d": 1.1465,
+      "relative_strength_rank": 76.5046,
+      "pivot_price": 122.0,
+      "stop_reference": 112.0,
+      "extended_risk": false,
+      "risk_notes": [
+        "僅供研究與人工複核，不構成買賣建議",
+        "資券變化可能代表籌碼分歧，不可單獨視為買賣訊號"
+      ],
+      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/3689.json",
+      "seen_date": "2026-07-01",
+      "seen_count": 3,
+      "appearance_count": 3,
+      "dates": [
+        "2026-06-25",
+        "2026-06-30",
+        "2026-07-01"
+      ],
+      "setup_types": [
+        "anticipation",
+        "anticipation",
         "anticipation"
       ],
       "latest_setup_type": "anticipation",
       "latest_score": 68
     },
     {
-      "symbol": "2740",
-      "name": "華軒",
+      "symbol": "6182",
+      "name": "合晶",
       "market": "otc",
       "setup_type": "extended_watch",
       "score": 58,
-      "date": "2026-06-29",
-      "close": 32.05,
-      "volume": 4572,
-      "volume_ratio_20d": 0.2261,
-      "relative_strength_rank": 98.4919,
-      "pivot_price": 31.3,
-      "stop_reference": 23.9,
+      "date": "2026-07-01",
+      "close": 135.0,
+      "volume": 30712667,
+      "volume_ratio_20d": 0.5618,
+      "relative_strength_rank": 97.338,
+      "pivot_price": 134.5,
+      "stop_reference": 103.0,
       "extended_risk": false,
       "risk_notes": [
         "僅供研究與人工複核，不構成買賣建議",
         "距離風險參考位置超過門檻"
       ],
-      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/2740.json",
+      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/6182.json",
+      "seen_date": "2026-07-01",
+      "seen_count": 3,
+      "appearance_count": 3,
+      "dates": [
+        "2026-06-25",
+        "2026-06-26",
+        "2026-07-01"
+      ],
+      "setup_types": [
+        "extended_watch",
+        "failed_breakout",
+        "extended_watch"
+      ],
+      "latest_setup_type": "extended_watch",
+      "latest_score": 58
+    },
+    {
+      "symbol": "3189",
+      "name": "景碩",
+      "market": "listed",
+      "setup_type": "failed_breakout",
+      "score": 58,
+      "date": "2026-07-01",
+      "close": 888.0,
+      "volume": 38728579,
+      "volume_ratio_20d": 1.659,
+      "relative_strength_rank": 97.799,
+      "pivot_price": 893.0,
+      "stop_reference": 637.0,
+      "extended_risk": false,
+      "risk_notes": [
+        "僅供研究與人工複核，不構成買賣建議",
+        "距離風險參考位置超過門檻"
+      ],
+      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/3189.json",
+      "seen_date": "2026-07-01",
+      "seen_count": 3,
+      "appearance_count": 3,
+      "dates": [
+        "2026-06-25",
+        "2026-06-26",
+        "2026-07-01"
+      ],
+      "setup_types": [
+        "extended_watch",
+        "failed_breakout",
+        "failed_breakout"
+      ],
+      "latest_setup_type": "failed_breakout",
+      "latest_score": 58
+    },
+    {
+      "symbol": "6127",
+      "name": "九豪",
+      "market": "otc",
+      "setup_type": "failed_breakout",
+      "score": 48,
+      "date": "2026-07-01",
+      "close": 96.9,
+      "volume": 49653066,
+      "volume_ratio_20d": 7.4966,
+      "relative_strength_rank": 97.4537,
+      "pivot_price": 100.0,
+      "stop_reference": 76.0,
+      "extended_risk": false,
+      "risk_notes": [
+        "僅供研究與人工複核，不構成買賣建議",
+        "距離風險參考位置超過門檻"
+      ],
+      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/6127.json",
+      "seen_date": "2026-07-01",
+      "seen_count": 3,
+      "appearance_count": 3,
+      "dates": [
+        "2026-06-25",
+        "2026-06-26",
+        "2026-07-01"
+      ],
+      "setup_types": [
+        "extended_watch",
+        "failed_breakout",
+        "failed_breakout"
+      ],
+      "latest_setup_type": "failed_breakout",
+      "latest_score": 48
+    },
+    {
+      "symbol": "8046",
+      "name": "南電",
+      "market": "listed",
+      "setup_type": "extended_watch",
+      "score": 63,
+      "date": "2026-06-30",
+      "close": 1185.0,
+      "volume": 6270925,
+      "volume_ratio_20d": 0.3245,
+      "relative_strength_rank": 95.6855,
+      "pivot_price": 1145.0,
+      "stop_reference": 830.0,
+      "extended_risk": false,
+      "risk_notes": [
+        "僅供研究與人工複核，不構成買賣建議",
+        "資券變化可能代表籌碼分歧，不可單獨視為買賣訊號",
+        "距離風險參考位置超過門檻"
+      ],
+      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/8046.json",
+      "seen_date": "2026-06-30",
+      "seen_count": 3,
+      "appearance_count": 3,
+      "dates": [
+        "2026-06-25",
+        "2026-06-26",
+        "2026-06-30"
+      ],
+      "setup_types": [
+        "extended_watch",
+        "extended_watch",
+        "extended_watch"
+      ],
+      "latest_setup_type": "extended_watch",
+      "latest_score": 63
+    },
+    {
+      "symbol": "6409",
+      "name": "旭隼",
+      "market": "listed",
+      "setup_type": "extended_watch",
+      "score": 73,
+      "date": "2026-07-01",
+      "close": 1130.0,
+      "volume": 2313655,
+      "volume_ratio_20d": 1.3729,
+      "relative_strength_rank": 86.0287,
+      "pivot_price": 1120.0,
+      "stop_reference": 900.0,
+      "extended_risk": false,
+      "risk_notes": [
+        "僅供研究與人工複核，不構成買賣建議",
+        "距離風險參考位置超過門檻"
+      ],
+      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/6409.json",
+      "seen_date": "2026-07-01",
+      "seen_count": 3,
+      "appearance_count": 3,
+      "dates": [
+        "2026-06-25",
+        "2026-06-30",
+        "2026-07-01"
+      ],
+      "setup_types": [
+        "extended_watch",
+        "extended_watch",
+        "extended_watch"
+      ],
+      "latest_setup_type": "extended_watch",
+      "latest_score": 73
+    },
+    {
+      "symbol": "6271",
+      "name": "同欣電",
+      "market": "listed",
+      "setup_type": "extended_watch",
+      "score": 63,
+      "date": "2026-07-01",
+      "close": 287.5,
+      "volume": 42671326,
+      "volume_ratio_20d": 4.0492,
+      "relative_strength_rank": 93.3014,
+      "pivot_price": 280.0,
+      "stop_reference": 221.5,
+      "extended_risk": false,
+      "risk_notes": [
+        "僅供研究與人工複核，不構成買賣建議",
+        "距離風險參考位置超過門檻"
+      ],
+      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/6271.json",
+      "seen_date": "2026-07-01",
+      "seen_count": 3,
+      "appearance_count": 3,
+      "dates": [
+        "2026-06-25",
+        "2026-06-26",
+        "2026-07-01"
+      ],
+      "setup_types": [
+        "extended_watch",
+        "failed_breakout",
+        "extended_watch"
+      ],
+      "latest_setup_type": "extended_watch",
+      "latest_score": 63
+    },
+    {
+      "symbol": "7631",
+      "name": "聚賢研發-創",
+      "market": "listed",
+      "setup_type": "extended_watch",
+      "score": 58,
+      "date": "2026-06-29",
+      "close": 177.0,
+      "volume": 1311212,
+      "volume_ratio_20d": 11.6926,
+      "relative_strength_rank": 88.2917,
+      "pivot_price": 169.0,
+      "stop_reference": 124.5,
+      "extended_risk": false,
+      "risk_notes": [
+        "僅供研究與人工複核，不構成買賣建議",
+        "距離風險參考位置超過門檻"
+      ],
+      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/7631.json",
       "seen_date": "2026-06-29",
       "seen_count": 3,
       "appearance_count": 3,
       "dates": [
-        "2026-06-24",
         "2026-06-25",
+        "2026-06-26",
         "2026-06-29"
+      ],
+      "setup_types": [
+        "extended_watch",
+        "failed_breakout",
+        "extended_watch"
+      ],
+      "latest_setup_type": "extended_watch",
+      "latest_score": 58
+    },
+    {
+      "symbol": "6446",
+      "name": "藥華藥",
+      "market": "listed",
+      "setup_type": "extended_watch",
+      "score": 58,
+      "date": "2026-06-30",
+      "close": 1340.0,
+      "volume": 5135963,
+      "volume_ratio_20d": 1.6584,
+      "relative_strength_rank": 95.5896,
+      "pivot_price": 1270.0,
+      "stop_reference": 948.0,
+      "extended_risk": false,
+      "risk_notes": [
+        "僅供研究與人工複核，不構成買賣建議",
+        "距離風險參考位置超過門檻"
+      ],
+      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/6446.json",
+      "seen_date": "2026-06-30",
+      "seen_count": 3,
+      "appearance_count": 3,
+      "dates": [
+        "2026-06-25",
+        "2026-06-29",
+        "2026-06-30"
       ],
       "setup_types": [
         "extended_watch",
@@ -3827,267 +4092,23 @@
       "latest_score": 58
     },
     {
-      "symbol": "5464",
-      "name": "霖宏",
+      "symbol": "3293",
+      "name": "鈊象",
       "market": "otc",
-      "setup_type": "failed_breakout",
-      "score": 48,
-      "date": "2026-06-26",
-      "close": 100.0,
-      "volume": 5877767,
-      "volume_ratio_20d": 5.1278,
-      "relative_strength_rank": 99.537,
-      "pivot_price": 107.5,
-      "stop_reference": 68.0,
-      "extended_risk": false,
-      "risk_notes": [
-        "僅供研究與人工複核，不構成買賣建議",
-        "距離風險參考位置超過門檻"
-      ],
-      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/5464.json",
-      "seen_date": "2026-06-26",
-      "seen_count": 3,
-      "appearance_count": 3,
-      "dates": [
-        "2026-06-24",
-        "2026-06-25",
-        "2026-06-26"
-      ],
-      "setup_types": [
-        "extended_watch",
-        "extended_watch",
-        "failed_breakout"
-      ],
-      "latest_setup_type": "failed_breakout",
-      "latest_score": 48
-    },
-    {
-      "symbol": "4147",
-      "name": "中裕",
-      "market": "otc",
-      "setup_type": "anticipation",
-      "score": 63,
-      "date": "2026-06-30",
-      "close": 65.0,
-      "volume": 2440754,
-      "volume_ratio_20d": 1.7557,
-      "relative_strength_rank": 93.1792,
-      "pivot_price": 66.7,
-      "stop_reference": 55.7,
-      "extended_risk": false,
-      "risk_notes": [
-        "僅供研究與人工複核，不構成買賣建議",
-        "距離風險參考位置超過門檻"
-      ],
-      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/4147.json",
-      "seen_date": "2026-06-30",
-      "seen_count": 3,
-      "appearance_count": 3,
-      "dates": [
-        "2026-06-24",
-        "2026-06-29",
-        "2026-06-30"
-      ],
-      "setup_types": [
-        "failed_breakout",
-        "anticipation",
-        "anticipation"
-      ],
-      "latest_setup_type": "anticipation",
-      "latest_score": 63
-    },
-    {
-      "symbol": "8383",
-      "name": "千附",
-      "market": "otc",
-      "setup_type": "failed_breakout",
-      "score": 68,
-      "date": "2026-06-30",
-      "close": 65.4,
-      "volume": 3641859,
-      "volume_ratio_20d": 1.5057,
-      "relative_strength_rank": 88.9017,
-      "pivot_price": 66.0,
-      "stop_reference": 59.4,
-      "extended_risk": false,
-      "risk_notes": [
-        "僅供研究與人工複核，不構成買賣建議",
-        "距離風險參考位置超過門檻"
-      ],
-      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/8383.json",
-      "seen_date": "2026-06-30",
-      "seen_count": 3,
-      "appearance_count": 3,
-      "dates": [
-        "2026-06-24",
-        "2026-06-25",
-        "2026-06-30"
-      ],
-      "setup_types": [
-        "failed_breakout",
-        "anticipation",
-        "failed_breakout"
-      ],
-      "latest_setup_type": "failed_breakout",
-      "latest_score": 68
-    },
-    {
-      "symbol": "5904",
-      "name": "寶雅",
-      "market": "otc",
-      "setup_type": "anticipation",
-      "score": 63,
-      "date": "2026-06-30",
-      "close": 667.0,
-      "volume": 692204,
-      "volume_ratio_20d": 2.3935,
-      "relative_strength_rank": 85.5491,
-      "pivot_price": 688.0,
-      "stop_reference": 612.0,
+      "setup_type": "breakout",
+      "score": 88,
+      "date": "2026-07-01",
+      "close": 819.0,
+      "volume": 5490583,
+      "volume_ratio_20d": 3.1049,
+      "relative_strength_rank": 84.6065,
+      "pivot_price": 800.0,
+      "stop_reference": 745.0,
       "extended_risk": false,
       "risk_notes": [
         "僅供研究與人工複核，不構成買賣建議"
       ],
-      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/5904.json",
-      "seen_date": "2026-06-30",
-      "seen_count": 3,
-      "appearance_count": 3,
-      "dates": [
-        "2026-06-24",
-        "2026-06-25",
-        "2026-06-30"
-      ],
-      "setup_types": [
-        "failed_breakout",
-        "anticipation",
-        "anticipation"
-      ],
-      "latest_setup_type": "anticipation",
-      "latest_score": 63
-    },
-    {
-      "symbol": "4716",
-      "name": "大立",
-      "market": "otc",
-      "setup_type": "failed_breakout",
-      "score": 48,
-      "date": "2026-06-26",
-      "close": 23.6,
-      "volume": 15681807,
-      "volume_ratio_20d": 7.8566,
-      "relative_strength_rank": 99.3056,
-      "pivot_price": 24.2,
-      "stop_reference": 16.9,
-      "extended_risk": false,
-      "risk_notes": [
-        "僅供研究與人工複核，不構成買賣建議",
-        "距離風險參考位置超過門檻"
-      ],
-      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/4716.json",
-      "seen_date": "2026-06-26",
-      "seen_count": 3,
-      "appearance_count": 3,
-      "dates": [
-        "2026-06-24",
-        "2026-06-25",
-        "2026-06-26"
-      ],
-      "setup_types": [
-        "failed_breakout",
-        "extended_watch",
-        "failed_breakout"
-      ],
-      "latest_setup_type": "failed_breakout",
-      "latest_score": 48
-    },
-    {
-      "symbol": "8476",
-      "name": "台境*",
-      "market": "listed",
-      "setup_type": "failed_breakout",
-      "score": 38,
-      "date": "2026-06-30",
-      "close": 24.75,
-      "volume": 2721251,
-      "volume_ratio_20d": 1.6463,
-      "relative_strength_rank": 75.1678,
-      "pivot_price": 25.0,
-      "stop_reference": 19.5,
-      "extended_risk": false,
-      "risk_notes": [
-        "僅供研究與人工複核，不構成買賣建議",
-        "距離風險參考位置超過門檻"
-      ],
-      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/8476.json",
-      "seen_date": "2026-06-30",
-      "seen_count": 3,
-      "appearance_count": 3,
-      "dates": [
-        "2026-06-24",
-        "2026-06-26",
-        "2026-06-30"
-      ],
-      "setup_types": [
-        "failed_breakout",
-        "failed_breakout",
-        "failed_breakout"
-      ],
-      "latest_setup_type": "failed_breakout",
-      "latest_score": 38
-    },
-    {
-      "symbol": "3402",
-      "name": "漢科",
-      "market": "otc",
-      "setup_type": "anticipation",
-      "score": 68,
-      "date": "2026-06-30",
-      "close": 148.0,
-      "volume": 1374351,
-      "volume_ratio_20d": 1.3924,
-      "relative_strength_rank": 83.237,
-      "pivot_price": 150.0,
-      "stop_reference": 137.5,
-      "extended_risk": false,
-      "risk_notes": [
-        "僅供研究與人工複核，不構成買賣建議"
-      ],
-      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/3402.json",
-      "seen_date": "2026-06-30",
-      "seen_count": 3,
-      "appearance_count": 3,
-      "dates": [
-        "2026-06-25",
-        "2026-06-29",
-        "2026-06-30"
-      ],
-      "setup_types": [
-        "breakout",
-        "anticipation",
-        "anticipation"
-      ],
-      "latest_setup_type": "anticipation",
-      "latest_score": 68
-    },
-    {
-      "symbol": "4541",
-      "name": "晟田",
-      "market": "otc",
-      "setup_type": "anticipation",
-      "score": 73,
-      "date": "2026-06-30",
-      "close": 51.9,
-      "volume": 2800912,
-      "volume_ratio_20d": 1.5183,
-      "relative_strength_rank": 87.6301,
-      "pivot_price": 52.7,
-      "stop_reference": 46.75,
-      "extended_risk": false,
-      "risk_notes": [
-        "僅供研究與人工複核，不構成買賣建議",
-        "距離風險參考位置超過門檻"
-      ],
-      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/4541.json",
+      "symbol_data_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/3293.json",
       "seen_date": null,
       "seen_count": null,
       "appearance_count": null,
