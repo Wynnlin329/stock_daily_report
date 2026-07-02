@@ -1,46 +1,46 @@
-# ChatGPT Daily Qullamaggie Source: 2026-07-02
+# ChatGPT Daily Qullamaggie Source: 2026-07-03
 
 本資料包僅供 ChatGPT 排程研究與人工複核，不構成交易建議。
 
 ## 資料日期與 Freshness
-- data_freshness: {'report_date': '2026-07-02', 'as_of_date': '2026-07-01', 'market_data_date': '2026-07-01', 'expected_market_data_date': '2026-07-01', 'latest_market_data_date': '2026-07-01', 'is_latest_trading_data_current': True, 'reason': 'Latest trading data is current'}
+- data_freshness: {'report_date': '2026-07-03', 'as_of_date': '2026-07-02', 'market_data_date': '2026-07-02', 'expected_market_data_date': '2026-07-02', 'latest_market_data_date': '2026-07-02', 'is_latest_trading_data_current': True, 'reason': 'Latest trading data is current'}
 
 ## Scan Readiness
-- scan_readiness: {'can_run_technical_scan': True, 'can_run_qullamaggie_scan': True, 'can_generate_new_paper_trade_candidate': True, 'can_use_institutional_confirmation': True, 'can_use_margin_short_risk': True, 'can_use_mops_catalyst': False, 'reasons': []}
+- scan_readiness: {'can_run_technical_scan': True, 'can_run_qullamaggie_scan': True, 'can_generate_new_paper_trade_candidate': True, 'can_use_institutional_confirmation': False, 'can_use_margin_short_risk': True, 'can_use_mops_catalyst': False, 'reasons': []}
 
 ## Qullamaggie Market Regime
-- market_regime: {'status': 'neutral', 'score': 8, 'reasons': ['benchmark regime=neutral'], 'risk_notes': [], 'metrics': {'listed': {'close': 47018.99, 'ma20': 45468.2585, 'ma50': 42812.8638, 'return_20d_pct': 3.2084}, 'otc': {'close': 431.23, 'ma20': 429.5325, 'ma50': 418.5596, 'return_20d_pct': -2.1355}}}
+- market_regime: {'status': 'neutral', 'score': 8, 'reasons': ['benchmark regime=neutral'], 'risk_notes': [], 'metrics': {'listed': {'close': 46744.16, 'ma20': 45482.5085, 'ma50': 43008.571, 'return_20d_pct': 0.6134}, 'otc': {'close': 439.51, 'ma20': 429.167, 'ma50': 419.5384, 'return_20d_pct': -1.636}}}
 
 ## Setup Counts
-- setup_counts: {'breakout': 2, 'episodic_pivot': 0, 'anticipation': 38, 'extended_watch': 50, 'failed_breakout': 50, 'insufficient_data': 50}
+- setup_counts: {'breakout': 0, 'episodic_pivot': 0, 'anticipation': 44, 'extended_watch': 50, 'failed_breakout': 41, 'insufficient_data': 50}
 
 ## Top Candidates
-- 3293 鈊象 setup=breakout score=88
-- 4105 東洋 setup=breakout score=83
-- 2204 中華 setup=anticipation score=73
+- 3402 漢科 setup=anticipation score=73
+- 5381 光譜 setup=anticipation score=73
+- 3022 威強電 setup=anticipation score=73
+- 3479 安勤 setup=anticipation score=68
+- 8091 翔名 setup=anticipation score=68
+- 3264 欣銓 setup=anticipation score=68
 - 3680 家登 setup=anticipation score=68
-- 3221 台嘉碩 setup=anticipation score=68
-- 2330 台積電 setup=anticipation score=68
-- 3689 湧德 setup=anticipation score=68
-- 2727 王品 setup=anticipation score=68
-- 2753 八方雲集 setup=anticipation score=68
-- 1210 大成 setup=anticipation score=68
-- 3236 千如 setup=anticipation score=63
-- 6190 萬泰科 setup=anticipation score=63
-- 2377 微星 setup=anticipation score=63
-- 4743 合一 setup=anticipation score=63
-- 3526 凡甲 setup=anticipation score=63
-- 5876 上海商銀 setup=anticipation score=63
-- 5880 合庫金 setup=anticipation score=63
-- 2633 台灣高鐵 setup=anticipation score=63
-- 3093 港建* setup=anticipation score=58
-- 5536 聖暉* setup=anticipation score=58
+- 5392 能率 setup=anticipation score=68
+- 6290 良維 setup=anticipation score=68
+- 3088 艾訊 setup=anticipation score=68
+- 6664 群翊 setup=anticipation score=63
+- 3217 優群 setup=anticipation score=63
+- 2330 台積電 setup=anticipation score=63
+- 4123 晟德 setup=anticipation score=63
+- 3596 智易 setup=anticipation score=63
+- 6491 晶碩 setup=anticipation score=63
+- 2834 臺企銀 setup=anticipation score=63
+- 6188 廣明 setup=anticipation score=63
+- 1102 亞泥 setup=anticipation score=63
+- 6509 聚和 setup=anticipation score=58
 
 ## Paper Trading Decision Gate
-- gate: {'can_create_new_simulated_buy_candidate': True, 'reason': ['MOPS 不可用或歷史不足，僅停用事件延續性判斷'], 'allowed_actions': ['可產生資料狀態報告', '可產生候選股研究清單', '可更新觀察名單'], 'blocked_actions': []}
+- gate: {'can_create_new_simulated_buy_candidate': True, 'reason': ['法人資料不可用，僅停用法人確認', 'MOPS 不可用或歷史不足，僅停用事件延續性判斷'], 'allowed_actions': ['可產生資料狀態報告', '可產生候選股研究清單', '可更新觀察名單'], 'blocked_actions': ['不得宣稱法人確認']}
 
 ## Disabled Sections
-- 無
+- 不得宣稱法人確認
 
 ## Source URLs
 - latest_json: https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/latest.json
