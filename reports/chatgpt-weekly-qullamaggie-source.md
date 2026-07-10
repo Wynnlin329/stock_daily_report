@@ -1,4 +1,4 @@
-# ChatGPT Weekly Qullamaggie Source: 2026-07-09
+# ChatGPT Weekly Qullamaggie Source: 2026-07-10
 
 本資料包僅供 ChatGPT 排程週度複盤與觀察名單研究，不構成交易建議。
 

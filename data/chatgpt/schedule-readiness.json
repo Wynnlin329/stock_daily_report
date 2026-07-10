@@ -1,15 +1,15 @@
 {
   "schema_version": "1.0",
-  "report_date": "2026-07-10",
-  "as_of_date": "2026-07-09",
-  "market_data_date": "2026-07-09",
+  "report_date": "2026-07-11",
+  "as_of_date": "2026-07-10",
+  "market_data_date": "2026-07-10",
   "latest_market_data_date": "2026-07-09",
-  "generated_at": "2026-07-10T01:50:56+08:00",
+  "generated_at": "2026-07-11T01:43:21+08:00",
   "timezone": "Asia/Taipei",
   "checks": {
-    "latest_market_data_current": true,
-    "technical_scan_ready": true,
-    "qullamaggie_scan_ready": true,
+    "latest_market_data_current": false,
+    "technical_scan_ready": false,
+    "qullamaggie_scan_ready": false,
     "daily_compact_source_ready": true,
     "symbol_index_ready": true,
     "symbol_ohlcv_complete": true,
@@ -18,20 +18,25 @@
     "weekly_review_gate_ready": true
   },
   "compact_sizes": {
-    "daily_qullamaggie_source_compact_bytes": 75457,
+    "daily_qullamaggie_source_compact_bytes": 14016,
     "weekly_qullamaggie_source_compact_bytes": 87837,
     "limit_bytes": 1048576
   },
   "schedule_switch": {
-    "can_switch_daily_scan_schedule": true,
-    "can_switch_watchlist_schedule": true,
+    "can_switch_daily_scan_schedule": false,
+    "can_switch_watchlist_schedule": false,
     "can_switch_position_management_schedule": true,
     "can_switch_weekly_review_schedule": true,
-    "can_switch_all_schedules": true
+    "can_switch_all_schedules": false
   },
-  "blocking_reasons": [],
+  "blocking_reasons": [
+    "latest_market_data_current",
+    "technical_scan_ready",
+    "qullamaggie_scan_ready"
+  ],
   "warnings": [
     "法人確認停用；不得宣稱法人確認。",
+    "資券風險驗證停用；不得宣稱資券風險已驗證。",
     "MOPS 催化延續性停用或不足；僅可列為人工複核素材。"
   ],
   "source_urls": {
