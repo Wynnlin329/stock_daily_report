@@ -1,40 +1,40 @@
-# ChatGPT Daily Qullamaggie Source: 2026-07-17
+# ChatGPT Daily Qullamaggie Source: 2026-07-18
 
 本資料包僅供 ChatGPT 排程研究與人工複核，不構成交易建議。
 
 ## 資料日期與 Freshness
-- data_freshness: {'report_date': '2026-07-17', 'as_of_date': '2026-07-16', 'market_data_date': '2026-07-16', 'expected_market_data_date': '2026-07-16', 'latest_market_data_date': '2026-07-16', 'is_latest_trading_data_current': True, 'reason': 'Latest trading data is current'}
+- data_freshness: {'report_date': '2026-07-18', 'as_of_date': '2026-07-17', 'market_data_date': '2026-07-17', 'expected_market_data_date': '2026-07-17', 'latest_market_data_date': '2026-07-17', 'is_latest_trading_data_current': True, 'reason': 'Latest trading data is current'}
 
 ## Scan Readiness
 - scan_readiness: {'can_run_technical_scan': True, 'can_run_qullamaggie_scan': True, 'can_generate_new_paper_trade_candidate': True, 'can_use_institutional_confirmation': True, 'can_use_margin_short_risk': True, 'can_use_mops_catalyst': False, 'reasons': []}
 
 ## Qullamaggie Market Regime
-- market_regime: {'status': 'neutral', 'score': 8, 'reasons': ['benchmark regime=neutral'], 'risk_notes': [], 'metrics': {'listed': {'close': 45624.98, 'ma20': 46011.2255, 'ma50': 44230.0994, 'return_20d_pct': -0.4021}, 'otc': {'close': 407.01, 'ma20': 429.215, 'ma50': 425.7722, 'return_20d_pct': -5.4037}}}
+- market_regime: {'status': 'neutral', 'score': 8, 'reasons': ['benchmark regime=neutral'], 'risk_notes': [], 'metrics': {'listed': {'close': 42671.27, 'ma20': 45850.9195, 'ma50': 44268.139, 'return_20d_pct': -6.9885}, 'otc': {'close': 378.44, 'ma20': 426.47, 'ma50': 425.1352, 'return_20d_pct': -12.669}}}
 
 ## Setup Counts
-- setup_counts: {'breakout': 0, 'episodic_pivot': 0, 'anticipation': 20, 'extended_watch': 42, 'failed_breakout': 23, 'insufficient_data': 50}
+- setup_counts: {'breakout': 0, 'episodic_pivot': 0, 'anticipation': 14, 'extended_watch': 17, 'failed_breakout': 15, 'insufficient_data': 50}
 
 ## Top Candidates
-- 6196 帆宣 setup=anticipation score=63
-- 3479 安勤 setup=anticipation score=63
-- 3402 漢科 setup=anticipation score=63
-- 2887 台新新光金 setup=anticipation score=63
-- 2359 所羅門 setup=anticipation score=63
-- 2330 台積電 setup=anticipation score=63
+- 2812 台中銀 setup=anticipation score=68
 - 2892 第一金 setup=anticipation score=63
-- 2915 潤泰全 setup=anticipation score=63
-- 2834 臺企銀 setup=anticipation score=63
-- 5880 合庫金 setup=anticipation score=63
-- 5876 上海商銀 setup=anticipation score=58
+- 2889 國票金 setup=anticipation score=63
+- 2520 冠德 setup=anticipation score=58
+- 2834 臺企銀 setup=anticipation score=58
 - 2801 彰銀 setup=anticipation score=58
-- 2880 華南金 setup=anticipation score=58
-- 1210 大成 setup=anticipation score=58
+- 2201 裕隆 setup=anticipation score=58
 - 2884 玉山金 setup=anticipation score=58
-- 2646 星宇航空 setup=anticipation score=58
-- 2006 東和鋼鐵 setup=anticipation score=58
-- 3005 神基 setup=anticipation score=53
-- 2812 台中銀 setup=anticipation score=53
-- 2633 台灣高鐵 setup=anticipation score=53
+- 1210 大成 setup=anticipation score=58
+- 5880 合庫金 setup=anticipation score=58
+- 2845 遠東銀 setup=anticipation score=58
+- 5871 中租-KY setup=anticipation score=58
+- 2006 東和鋼鐵 setup=anticipation score=53
+- 2633 台灣高鐵 setup=anticipation score=48
+- 2880 華南金 setup=extended_watch score=73
+- 6243 迅杰 setup=extended_watch score=68
+- 5450 南良 setup=extended_watch score=68
+- 4171 瑞基 setup=extended_watch score=63
+- 1468 昶和 setup=extended_watch score=63
+- 1203 味王 setup=extended_watch score=63
 
 ## Paper Trading Decision Gate
 - gate: {'can_create_new_simulated_buy_candidate': True, 'reason': ['MOPS 不可用或歷史不足，僅停用事件延續性判斷'], 'allowed_actions': ['可產生資料狀態報告', '可產生候選股研究清單', '可更新觀察名單'], 'blocked_actions': []}
