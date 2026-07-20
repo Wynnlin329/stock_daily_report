@@ -1,18 +1,18 @@
-# ChatGPT Daily Qullamaggie Source: 2026-07-18
+# ChatGPT Daily Qullamaggie Source: 2026-07-20
 
 本資料包僅供 ChatGPT 排程研究與人工複核，不構成交易建議。
 
 ## 資料日期與 Freshness
-- data_freshness: {'report_date': '2026-07-18', 'as_of_date': '2026-07-17', 'market_data_date': '2026-07-17', 'expected_market_data_date': '2026-07-17', 'latest_market_data_date': '2026-07-17', 'is_latest_trading_data_current': True, 'reason': 'Latest trading data is current'}
+- data_freshness: {'report_date': '2026-07-20', 'as_of_date': '2026-07-17', 'market_data_date': '2026-07-17', 'expected_market_data_date': '2026-07-17', 'latest_market_data_date': '2026-07-20', 'is_latest_trading_data_current': False, 'reason': 'Expected market data date 2026-07-17 is not fully available yet'}
 
 ## Scan Readiness
-- scan_readiness: {'can_run_technical_scan': True, 'can_run_qullamaggie_scan': True, 'can_generate_new_paper_trade_candidate': True, 'can_use_institutional_confirmation': True, 'can_use_margin_short_risk': True, 'can_use_mops_catalyst': False, 'reasons': []}
+- scan_readiness: {'can_run_technical_scan': True, 'can_run_qullamaggie_scan': True, 'can_generate_new_paper_trade_candidate': False, 'can_use_institutional_confirmation': True, 'can_use_margin_short_risk': True, 'can_use_mops_catalyst': False, 'reasons': ['Expected market data date 2026-07-17 is not fully available yet']}
 
 ## Qullamaggie Market Regime
 - market_regime: {'status': 'neutral', 'score': 8, 'reasons': ['benchmark regime=neutral'], 'risk_notes': [], 'metrics': {'listed': {'close': 42671.27, 'ma20': 45850.9195, 'ma50': 44268.139, 'return_20d_pct': -6.9885}, 'otc': {'close': 378.44, 'ma20': 426.47, 'ma50': 425.1352, 'return_20d_pct': -12.669}}}
 
 ## Setup Counts
-- setup_counts: {'breakout': 0, 'episodic_pivot': 0, 'anticipation': 14, 'extended_watch': 17, 'failed_breakout': 15, 'insufficient_data': 50}
+- setup_counts: {'breakout': 0, 'episodic_pivot': 0, 'anticipation': 14, 'extended_watch': 17, 'failed_breakout': 18, 'insufficient_data': 50}
 
 ## Top Candidates
 - 2812 台中銀 setup=anticipation score=68
@@ -32,15 +32,17 @@
 - 2880 華南金 setup=extended_watch score=73
 - 6243 迅杰 setup=extended_watch score=68
 - 5450 南良 setup=extended_watch score=68
-- 4171 瑞基 setup=extended_watch score=63
 - 1468 昶和 setup=extended_watch score=63
 - 1203 味王 setup=extended_watch score=63
+- 4744 皇將 setup=extended_watch score=58
 
 ## Paper Trading Decision Gate
-- gate: {'can_create_new_simulated_buy_candidate': True, 'reason': ['MOPS 不可用或歷史不足，僅停用事件延續性判斷'], 'allowed_actions': ['可產生資料狀態報告', '可產生候選股研究清單', '可更新觀察名單'], 'blocked_actions': []}
+- gate: {'can_create_new_simulated_buy_candidate': False, 'reason': ['Expected market data date 2026-07-17 is not fully available yet', 'MOPS 不可用或歷史不足，僅停用事件延續性判斷'], 'allowed_actions': ['可產生資料狀態報告', '可產生候選股研究清單'], 'blocked_actions': ['不得產生新的模擬候選', '不得新增、移除或取消 Watchlist / Pending / 候選項目', '不得建立新的 TradePlan']}
 
 ## Disabled Sections
-- 無
+- 不得產生新的模擬候選
+- 不得新增、移除或取消 Watchlist / Pending / 候選項目
+- 不得建立新的 TradePlan
 
 ## Source URLs
 - latest_json: https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/latest.json
