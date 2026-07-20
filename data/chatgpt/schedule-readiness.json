@@ -1,13 +1,13 @@
 {
   "schema_version": "1.0",
-  "report_date": "2026-07-20",
-  "as_of_date": "2026-07-17",
-  "market_data_date": "2026-07-17",
+  "report_date": "2026-07-21",
+  "as_of_date": "2026-07-20",
+  "market_data_date": "2026-07-20",
   "latest_market_data_date": "2026-07-20",
-  "generated_at": "2026-07-20T17:19:56+08:00",
+  "generated_at": "2026-07-21T01:33:53+08:00",
   "timezone": "Asia/Taipei",
   "checks": {
-    "latest_market_data_current": false,
+    "latest_market_data_current": true,
     "technical_scan_ready": true,
     "qullamaggie_scan_ready": true,
     "daily_compact_source_ready": true,
@@ -18,19 +18,18 @@
     "weekly_review_gate_ready": false
   },
   "compact_sizes": {
-    "daily_qullamaggie_source_compact_bytes": 45966,
-    "weekly_qullamaggie_source_compact_bytes": 85837,
+    "daily_qullamaggie_source_compact_bytes": 29534,
+    "weekly_qullamaggie_source_compact_bytes": 83928,
     "limit_bytes": 1048576
   },
   "schedule_switch": {
-    "can_switch_daily_scan_schedule": false,
-    "can_switch_watchlist_schedule": false,
+    "can_switch_daily_scan_schedule": true,
+    "can_switch_watchlist_schedule": true,
     "can_switch_position_management_schedule": true,
     "can_switch_weekly_review_schedule": false,
     "can_switch_all_schedules": false
   },
   "blocking_reasons": [
-    "latest_market_data_current",
     "screening_history_5d_ready",
     "weekly_review_gate_ready"
   ],

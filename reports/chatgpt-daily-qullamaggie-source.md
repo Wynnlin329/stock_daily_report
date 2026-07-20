@@ -1,48 +1,46 @@
-# ChatGPT Daily Qullamaggie Source: 2026-07-20
+# ChatGPT Daily Qullamaggie Source: 2026-07-21
 
 本資料包僅供 ChatGPT 排程研究與人工複核，不構成交易建議。
 
 ## 資料日期與 Freshness
-- data_freshness: {'report_date': '2026-07-20', 'as_of_date': '2026-07-17', 'market_data_date': '2026-07-17', 'expected_market_data_date': '2026-07-17', 'latest_market_data_date': '2026-07-20', 'is_latest_trading_data_current': False, 'reason': 'Expected market data date 2026-07-17 is not fully available yet'}
+- data_freshness: {'report_date': '2026-07-21', 'as_of_date': '2026-07-20', 'market_data_date': '2026-07-20', 'expected_market_data_date': '2026-07-20', 'latest_market_data_date': '2026-07-20', 'is_latest_trading_data_current': True, 'reason': 'Latest trading data is current'}
 
 ## Scan Readiness
-- scan_readiness: {'can_run_technical_scan': True, 'can_run_qullamaggie_scan': True, 'can_generate_new_paper_trade_candidate': False, 'can_use_institutional_confirmation': True, 'can_use_margin_short_risk': True, 'can_use_mops_catalyst': False, 'reasons': ['Expected market data date 2026-07-17 is not fully available yet']}
+- scan_readiness: {'can_run_technical_scan': True, 'can_run_qullamaggie_scan': True, 'can_generate_new_paper_trade_candidate': True, 'can_use_institutional_confirmation': True, 'can_use_margin_short_risk': True, 'can_use_mops_catalyst': False, 'reasons': []}
 
 ## Qullamaggie Market Regime
-- market_regime: {'status': 'neutral', 'score': 8, 'reasons': ['benchmark regime=neutral'], 'risk_notes': [], 'metrics': {'listed': {'close': 42671.27, 'ma20': 45850.9195, 'ma50': 44268.139, 'return_20d_pct': -6.9885}, 'otc': {'close': 378.44, 'ma20': 426.47, 'ma50': 425.1352, 'return_20d_pct': -12.669}}}
+- market_regime: {'status': 'risk_off', 'score': 0, 'reasons': ['benchmark regime=risk_off'], 'risk_notes': [], 'metrics': {'listed': {'close': 42449.7, 'ma20': 45650.1445, 'ma50': 44294.356, 'return_20d_pct': -8.642}, 'otc': {'close': 368.53, 'ma20': 422.5435, 'ma50': 424.1776, 'return_20d_pct': -17.5659}}}
 
 ## Setup Counts
-- setup_counts: {'breakout': 0, 'episodic_pivot': 0, 'anticipation': 14, 'extended_watch': 17, 'failed_breakout': 18, 'insufficient_data': 50}
+- setup_counts: {'breakout': 0, 'episodic_pivot': 0, 'anticipation': 13, 'extended_watch': 7, 'failed_breakout': 9, 'insufficient_data': 50}
 
 ## Top Candidates
-- 2812 台中銀 setup=anticipation score=68
-- 2892 第一金 setup=anticipation score=63
-- 2889 國票金 setup=anticipation score=63
-- 2520 冠德 setup=anticipation score=58
-- 2834 臺企銀 setup=anticipation score=58
-- 2801 彰銀 setup=anticipation score=58
-- 2201 裕隆 setup=anticipation score=58
-- 2884 玉山金 setup=anticipation score=58
-- 1210 大成 setup=anticipation score=58
-- 5880 合庫金 setup=anticipation score=58
-- 2845 遠東銀 setup=anticipation score=58
-- 5871 中租-KY setup=anticipation score=58
-- 2006 東和鋼鐵 setup=anticipation score=53
-- 2633 台灣高鐵 setup=anticipation score=48
-- 2880 華南金 setup=extended_watch score=73
-- 6243 迅杰 setup=extended_watch score=68
-- 5450 南良 setup=extended_watch score=68
-- 1468 昶和 setup=extended_watch score=63
-- 1203 味王 setup=extended_watch score=63
-- 4744 皇將 setup=extended_watch score=58
+- 3577 泓格 setup=anticipation score=60
+- 1736 喬山 setup=anticipation score=60
+- 2892 第一金 setup=anticipation score=55
+- 5876 上海商銀 setup=anticipation score=55
+- 2884 玉山金 setup=anticipation score=55
+- 2812 台中銀 setup=anticipation score=55
+- 2801 彰銀 setup=anticipation score=50
+- 5880 合庫金 setup=anticipation score=50
+- 2834 臺企銀 setup=anticipation score=50
+- 2845 遠東銀 setup=anticipation score=45
+- 1210 大成 setup=anticipation score=40
+- 2006 東和鋼鐵 setup=anticipation score=40
+- 2633 台灣高鐵 setup=anticipation score=30
+- 2527 宏璟 setup=extended_watch score=70
+- 2867 三商壽 setup=extended_watch score=65
+- 1468 昶和 setup=extended_watch score=55
+- 1203 味王 setup=extended_watch score=50
+- 1526 日馳 setup=extended_watch score=35
+- 4133 亞諾法 setup=extended_watch score=35
+- 1410 南染 setup=extended_watch score=30
 
 ## Paper Trading Decision Gate
-- gate: {'can_create_new_simulated_buy_candidate': False, 'reason': ['Expected market data date 2026-07-17 is not fully available yet', 'MOPS 不可用或歷史不足，僅停用事件延續性判斷'], 'allowed_actions': ['可產生資料狀態報告', '可產生候選股研究清單'], 'blocked_actions': ['不得產生新的模擬候選', '不得新增、移除或取消 Watchlist / Pending / 候選項目', '不得建立新的 TradePlan']}
+- gate: {'can_create_new_simulated_buy_candidate': True, 'reason': ['MOPS 不可用或歷史不足，僅停用事件延續性判斷'], 'allowed_actions': ['可產生資料狀態報告', '可產生候選股研究清單', '可更新觀察名單'], 'blocked_actions': []}
 
 ## Disabled Sections
-- 不得產生新的模擬候選
-- 不得新增、移除或取消 Watchlist / Pending / 候選項目
-- 不得建立新的 TradePlan
+- 無
 
 ## Source URLs
 - latest_json: https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/latest.json
