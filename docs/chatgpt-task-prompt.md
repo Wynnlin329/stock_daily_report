@@ -7,6 +7,7 @@ https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-heal
 https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/daily-qullamaggie-source-compact.json
 https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/weekly-qullamaggie-source-compact.json
 https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbol-index.json
+https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/qullamaggie-grading-policy-v1.json
 https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/latest.json
 https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/latest-screening-summary.json
 https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/latest-index-summary.json
@@ -56,6 +57,8 @@ https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-heal
 34. compact source 的 `top_candidates` 不包含 `insufficient_data` 或 `failed_breakout`。若沒有 breakout / episodic_pivot / anticipation，且 readiness gate 不允許產生新候選，不得產生新的模擬候選。
 35. 週度回顧請使用 `data/chatgpt/weekly-qullamaggie-source-compact.json`。若 `paper_trading_weekly_review_gate.can_generate_weekly_review=false`，只說明可用資料與缺口。
 36. 查詢單一股票技術資料時，先讀取 `data/chatgpt/symbol-index.json`，再依股票代號讀取 `data/chatgpt/symbols/{symbol}.json`；若 index 沒有該代號，不得自行補資料。
+37. A / A- / B / C / Ungraded / Eliminated 分級只可使用 `data/chatgpt/qullamaggie-grading-policy-v1.json`。`grade_score_v1` 必須依 policy 重新計算，不得由既有 `score` 或 `qullamaggie_score` 直接轉換；必要欄位缺失時必須為 Ungraded，`scan_eligible=false` 必須為 Eliminated。
+38. 逐股 JSON 沒有 `relative_strength_rank` 時，依 symbol 從 daily / weekly compact candidate 合併取得；若仍缺少則保持 Ungraded。market_regime 只控制 market_gate / action_status，不得改變 final_grade。
 
 輸出格式：
 

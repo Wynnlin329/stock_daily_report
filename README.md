@@ -73,6 +73,7 @@ data/chatgpt/daily-qullamaggie-source-compact.json
 data/chatgpt/weekly-qullamaggie-source-compact.json
 data/chatgpt/symbol-index.json
 data/chatgpt/symbols/{symbol}.json
+data/chatgpt/qullamaggie-grading-policy-v1.json
 reports/latest-market-scan.md
 ```
 
@@ -215,6 +216,20 @@ breakout, episodic_pivot, anticipation, extended_watch, failed_breakout, insuffi
 
 `top_candidates` 只會從 `breakout`、`episodic_pivot`、`anticipation` 與 `extended_watch` 排序而來，不包含 `insufficient_data` 或 `failed_breakout`。排序優先順序為 setup 類型、`qullamaggie_score`、`liquidity_ok`、`extended_risk` 與 `relative_strength_rank`。
 
+### Qullamaggie-style 正式分級 Policy
+
+`data/chatgpt/qullamaggie-grading-policy-v1.json` 是每日完整掃描、每週 Watchlist Review 與 12 週模擬交易覆盤共用的唯一正式分級規則。它定義 `A`、`A-`、`B`、`C`、`Ungraded`、`Eliminated`、100 分權重、必要條件、grade caps、缺值處理與市場 action gate。
+
+`grade_score_v1` 必須依 policy 的七個 component 重新計算，不得由既有 `score` 或 `qullamaggie_score` 直接轉換。逐股 JSON 是 OHLCV 與技術欄位主來源；目前 `relative_strength_rank` 須依股票代號從 daily/weekly compact candidate 合併取得。任何必要欄位缺少、為 null、型別錯誤或無法推導時一律為 `Ungraded`，不得把缺值當成 0 分。`scan_eligible=false` 一律為 `Eliminated`。
+
+市場環境不改變品質等級，只決定 `market_gate` 與 `action_status`。例如 `risk_off` 下的 A 仍保留 A，但 `action_status=blocked_market`。目前沒有結構化月線、週線方向與精確整理週數，因此不得宣稱 A 級已驗證這些條件；v1 使用既有 `setup_type` 作為結構代理。
+
+可執行以下命令驗證 policy 並對目前至少 5 份逐股 artifact dry-run：
+
+```bash
+python scripts/validate_grading_policy.py
+```
+
 ### 法人買賣超
 
 法人買賣超優先使用官方公開資料來源：
@@ -345,6 +360,7 @@ https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-heal
 https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/daily-qullamaggie-source.json
 https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/weekly-qullamaggie-source.json
 https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbol-index.json
+https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/qullamaggie-grading-policy-v1.json
 https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/reports/chatgpt-daily-qullamaggie-source.md
 https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/reports/chatgpt-weekly-qullamaggie-source.md
 ```
