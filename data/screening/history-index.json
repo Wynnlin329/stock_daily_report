@@ -1,37 +1,27 @@
 {
   "schema_version": "1.0",
-  "generated_at": "2026-07-24T01:13:32+08:00",
+  "generated_at": "2026-07-25T01:24:02+08:00",
   "timezone": "Asia/Taipei",
   "required_trading_days": 5,
   "latest_5_trading_days": [
-    "2026-07-17",
     "2026-07-20",
     "2026-07-21",
     "2026-07-22",
-    "2026-07-23"
+    "2026-07-23",
+    "2026-07-24"
   ],
   "valid_dates": [
     "2026-07-20",
     "2026-07-21",
     "2026-07-22",
-    "2026-07-23"
+    "2026-07-23",
+    "2026-07-24"
   ],
   "missing_dates": [],
-  "invalid_dates": [
-    "2026-07-17"
-  ],
-  "available_valid_days": 4,
-  "has_5d_history": false,
+  "invalid_dates": [],
+  "available_valid_days": 5,
+  "has_5d_history": true,
   "files": [
-    {
-      "date": "2026-07-17",
-      "path": "data/screening/2026/07/2026-07-17-screening-summary.json",
-      "exists": true,
-      "valid": false,
-      "errors": [
-        "lookahead_check_failed"
-      ]
-    },
     {
       "date": "2026-07-20",
       "path": "data/screening/2026/07/2026-07-20-screening-summary.json",
@@ -56,6 +46,13 @@
     {
       "date": "2026-07-23",
       "path": "data/screening/2026/07/2026-07-23-screening-summary.json",
+      "exists": true,
+      "valid": true,
+      "errors": []
+    },
+    {
+      "date": "2026-07-24",
+      "path": "data/screening/2026/07/2026-07-24-screening-summary.json",
       "exists": true,
       "valid": true,
       "errors": []

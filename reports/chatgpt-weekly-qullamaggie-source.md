@@ -1,37 +1,37 @@
-# ChatGPT Weekly Qullamaggie Source: 2026-07-23
+# ChatGPT Weekly Qullamaggie Source: 2026-07-24
 
 本資料包僅供 ChatGPT 排程週度複盤與觀察名單研究，不構成交易建議。
 
 ## 本週資料日期
-- dates: ['2026-07-20', '2026-07-21', '2026-07-22', '2026-07-23']
+- dates: ['2026-07-20', '2026-07-21', '2026-07-22', '2026-07-23', '2026-07-24']
 
 ## 缺失日期
 - missing_dates: []
 
 ## 本週 Setup 統計
-- counts: {'breakout': 0, 'episodic_pivot': 0, 'anticipation': 65, 'extended_watch': 85, 'failed_breakout': 48, 'insufficient_data': 200}
+- counts: {'breakout': 0, 'episodic_pivot': 0, 'anticipation': 84, 'extended_watch': 102, 'failed_breakout': 60, 'insufficient_data': 250}
 
 ## 重複出現候選
-- 2892 第一金 setup=anticipation score=55
-- 5876 上海商銀 setup=anticipation score=45
-- 2884 玉山金 setup=anticipation score=45
-- 2812 台中銀 setup=anticipation score=50
-- 2801 彰銀 setup=anticipation score=55
-- 5880 合庫金 setup=anticipation score=50
-- 2834 臺企銀 setup=anticipation score=45
-- 2006 東和鋼鐵 setup=anticipation score=50
-- 2880 華南金 setup=anticipation score=60
-- 8039 台虹 setup=extended_watch score=60
+- 2892 第一金 setup=anticipation score=60
+- 5876 上海商銀 setup=anticipation score=65
+- 2884 玉山金 setup=anticipation score=55
+- 2812 台中銀 setup=anticipation score=60
+- 2801 彰銀 setup=anticipation score=60
+- 5880 合庫金 setup=anticipation score=60
+- 2834 臺企銀 setup=anticipation score=55
+- 2006 東和鋼鐵 setup=anticipation score=60
+- 2880 華南金 setup=anticipation score=55
+- 8039 台虹 setup=failed_breakout score=45
 - 3577 泓格 setup=failed_breakout score=40
-- 2845 遠東銀 setup=anticipation score=45
-- 2633 台灣高鐵 setup=anticipation score=35
-- 9939 宏全 setup=anticipation score=40
+- 2845 遠東銀 setup=anticipation score=55
+- 2633 台灣高鐵 setup=anticipation score=45
+- 9939 宏全 setup=anticipation score=50
+- 5871 中租-KY setup=anticipation score=45
+- 2615 萬海 setup=failed_breakout score=60
+- 6414 樺漢 setup=failed_breakout score=45
+- 6969 成信實業*-創 setup=extended_watch score=40
 - 2377 微星 setup=anticipation score=45
-- 5871 中租-KY setup=anticipation score=55
-- 2615 萬海 setup=anticipation score=45
-- 6414 樺漢 setup=extended_watch score=60
-- 6969 成信實業*-創 setup=extended_watch score=35
-- 6219 富旺 setup=failed_breakout score=45
+- 4119 旭富 setup=extended_watch score=50
 
 ## 本週 Breakout / Failed Breakout
 - 無
@@ -57,29 +57,29 @@
 - 3479 安勤 setup=failed_breakout score=55
 
 ## 下週 Watchlist Candidates
-- 2892 第一金 setup=anticipation score=55
-- 5876 上海商銀 setup=anticipation score=45
-- 2884 玉山金 setup=anticipation score=45
-- 2812 台中銀 setup=anticipation score=50
-- 2801 彰銀 setup=anticipation score=55
-- 5880 合庫金 setup=anticipation score=50
-- 2834 臺企銀 setup=anticipation score=45
-- 2006 東和鋼鐵 setup=anticipation score=50
-- 2880 華南金 setup=anticipation score=60
-- 8039 台虹 setup=extended_watch score=60
+- 2892 第一金 setup=anticipation score=60
+- 5876 上海商銀 setup=anticipation score=65
+- 2884 玉山金 setup=anticipation score=55
+- 2812 台中銀 setup=anticipation score=60
+- 2801 彰銀 setup=anticipation score=60
+- 5880 合庫金 setup=anticipation score=60
+- 2834 臺企銀 setup=anticipation score=55
+- 2006 東和鋼鐵 setup=anticipation score=60
+- 2880 華南金 setup=anticipation score=55
+- 8039 台虹 setup=failed_breakout score=45
 - 3577 泓格 setup=failed_breakout score=40
-- 2845 遠東銀 setup=anticipation score=45
-- 2633 台灣高鐵 setup=anticipation score=35
-- 9939 宏全 setup=anticipation score=40
+- 2845 遠東銀 setup=anticipation score=55
+- 2633 台灣高鐵 setup=anticipation score=45
+- 9939 宏全 setup=anticipation score=50
+- 5871 中租-KY setup=anticipation score=45
+- 2615 萬海 setup=failed_breakout score=60
+- 6414 樺漢 setup=failed_breakout score=45
+- 6969 成信實業*-創 setup=extended_watch score=40
 - 2377 微星 setup=anticipation score=45
-- 5871 中租-KY setup=anticipation score=55
-- 2615 萬海 setup=anticipation score=45
-- 6414 樺漢 setup=extended_watch score=60
-- 6969 成信實業*-創 setup=extended_watch score=35
-- 6219 富旺 setup=failed_breakout score=45
+- 4119 旭富 setup=extended_watch score=50
 
 ## Weekly Review Gate
-- gate: {'can_generate_weekly_review': False, 'reason': ['最近 5 個有效交易日資料不足，週度複盤僅可輸出部分觀察。']}
+- gate: {'can_generate_weekly_review': True, 'reason': []}
 
 ## Source URLs
 - latest_json: https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/latest.json
