@@ -68,6 +68,8 @@ https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-heal
 
 `data/chatgpt/symbol-index.json` 列出所有已產生逐檔資料的 `scan_eligible=true` 普通股。查詢單一股票時，先用 index 確認代號存在，再讀取 `data/chatgpt/symbols/{symbol}.json`。
 
+HTF 欄位加入後，symbol JSON 與 symbol index 的 schema version 為 `1.3`。
+
 每個 symbol JSON 至少包含：
 
 - `date`
@@ -99,6 +101,27 @@ https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-heal
 - `composite_rs_rank`
 - `missing_reason`
 - `indicator_basis`
+- `prior_move_pct_20d`
+- `prior_move_pct_60d`
+- `distance_to_52w_high_pct`
+- `flag_duration_days`
+- `flag_depth_pct`
+- `higher_lows_count`
+- `range_contraction_ratio`
+- `volume_contraction_ratio`
+- `ma10_slope`
+- `ma20_slope`
+- `distance_to_ma10_pct`
+- `distance_to_ma20_pct`
+- `monthly_above_ma12`
+- `weekly_trend_state`
+- `daily_trigger_state`
+- `htf_structure_score`
+- `htf_structure_status`
+- `htf_rejection_reasons`
+- `htf_missing_reason`
+- `htf_structure_basis`
+- `htf_data_quality`
 - `setup_type`
 - `extended_risk`
 - `risk_notes`
@@ -106,11 +129,15 @@ https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-heal
 - `data_quality.technical_indicators_complete`
 - `data_quality.enhanced_indicators_complete`
 - `data_quality.enhanced_indicator_missing_reason`
+- `data_quality.htf_structure_complete`
+- `data_quality.htf_structure_missing_reason`
 - `data_quality.source_market_file`
 
 這些逐檔檔案只保存研究用技術資料，不輸出真實交易建議。
 
 波動欄位與多期間 RS 欄位定義以 README 為準。它們會同步出現在 daily／weekly compact candidate；資料不足時必須保留 `null` 並讀取 `missing_reason`。這些欄位目前不參與正式 v1 grading policy，不得據此自行改寫既有 A／A-／B／C。
+
+HTF 欄位定義以 `docs/high-tight-flag.md` 為準。`htf_structure_status` 不可由 `setup_type=anticipation` 推導，必須使用逐股 JSON 或 compact 中的原始數值、狀態與 `htf_rejection_reasons`。目前只供 v2 policy 研究。
 
 ## Schedule Readiness
 
@@ -136,8 +163,10 @@ https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-heal
 - `checks.weekly_compact_source_ready`
 - `checks.weekly_review_gate_ready`
 - `checks.enhanced_technical_indicators_complete`
+- `checks.htf_structure_complete`
 - `non_blocking_checks`
 - `enhanced_indicator_completeness`
+- `htf_structure_completeness`
 - `schedule_switch.can_switch_daily_scan_schedule`
 - `schedule_switch.can_switch_watchlist_schedule`
 - `schedule_switch.can_switch_position_management_schedule`
@@ -149,6 +178,8 @@ https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-heal
 法人、資券與 MOPS 缺失可列入 `warnings`，但不得在 OHLCV 與技術資料完整時單獨阻止每日技術選股。若 `warnings` 顯示法人或資券停用，ChatGPT 不得宣稱法人確認，也不得宣稱資券風險已驗證。
 
 `checks.enhanced_technical_indicators_complete` 屬於 `non_blocking_checks`。在 126 個有效交易日尚未累積完成前可以為 false，但不得因此單獨關閉現有 schedule switch。
+
+`checks.htf_structure_complete` 同樣屬於 `non_blocking_checks`。在 252 個有效交易日與 12 個月份尚未累積完成前可以為 false，不得因此單獨改變正式 v1 分級或關閉現有 schedule switch。
 
 若 `schedule_switch.can_switch_watchlist_schedule=false`，ChatGPT 不得新增、移除或取消 Watchlist / Pending / 候選項目。逐股 `data/chatgpt/symbols/{symbol}.json` 只能作為只讀技術資料查詢，不得在 gate=false 時驅動狀態變更。
 

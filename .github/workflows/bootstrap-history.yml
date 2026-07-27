@@ -6,11 +6,11 @@ on:
       trading_days:
         description: "Number of trading days to backfill"
         required: false
-        default: "130"
+        default: "260"
       max_calendar_days:
         description: "Maximum natural days to scan backward"
         required: false
-        default: "240"
+        default: "420"
       mops_calendar_days:
         description: "Number of natural days to backfill MOPS events"
         required: false

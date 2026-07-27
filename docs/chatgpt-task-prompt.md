@@ -61,6 +61,9 @@ https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-heal
 38. 逐股 JSON 沒有 `relative_strength_rank` 時，依 symbol 從 daily / weekly compact candidate 合併取得；若仍缺少則保持 Ungraded。market_regime 只控制 market_gate / action_status，不得改變 final_grade。
 39. `adr20_pct`、`atr14`、`atr14_pct`、`stop_risk_pct`、`stop_to_adr_ratio`、`stop_to_atr_ratio`、1／3／6 月 return 與 RS rank、`composite_rs_rank` 目前只作研究資訊，不得取代正式 v1 grading policy。欄位為 null 時必須讀取 `missing_reason`，不得當成 0。
 40. `checks.enhanced_technical_indicators_complete` 是 non-blocking check；歷史未滿 126 日不得據此單獨關閉每日或每週排程。
+41. High Tight Flag 結構必須使用 `prior_move_pct_*`、旗形深度／期間、收斂／量縮、MA slope、月／週／日狀態與 `htf_rejection_reasons`，不得由 `setup_type=anticipation` 自行推導。
+42. `htf_structure_status` 與 `htf_structure_score` 目前只供 v2 policy 研究，不得改寫正式 v1 grading policy 或既有 A／A-／B／C。
+43. `checks.htf_structure_complete` 是 non-blocking check；歷史未滿 252 日或 12 個月份時不得據此單獨關閉排程。
 
 輸出格式：
 
