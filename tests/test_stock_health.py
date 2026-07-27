@@ -1077,6 +1077,67 @@ def test_mops_zero_events_with_explicit_date_counts_as_success() -> None:
     assert payload["is_current"] is False
 
 
+def test_mops_realtime_ignores_maintenance_date_in_html_comment() -> None:
+    html = """
+    <html><body>
+    <!--
+      修改紀錄:
+      2026040810thomas:(T88J)修改反詐騙連結
+    -->
+    <div>即時重大訊息</div>
+    </body></html>
+    """
+    result = fetch_mops_realtime_events(
+        date(2026, 7, 24),
+        FakeClient([HttpResponse("mock", 200, html.encode("utf-8"), 1)]),
+    )
+    assert result.ok is False
+    assert result.data_date is None
+    assert result.status == "parser_error"
+
+
+def test_mops_events_falls_back_to_historical_when_realtime_date_is_stale() -> None:
+    realtime_html = """
+    <html><body>
+    <!-- 2026040810thomas:(T88J)修改反詐騙連結 -->
+    <table>
+      <tr><th>公司代號</th><th>公司簡稱</th><th>發言日期</th><th>發言時間</th><th>主旨</th></tr>
+      <tr><td>2330</td><td>台積電</td><td>115/07/23</td><td>18:01</td><td>董事會決議股利</td></tr>
+    </table>
+    </body></html>
+    """
+    current_day_form = "<html><body><input type='hidden' name='funcName' value='t05st02'>公司代號 查詢</body></html>"
+    historical_html = """
+    <html><body>
+    <table>
+      <tr><th>公司代號</th><th>公司名稱</th><th>發言日期</th><th>發言時間</th><th>主旨</th></tr>
+      <tr><td>6443</td><td>元晶</td><td>115/07/24</td><td>14:48</td><td>公告本公司重大合約</td></tr>
+    </table>
+    </body></html>
+    """
+    client = FakeClient(
+        [
+            HttpResponse("mock-realtime", 200, realtime_html.encode("utf-8"), 1),
+            HttpResponse("mock-current", 200, current_day_form.encode("utf-8"), 1),
+            HttpResponse("mock-historical", 200, historical_html.encode("utf-8"), 1),
+        ]
+    )
+
+    result = fetch_mops_events(date(2026, 7, 24), client)
+
+    assert result.ok is True
+    assert result.status == "success"
+    assert result.data_date == "2026-07-24"
+    assert [row.symbol for row in result.rows] == ["6443"]
+    assert result.source_url == "https://mopsov.twse.com.tw/mops/web/ajax_t05st01"
+    assert any("did not match target date 2026-07-24" in item for item in result.limitations)
+    assert client.urls == [
+        "https://mopsov.twse.com.tw/mops/web/t05sr01_1",
+        "https://mopsov.twse.com.tw/mops/web/t05st02",
+        "https://mopsov.twse.com.tw/mops/web/ajax_t05st01",
+    ]
+
+
 def test_mops_security_page_stops_without_fallback() -> None:
     security_page = "<html>因為安全性考量，您所執行的頁面無法呈現。 FOR SECURITY REASONS</html>"
     client = FakeClient(
