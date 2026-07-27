@@ -361,6 +361,7 @@ def build_history_index(
         "has_20d_history": len(common_days) >= 20,
         "has_60d_history": len(common_days) >= 60,
         "has_126d_history": len(common_days) >= 126,
+        "has_252d_history": len(common_days) >= 252,
         "has_institutional_history": bool(common_institutional_days and common_institutional_days[-1] == latest_reference_day),
         "has_margin_short_history": bool(common_margin_short_days and common_margin_short_days[-1] == latest_reference_day),
         "has_mops_event_history": bool(sorted_mops_days and sorted_mops_days[-1] == latest_reference_day),

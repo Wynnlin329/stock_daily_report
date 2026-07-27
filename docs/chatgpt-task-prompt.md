@@ -8,6 +8,9 @@ https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-heal
 https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/weekly-qullamaggie-source-compact.json
 https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbol-index.json
 https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/qullamaggie-grading-policy-v1.json
+https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/qullamaggie-grading-policy-v2.json
+https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/grading-shadow-v2-latest.json
+https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/grading-shadow-v2/history-index.json
 https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/latest.json
 https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/latest-screening-summary.json
 https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/latest-index-summary.json
@@ -59,8 +62,14 @@ https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-heal
 36. 查詢單一股票技術資料時，先讀取 `data/chatgpt/symbol-index.json`，再依股票代號讀取 `data/chatgpt/symbols/{symbol}.json`；若 index 沒有該代號，不得自行補資料。
 37. A / A- / B / C / Ungraded / Eliminated 分級只可使用 `data/chatgpt/qullamaggie-grading-policy-v1.json`。`grade_score_v1` 必須依 policy 重新計算，不得由既有 `score` 或 `qullamaggie_score` 直接轉換；必要欄位缺失時必須為 Ungraded，`scan_eligible=false` 必須為 Eliminated。
 38. 逐股 JSON 沒有 `relative_strength_rank` 時，依 symbol 從 daily / weekly compact candidate 合併取得；若仍缺少則保持 Ungraded。market_regime 只控制 market_gate / action_status，不得改變 final_grade。
-39. `adr20_pct`、`atr14`、`atr14_pct`、`stop_risk_pct`、`stop_to_adr_ratio`、`stop_to_atr_ratio`、1／3／6 月 return 與 RS rank、`composite_rs_rank` 目前只作研究資訊，不得取代正式 v1 grading policy。欄位為 null 時必須讀取 `missing_reason`，不得當成 0。
+39. `adr20_pct`、`atr14`、`atr14_pct`、`stop_risk_pct`、`stop_to_adr_ratio`、`stop_to_atr_ratio`、1／3／6 月 return 與 RS rank、`composite_rs_rank` 可供 v2 影子評分，但不得取代正式 v1 grading policy。欄位為 null 時必須輸出 `grade_v2_shadow=Ungraded`、`score_v2_shadow=null` 與原因，不得當成 0。
 40. `checks.enhanced_technical_indicators_complete` 是 non-blocking check；歷史未滿 126 日不得據此單獨關閉每日或每週排程。
+41. High Tight Flag 結構必須使用 `prior_move_pct_*`、旗形深度／期間、收斂／量縮、MA slope、月／週／日狀態與 `htf_rejection_reasons`，不得由 `setup_type=anticipation` 自行推導。
+42. `htf_structure_status` 與 `htf_structure_score` 供 v2 影子評分，不得改寫正式 v1 grading policy 或既有 A／A-／B／C。
+43. `checks.htf_structure_complete` 是 non-blocking check；歷史未滿 252 日或 12 個月份時不得據此單獨關閉排程。
+44. 同時讀取 `grade_v1`、`score_v1`、`grade_v2_shadow`、`score_v2_shadow`、`grade_difference` 與 `v2_rejection_reasons`。Watchlist、TradePlan 及任何 Google Sheets 業務寫入只能使用 v1；v2 僅供比較，不得自行升為正式版。
+45. `market_gate_shadow` 與 v2 個股品質分數分離。`risk_off` 可阻擋影子 action，但不得降低或改寫 `grade_v2_shadow`／`score_v2_shadow`。
+46. `checks.grading_v2_shadow_20d_ready` 是 non-blocking check。未滿 20 個真實交易日只能標示比較歷史不足，不得回填、推算或捏造舊日 v2 評分。
 
 輸出格式：
 

@@ -116,6 +116,27 @@ def sample_candidate(symbol: str = "2330", setup_type: str = "breakout") -> dict
         "composite_rs_rank": 84.25,
         "missing_reason": {},
         "indicator_basis": {"atr_method": "sma"},
+        "prior_move_pct_20d": 55.0,
+        "prior_move_pct_60d": 90.0,
+        "distance_to_52w_high_pct": -2.0,
+        "flag_duration_days": 20,
+        "flag_depth_pct": 10.0,
+        "higher_lows_count": 12,
+        "range_contraction_ratio": 0.6,
+        "volume_contraction_ratio": 0.5,
+        "ma10_slope": 2.0,
+        "ma20_slope": 1.0,
+        "distance_to_ma10_pct": 2.0,
+        "distance_to_ma20_pct": 4.0,
+        "monthly_above_ma12": True,
+        "weekly_trend_state": "uptrend",
+        "daily_trigger_state": "near_trigger",
+        "htf_structure_score": 90,
+        "htf_structure_status": "valid_htf",
+        "htf_rejection_reasons": [],
+        "htf_missing_reason": {},
+        "htf_structure_basis": {"informational_only": True},
+        "htf_data_quality": {"excluded_isolated_price_outlier_dates": []},
         "setup_type": setup_type,
         "extended_risk": False,
         "qullamaggie_score": 82.5,
@@ -275,22 +296,25 @@ def test_symbol_technical_payloads_and_index() -> None:
     assert symbol_payload["scan_eligible"] is True
     assert symbol_payload["as_of_date"] == "2026-06-15"
     assert symbol_payload["market_data_date"] == "2026-06-15"
-    assert symbol_payload["schema_version"] == "1.2"
+    assert symbol_payload["schema_version"] == "1.4"
     assert symbol_payload["data_quality"]["ohlcv_complete"] is True
     assert symbol_payload["data_quality"]["technical_indicators_complete"] is True
     assert symbol_payload["data_quality"]["enhanced_indicators_complete"] is True
+    assert symbol_payload["data_quality"]["htf_structure_complete"] is True
     assert symbol_payload["data_quality"]["source_market_file"] == "data/market/2026/06/2026-06-15-listed-ohlcv.csv"
     assert symbol_payload["source_url"] == github_raw_url("data/chatgpt/symbols/2330.json")
 
     index = build_symbol_index(sample_report(), payloads)
     assert index["as_of_date"] == "2026-06-15"
     assert index["market_data_date"] == "2026-06-15"
-    assert index["schema_version"] == "1.2"
+    assert index["schema_version"] == "1.4"
     assert index["symbol_count"] == 1
     assert index["complete_ohlcv_count"] == 1
     assert index["incomplete_ohlcv_count"] == 0
     assert index["complete_enhanced_indicators_count"] == 1
     assert index["enhanced_indicator_coverage_pct"] == 100.0
+    assert index["complete_htf_structure_count"] == 1
+    assert index["htf_structure_coverage_pct"] == 100.0
     assert index["symbols"][0]["symbol"] == "2330"
     assert index["symbols"][0]["ohlcv_complete"] is True
     assert index["symbols"][0]["path"] == "data/chatgpt/symbols/2330.json"
@@ -368,6 +392,17 @@ def test_compact_sources_include_symbol_data_url_and_stay_small() -> None:
     assert compact["top_candidates"][0]["symbol_data_url"] == github_raw_url("data/chatgpt/symbols/2330.json")
     assert compact["top_candidates"][0]["adr20_pct"] == 4.0
     assert compact["top_candidates"][0]["composite_rs_rank"] == 84.25
+    assert compact["top_candidates"][0]["htf_structure_status"] == "valid_htf"
+    assert compact["top_candidates"][0]["flag_duration_days"] == 20
+    for field in (
+        "grade_v1",
+        "score_v1",
+        "grade_v2_shadow",
+        "score_v2_shadow",
+        "grade_difference",
+        "v2_rejection_reasons",
+    ):
+        assert field in compact["top_candidates"][0]
     assert len(json.dumps(compact, ensure_ascii=False).encode("utf-8")) < 1_048_576
 
 
@@ -405,7 +440,12 @@ def test_weekly_compact_and_schedule_readiness() -> None:
     assert readiness["latest_market_data_date"] == "2026-06-15"
     assert readiness["checks"]["symbol_ohlcv_complete"] is True
     assert readiness["checks"]["enhanced_technical_indicators_complete"] is True
+    assert readiness["checks"]["htf_structure_complete"] is True
+    assert readiness["checks"]["grading_v2_shadow_20d_ready"] is False
+    assert "grading_v2_shadow_20d_ready" in readiness["non_blocking_checks"]
     assert readiness["enhanced_indicator_completeness"]["affects_grading_policy_v1"] is False
+    assert readiness["htf_structure_completeness"]["affects_grading_policy_v1"] is False
+    assert readiness["grading_v2_shadow_completeness"]["watchlist_policy"] == "v1"
     assert readiness["schedule_switch"]["can_switch_daily_scan_schedule"] is True
     assert readiness["schedule_switch"]["can_switch_watchlist_schedule"] is True
     assert readiness["schedule_switch"]["can_switch_position_management_schedule"] is True

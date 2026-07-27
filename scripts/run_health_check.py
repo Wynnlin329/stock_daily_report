@@ -58,6 +58,12 @@ from stock_health.history_store import (
     write_ohlcv_outputs,
     write_text,
 )
+from stock_health.grading_shadow import (
+    apply_shadow_grades,
+    build_shadow_history_index,
+    shadow_history_index_path,
+    shadow_history_path,
+)
 from stock_health.index_summary import build_index_summary
 from stock_health.report_writer import build_health_markdown, build_market_scan_markdown
 from stock_health.screening import build_screening_summary
@@ -217,6 +223,10 @@ def main() -> int:
         "chatgpt_weekly_qullamaggie_compact": github_raw_url("data/chatgpt/weekly-qullamaggie-source-compact.json"),
         "chatgpt_symbol_index": github_raw_url("data/chatgpt/symbol-index.json"),
         "chatgpt_schedule_readiness": github_raw_url("data/chatgpt/schedule-readiness.json"),
+        "grading_policy_v1": github_raw_url("data/chatgpt/qullamaggie-grading-policy-v1.json"),
+        "grading_policy_v2_shadow": github_raw_url("data/chatgpt/qullamaggie-grading-policy-v2.json"),
+        "grading_v2_shadow_latest": github_raw_url("data/chatgpt/grading-shadow-v2-latest.json"),
+        "grading_v2_shadow_history_index": github_raw_url("data/grading-shadow-v2/history-index.json"),
         "screening_history_index": github_raw_url("data/screening/history-index.json"),
         "chatgpt_daily_qullamaggie_markdown": github_raw_url("reports/chatgpt-daily-qullamaggie-source.md"),
         "chatgpt_weekly_qullamaggie_markdown": github_raw_url("reports/chatgpt-weekly-qullamaggie-source.md"),
@@ -288,6 +298,20 @@ def main() -> int:
         "overall_confidence": overall_confidence,
         "errors": errors,
     }
+    symbol_payloads = build_symbol_technical_payloads(report, symbol_candidates)
+    market_regime = str(
+        summary.get("qullamaggie", {}).get("market_regime", {}).get(
+            "status", "insufficient_data"
+        )
+    )
+    shadow_report = apply_shadow_grades(
+        root,
+        symbol_payloads,
+        symbol_candidates,
+        summary,
+        market_regime,
+    )
+    report["grading_policy"] = summary["grading_policy"]
     latest_md = build_health_markdown(report, report_date)
     market_scan_md = build_market_scan_markdown(summary, market_data_date)
     daily_chatgpt_source = build_daily_qullamaggie_source(
@@ -298,7 +322,6 @@ def main() -> int:
         mops_summary,
         history_index,
     )
-    symbol_payloads = build_symbol_technical_payloads(report, symbol_candidates)
     symbol_index = build_symbol_index(report, symbol_payloads)
     daily_chatgpt_source_compact = build_daily_qullamaggie_compact(daily_chatgpt_source)
 
@@ -312,6 +335,11 @@ def main() -> int:
     write_json(root / "data" / "latest-mops-events.json", mops_summary)
     write_json(root / "data" / "chatgpt" / "daily-qullamaggie-source.json", daily_chatgpt_source)
     write_json(root / "data" / "chatgpt" / "daily-qullamaggie-source-compact.json", daily_chatgpt_source_compact)
+    write_json(root / "data" / "chatgpt" / "grading-shadow-v2-latest.json", shadow_report)
+    write_json(
+        shadow_history_path(root, f"{market_data_date:%Y-%m-%d}"),
+        shadow_report,
+    )
     write_chatgpt_symbol_outputs(root, symbol_payloads, symbol_index)
     write_text(root / "reports" / "latest-market-scan.md", market_scan_md)
     write_text(root / "reports" / "chatgpt-daily-qullamaggie-source.md", build_daily_qullamaggie_markdown(daily_chatgpt_source))
@@ -324,6 +352,8 @@ def main() -> int:
         list(history_index.get("common_ohlcv_days") or []),
     )
     write_json(screening_history_index_path(root), screening_history_index)
+    shadow_history_index = build_shadow_history_index(root, generated_at)
+    write_json(shadow_history_index_path(root), shadow_history_index)
     weekly_chatgpt_source = build_weekly_qullamaggie_source(report, load_recent_screening_summaries(root, 5))
     weekly_chatgpt_source_compact = build_weekly_qullamaggie_compact(weekly_chatgpt_source)
     schedule_readiness = build_schedule_readiness(
@@ -332,6 +362,7 @@ def main() -> int:
         screening_history_index,
         daily_chatgpt_source_compact,
         weekly_chatgpt_source_compact,
+        shadow_history_index,
     )
     write_json(root / "data" / "chatgpt" / "weekly-qullamaggie-source.json", weekly_chatgpt_source)
     write_json(root / "data" / "chatgpt" / "weekly-qullamaggie-source-compact.json", weekly_chatgpt_source_compact)
