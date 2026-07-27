@@ -1,0 +1,119 @@
+{
+  "policy_id": "simulated-position-management-policy",
+  "version": "1.0.0",
+  "schema_version": 1,
+  "status": "active_simulation_only",
+  "official_model": "plus_2r_v1",
+  "shadow_models": [
+    "qullamaggie_3_5d_shadow"
+  ],
+  "models": {
+    "plus_2r_v1": {
+      "role": "official_simulation",
+      "partial_exit": {
+        "trigger_type": "r_multiple",
+        "trigger_metric": "max_r_reached",
+        "trigger_r": 2.0,
+        "ratio": 0.5
+      },
+      "break_even_stop": {
+        "activate_after_partial_exit": true
+      },
+      "trailing_exit": {
+        "moving_average": "ma10",
+        "close_confirmation_required": true
+      }
+    },
+    "qullamaggie_3_5d_shadow": {
+      "role": "shadow_comparison_only",
+      "partial_exit": {
+        "trigger_type": "trading_day_window",
+        "minimum_day": 3,
+        "maximum_day": 5,
+        "ratio": 0.333333
+      },
+      "break_even_stop": {
+        "activate_after_partial_exit": true
+      },
+      "trailing_exit": {
+        "moving_average": "ma10",
+        "allowed_moving_averages": [
+          "ma10",
+          "ma20"
+        ],
+        "close_confirmation_required": true
+      }
+    }
+  },
+  "risk_calculation": {
+    "expression": "(close - entry_price) / (entry_price - initial_stop)",
+    "max_r_expression": "(max_close_since_entry - entry_price) / (entry_price - initial_stop)",
+    "entry_source": "entry_price",
+    "stop_source": "initial_stop",
+    "trigger_is_entry_forbidden": true
+  },
+  "state_order": [
+    "not_entered",
+    "holding_pre_partial",
+    "partial_exit_due",
+    "partially_reduced",
+    "break_even_active",
+    "trailing_active",
+    "stopped_out",
+    "fully_exited",
+    "invalid_data"
+  ],
+  "event_types": [
+    "partial_exit",
+    "initial_stop_exit",
+    "break_even_exit",
+    "trailing_ma_exit"
+  ],
+  "idempotency": {
+    "event_id_fields": [
+      "symbol",
+      "model",
+      "event_type",
+      "first_signal_date"
+    ],
+    "pending_event_must_be_reused": true,
+    "completed_event_must_not_be_recreated": true
+  },
+  "immutable_fields": [
+    "entry_price",
+    "initial_stop"
+  ],
+  "output_fields": [
+    "days_since_entry",
+    "current_r",
+    "max_r_reached",
+    "max_close_since_entry",
+    "partial_exit_due",
+    "partial_exit_ratio",
+    "break_even_stop_activated",
+    "active_trailing_ma",
+    "close_below_trailing_ma",
+    "position_stage",
+    "exit_model",
+    "exit_signal",
+    "exit_reason",
+    "model_comparison_snapshot"
+  ],
+  "validation_rules": {
+    "partial_exit_ratio_minimum": 0.333333,
+    "partial_exit_ratio_maximum": 0.5,
+    "allowed_trailing_moving_averages": [
+      "ma10",
+      "ma20"
+    ],
+    "official_model_must_not_be_shadow": true,
+    "shadow_model_must_not_drive_official_output": true,
+    "entry_and_initial_stop_are_immutable": true,
+    "real_trading_forbidden": true
+  },
+  "limitations": [
+    "This policy only produces simulated suggestions and structured state.",
+    "No real order, broker action, or external write is performed.",
+    "A caller must persist completed event IDs after a simulated action is confirmed."
+  ]
+}

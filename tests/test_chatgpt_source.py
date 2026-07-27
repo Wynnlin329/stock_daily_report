@@ -73,6 +73,9 @@ def sample_report(*, fresh: bool = True, actionable_ready: bool = True) -> dict:
             "chatgpt_weekly_qullamaggie_compact": github_raw_url("data/chatgpt/weekly-qullamaggie-source-compact.json"),
             "chatgpt_symbol_index": github_raw_url("data/chatgpt/symbol-index.json"),
             "chatgpt_schedule_readiness": github_raw_url("data/chatgpt/schedule-readiness.json"),
+            "position_management_policy": github_raw_url(
+                "data/chatgpt/position-management-policy-v1.json"
+            ),
             "screening_history_index": github_raw_url("data/screening/history-index.json"),
             "chatgpt_daily_qullamaggie_markdown": github_raw_url("reports/chatgpt-daily-qullamaggie-source.md"),
             "chatgpt_weekly_qullamaggie_markdown": github_raw_url("reports/chatgpt-weekly-qullamaggie-source.md"),
@@ -211,6 +214,9 @@ def test_daily_chatgpt_source_schema_urls_and_gate() -> None:
     )
     assert payload["source_urls"]["chatgpt_weekly_qullamaggie_source"] == github_raw_url(
         "data/chatgpt/weekly-qullamaggie-source.json"
+    )
+    assert payload["source_urls"]["position_management_policy"] == github_raw_url(
+        "data/chatgpt/position-management-policy-v1.json"
     )
     assert payload["paper_trading_decision_gate"]["can_create_new_simulated_buy_candidate"] is True
     assert payload["reporting_rules"]["do_not_crawl_external_sites"] is True

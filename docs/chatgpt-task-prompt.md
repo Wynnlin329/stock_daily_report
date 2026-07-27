@@ -9,6 +9,7 @@ https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-heal
 https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbol-index.json
 https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/qullamaggie-grading-policy-v1.json
 https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/qullamaggie-grading-policy-v2.json
+https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/position-management-policy-v1.json
 https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/grading-shadow-v2-latest.json
 https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/grading-shadow-v2/history-index.json
 https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/latest.json
@@ -70,6 +71,12 @@ https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-heal
 44. 同時讀取 `grade_v1`、`score_v1`、`grade_v2_shadow`、`score_v2_shadow`、`grade_difference` 與 `v2_rejection_reasons`。Watchlist、TradePlan 及任何 Google Sheets 業務寫入只能使用 v1；v2 僅供比較，不得自行升為正式版。
 45. `market_gate_shadow` 與 v2 個股品質分數分離。`risk_off` 可阻擋影子 action，但不得降低或改寫 `grade_v2_shadow`／`score_v2_shadow`。
 46. `checks.grading_v2_shadow_20d_ready` 是 non-blocking check。未滿 20 個真實交易日只能標示比較歷史不足，不得回填、推算或捏造舊日 v2 評分。
+47. 模擬持倉管理必須使用 `data/chatgpt/position-management-policy-v1.json`。頂層正式模擬建議只使用 `plus_2r_v1`；`qullamaggie_3_5d_shadow` 只能放在 `model_comparison_snapshot`，不得驅動 SimExit、TradeLog 或持倉狀態寫入。
+48. 不得覆寫 `entry_price` 或 `initial_stop`。`trigger_reference` 只作計畫稽核，不得取代實際 Entry。`current_r` 與 `max_r_reached` 必須使用 `entry_price - initial_stop` 作風險分母。
+49. 模型 A 依可設定的 +R 門檻減碼並沿用移動停利；模型 B 在進場後第 3 至第 5 個有效交易日產生影子減碼建議。模型 B 的減碼比例、成本停損及 10MA／20MA 必須讀 policy，不得自行寫死。
+50. 停損與移動停利只使用收盤確認。盤中 low 跌破但 close 未跌破時，不得建立模擬出場事件。
+51. 每個減碼或出場事件必須使用 `symbol:model:event_type:first_signal_date` 的穩定 event ID。寫入前先以 event ID 查重；pending event 重跑時不得新增第二筆，完成後必須加入 `completed_event_ids` 並回讀驗證。
+52. 本階段只產生模擬建議與結構化狀態，禁止真實交易、券商操作或將 shadow model 當成正式出場模型。
 
 輸出格式：
 
