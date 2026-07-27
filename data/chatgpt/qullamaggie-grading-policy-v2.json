@@ -1,0 +1,357 @@
+{
+  "policy_id": "qullamaggie-grading-policy-v2",
+  "version": "2.0.0-shadow.1",
+  "schema_version": 2,
+  "status": "shadow",
+  "effective_date": null,
+  "methodology": "Deterministic Qullamaggie-style quality grading for shadow comparison only.",
+  "score_name": "score_v2_shadow",
+  "score_range": {
+    "minimum": 0,
+    "maximum": 100
+  },
+  "supported_grades": [
+    "A",
+    "A-",
+    "B",
+    "C",
+    "Ungraded",
+    "Eliminated"
+  ],
+  "input_contract": {
+    "universe": "scan_eligible common stocks",
+    "no_future_data": true,
+    "existing_scan_score_is_not_grade_score": true,
+    "required_sources": [
+      "symbol_payload",
+      "candidate_payload"
+    ]
+  },
+  "required_fields": [
+    "scan_eligible",
+    "ohlcv_complete",
+    "monthly_above_ma12",
+    "weekly_trend_state",
+    "daily_trigger_state",
+    "rs_rank_1m",
+    "rs_rank_3m",
+    "rs_rank_6m",
+    "composite_rs_rank",
+    "prior_move_pct_20d",
+    "prior_move_pct_60d",
+    "htf_structure_score",
+    "htf_structure_status",
+    "close",
+    "pivot_price",
+    "adr20_pct",
+    "atr14_pct",
+    "stop_risk_pct",
+    "stop_to_adr_ratio",
+    "stop_to_atr_ratio",
+    "volume_contraction_ratio",
+    "volume_ratio_20d",
+    "avg_turnover_20d",
+    "extended_risk",
+    "distance_to_ma10_pct"
+  ],
+  "field_definitions": {
+    "scan_eligible": {
+      "type": "boolean",
+      "aliases": ["symbol_payload.scan_eligible", "candidate_payload.scan_eligible"]
+    },
+    "ohlcv_complete": {
+      "type": "boolean",
+      "aliases": ["symbol_payload.data_quality.ohlcv_complete", "candidate_payload.ohlcv_complete"]
+    },
+    "monthly_above_ma12": {
+      "type": "boolean",
+      "aliases": ["symbol_payload.monthly_above_ma12", "candidate_payload.monthly_above_ma12"]
+    },
+    "weekly_trend_state": {
+      "type": "string",
+      "aliases": ["symbol_payload.weekly_trend_state", "candidate_payload.weekly_trend_state"]
+    },
+    "daily_trigger_state": {
+      "type": "string",
+      "aliases": ["symbol_payload.daily_trigger_state", "candidate_payload.daily_trigger_state"]
+    },
+    "rs_rank_1m": {
+      "type": "number",
+      "aliases": ["symbol_payload.rs_rank_1m", "candidate_payload.rs_rank_1m"]
+    },
+    "rs_rank_3m": {
+      "type": "number",
+      "aliases": ["symbol_payload.rs_rank_3m", "candidate_payload.rs_rank_3m"]
+    },
+    "rs_rank_6m": {
+      "type": "number",
+      "aliases": ["symbol_payload.rs_rank_6m", "candidate_payload.rs_rank_6m"]
+    },
+    "composite_rs_rank": {
+      "type": "number",
+      "aliases": ["symbol_payload.composite_rs_rank", "candidate_payload.composite_rs_rank"]
+    },
+    "prior_move_pct_20d": {
+      "type": "number",
+      "aliases": ["symbol_payload.prior_move_pct_20d", "candidate_payload.prior_move_pct_20d"]
+    },
+    "prior_move_pct_60d": {
+      "type": "number",
+      "aliases": ["symbol_payload.prior_move_pct_60d", "candidate_payload.prior_move_pct_60d"]
+    },
+    "htf_structure_score": {
+      "type": "number",
+      "aliases": ["symbol_payload.htf_structure_score", "candidate_payload.htf_structure_score"]
+    },
+    "htf_structure_status": {
+      "type": "string",
+      "aliases": ["symbol_payload.htf_structure_status", "candidate_payload.htf_structure_status"]
+    },
+    "close": {
+      "type": "number",
+      "aliases": ["symbol_payload.close", "candidate_payload.close"]
+    },
+    "pivot_price": {
+      "type": "number",
+      "aliases": ["symbol_payload.pivot_price", "candidate_payload.pivot_price"]
+    },
+    "adr20_pct": {
+      "type": "number",
+      "aliases": ["symbol_payload.adr20_pct", "candidate_payload.adr20_pct"]
+    },
+    "atr14_pct": {
+      "type": "number",
+      "aliases": ["symbol_payload.atr14_pct", "candidate_payload.atr14_pct"]
+    },
+    "stop_risk_pct": {
+      "type": "number",
+      "aliases": ["symbol_payload.stop_risk_pct", "candidate_payload.stop_risk_pct"]
+    },
+    "stop_to_adr_ratio": {
+      "type": "number",
+      "aliases": ["symbol_payload.stop_to_adr_ratio", "candidate_payload.stop_to_adr_ratio"]
+    },
+    "stop_to_atr_ratio": {
+      "type": "number",
+      "aliases": ["symbol_payload.stop_to_atr_ratio", "candidate_payload.stop_to_atr_ratio"]
+    },
+    "volume_contraction_ratio": {
+      "type": "number",
+      "aliases": ["symbol_payload.volume_contraction_ratio", "candidate_payload.volume_contraction_ratio"]
+    },
+    "volume_ratio_20d": {
+      "type": "number",
+      "aliases": ["symbol_payload.volume_ratio_20d", "candidate_payload.volume_ratio_20d"]
+    },
+    "avg_turnover_20d": {
+      "type": "number",
+      "aliases": ["symbol_payload.avg_turnover_20d", "candidate_payload.avg_turnover_20d"]
+    },
+    "extended_risk": {
+      "type": "boolean",
+      "aliases": ["symbol_payload.extended_risk", "candidate_payload.extended_risk"]
+    },
+    "distance_to_ma10_pct": {
+      "type": "number",
+      "aliases": ["symbol_payload.distance_to_ma10_pct", "candidate_payload.distance_to_ma10_pct"]
+    }
+  },
+  "parameters": {
+    "adr": {
+      "minimum_pct": 2.0,
+      "preferred_minimum_pct": 3.0,
+      "maximum_pct": 12.0
+    },
+    "stop_quality": {
+      "preferred_maximum_stop_risk_pct": 8.0,
+      "absolute_maximum_stop_risk_pct": 12.0,
+      "preferred_maximum_stop_to_adr_ratio": 2.5,
+      "absolute_maximum_stop_to_adr_ratio": 4.0,
+      "preferred_maximum_stop_to_atr_ratio": 2.5,
+      "absolute_maximum_stop_to_atr_ratio": 4.0
+    },
+    "pivot": {
+      "preferred_absolute_distance_pct": 3.0,
+      "maximum_absolute_distance_pct": 8.0
+    },
+    "liquidity": {
+      "preferred_avg_turnover_20d": 50000000,
+      "minimum_avg_turnover_20d": 15000000
+    },
+    "extension": {
+      "maximum_distance_to_ma10_pct": 10.0
+    }
+  },
+  "scoring": {
+    "weights": {
+      "timeframe_trend": 15,
+      "multi_period_rs": 20,
+      "prior_move": 10,
+      "htf_structure": 15,
+      "pivot_position": 10,
+      "stop_quality": 15,
+      "volume_behavior": 5,
+      "liquidity": 5,
+      "extension_risk": 5
+    }
+  },
+  "grade_thresholds": {
+    "ordered_descending": [
+      {"grade": "A", "minimum_score": 85},
+      {"grade": "A-", "minimum_score": 75},
+      {"grade": "B", "minimum_score": 60},
+      {"grade": "C", "minimum_score": 0}
+    ]
+  },
+  "grade_caps": [
+    {
+      "id": "failed_or_invalid_htf_cap_c",
+      "field": "htf_structure_status",
+      "operator": "in",
+      "value": ["too_loose", "too_deep", "extended", "failed_breakout"],
+      "maximum_grade": "C"
+    },
+    {
+      "id": "extended_risk_cap_c",
+      "field": "extended_risk",
+      "operator": "eq",
+      "value": true,
+      "maximum_grade": "C"
+    },
+    {
+      "id": "composite_rs_below_60_cap_c",
+      "field": "composite_rs_rank",
+      "operator": "lt",
+      "value": 60,
+      "maximum_grade": "C"
+    },
+    {
+      "id": "stop_risk_above_absolute_cap_c",
+      "field": "stop_risk_pct",
+      "operator": "gt_parameter",
+      "value": "stop_quality.absolute_maximum_stop_risk_pct",
+      "maximum_grade": "C"
+    },
+    {
+      "id": "stop_to_adr_above_absolute_cap_c",
+      "field": "stop_to_adr_ratio",
+      "operator": "gt_parameter",
+      "value": "stop_quality.absolute_maximum_stop_to_adr_ratio",
+      "maximum_grade": "C"
+    },
+    {
+      "id": "stop_to_atr_above_absolute_cap_c",
+      "field": "stop_to_atr_ratio",
+      "operator": "gt_parameter",
+      "value": "stop_quality.absolute_maximum_stop_to_atr_ratio",
+      "maximum_grade": "C"
+    },
+    {
+      "id": "liquidity_below_minimum_cap_c",
+      "field": "avg_turnover_20d",
+      "operator": "lt_parameter",
+      "value": "liquidity.minimum_avg_turnover_20d",
+      "maximum_grade": "C"
+    }
+  ],
+  "hard_risk_checks_for_a_grades": {
+    "A": {
+      "allowed_htf_statuses": ["valid_htf"],
+      "minimum_composite_rs_rank": 85,
+      "maximum_stop_risk_pct_parameter": "stop_quality.preferred_maximum_stop_risk_pct",
+      "maximum_stop_to_adr_ratio_parameter": "stop_quality.preferred_maximum_stop_to_adr_ratio",
+      "maximum_stop_to_atr_ratio_parameter": "stop_quality.preferred_maximum_stop_to_atr_ratio",
+      "maximum_absolute_pivot_distance_pct_parameter": "pivot.preferred_absolute_distance_pct",
+      "minimum_avg_turnover_20d_parameter": "liquidity.preferred_avg_turnover_20d",
+      "extended_risk": false
+    },
+    "A-": {
+      "allowed_htf_statuses": ["valid_htf", "developing"],
+      "minimum_composite_rs_rank": 75,
+      "maximum_stop_risk_pct_parameter": "stop_quality.absolute_maximum_stop_risk_pct",
+      "maximum_stop_to_adr_ratio_parameter": "stop_quality.absolute_maximum_stop_to_adr_ratio",
+      "maximum_stop_to_atr_ratio_parameter": "stop_quality.absolute_maximum_stop_to_atr_ratio",
+      "maximum_absolute_pivot_distance_pct_parameter": "pivot.maximum_absolute_distance_pct",
+      "minimum_avg_turnover_20d_parameter": "liquidity.preferred_avg_turnover_20d",
+      "extended_risk": false
+    }
+  },
+  "missing_data_policy": {
+    "grade": "Ungraded",
+    "score_v2_shadow": null,
+    "missing_value_is_zero": false,
+    "imputation_allowed": false,
+    "required_reason_field": "v2_rejection_reasons"
+  },
+  "market_gate_policy": {
+    "grade_is_independent_of_market_regime": true,
+    "score_is_independent_of_market_regime": true,
+    "risk_on": {"A": "open", "A-": "open", "B": "watch", "C": "watch"},
+    "neutral": {"A": "conditional", "A-": "blocked", "B": "watch", "C": "watch"},
+    "risk_off": {"A": "blocked", "A-": "blocked", "B": "watch", "C": "watch"},
+    "fallback": {"A": "blocked", "A-": "blocked", "B": "watch", "C": "watch"},
+    "non_graded": "not_applicable"
+  },
+  "shadow_routing": {
+    "official_policy": "qullamaggie-grading-policy-v1",
+    "official_grade_field": "grade_v1",
+    "official_score_field": "score_v1",
+    "shadow_grade_field": "grade_v2_shadow",
+    "shadow_score_field": "score_v2_shadow",
+    "watchlist_policy": "v1",
+    "tradeplan_policy": "v1",
+    "v2_may_drive_business_writes": false,
+    "promotion_requires_explicit_policy_change": true
+  },
+  "output_contract": {
+    "required_fields": [
+      "grade_v1",
+      "score_v1",
+      "grade_v2_shadow",
+      "score_v2_shadow",
+      "grade_difference",
+      "v2_rejection_reasons"
+    ],
+    "shadow_detail_fields": [
+      "component_scores",
+      "missing_fields",
+      "data_errors",
+      "applied_caps",
+      "hard_risk_checks",
+      "market_regime",
+      "market_gate_shadow"
+    ]
+  },
+  "shadow_history": {
+    "required_trading_days_for_initial_comparison": 20,
+    "review_horizon_weeks": 12,
+    "latest_path": "data/chatgpt/grading-shadow-v2-latest.json",
+    "history_path_pattern": "data/grading-shadow-v2/YYYY/MM/YYYY-MM-DD.json",
+    "history_index_path": "data/grading-shadow-v2/history-index.json",
+    "historical_results_must_not_be_fabricated": true
+  },
+  "validation_rules": {
+    "weights_must_sum_to": 100,
+    "thresholds_must_be_strictly_descending": true,
+    "grade_caps_must_reference_supported_grades": true,
+    "required_policy_version_prefix": "2.",
+    "required_schema_version": 2,
+    "required_status": "shadow",
+    "null_must_not_be_scored_as_zero": true,
+    "market_gate_must_be_separate": true,
+    "official_routing_must_remain_v1": true,
+    "allowed_cap_operators": [
+      "eq",
+      "in",
+      "lt",
+      "gt",
+      "lt_parameter",
+      "gt_parameter"
+    ]
+  },
+  "limitations": [
+    "v2 is shadow-only and cannot create or modify Watchlist or TradePlan records.",
+    "A 20-trading-day shadow history is accumulated prospectively; unavailable historical v2 fields are not fabricated.",
+    "The policy remains research-only and does not produce real trading instructions."
+  ]
+}

@@ -1,6 +1,6 @@
 # Qullamaggie-style High Tight Flag 結構欄位
 
-本模組只產生可稽核研究欄位，不取代正式 v1 grading policy，也不構成交易建議。
+本模組產生可稽核研究欄位並供 v2 影子評分使用；不取代正式 v1 grading policy，也不構成交易建議。
 
 ## 有效資料與時間邊界
 
