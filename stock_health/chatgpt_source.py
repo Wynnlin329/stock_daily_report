@@ -10,7 +10,7 @@ from .config import SCHEMA_VERSION, TIMEZONE, github_raw_url
 
 ACTIONABLE_SETUPS = {"breakout", "episodic_pivot", "anticipation"}
 TOP_WEEKLY_LIMIT = 50
-SYMBOL_SCHEMA_VERSION = "1.2"
+SYMBOL_SCHEMA_VERSION = "1.3"
 COMPACT_SIZE_LIMIT_BYTES = 1_048_576
 SYMBOL_TECHNICAL_FIELDS = [
     "date",
@@ -42,6 +42,27 @@ SYMBOL_TECHNICAL_FIELDS = [
     "composite_rs_rank",
     "missing_reason",
     "indicator_basis",
+    "prior_move_pct_20d",
+    "prior_move_pct_60d",
+    "distance_to_52w_high_pct",
+    "flag_duration_days",
+    "flag_depth_pct",
+    "higher_lows_count",
+    "range_contraction_ratio",
+    "volume_contraction_ratio",
+    "ma10_slope",
+    "ma20_slope",
+    "distance_to_ma10_pct",
+    "distance_to_ma20_pct",
+    "monthly_above_ma12",
+    "weekly_trend_state",
+    "daily_trigger_state",
+    "htf_structure_score",
+    "htf_structure_status",
+    "htf_rejection_reasons",
+    "htf_missing_reason",
+    "htf_structure_basis",
+    "htf_data_quality",
     "setup_type",
     "extended_risk",
     "risk_notes",
@@ -115,6 +136,7 @@ def build_daily_qullamaggie_source(
                 "available_trading_days": history_index.get("available_trading_days", 0),
                 "has_60d_history": history_index.get("has_60d_history", False),
                 "has_126d_history": history_index.get("has_126d_history", False),
+                "has_252d_history": history_index.get("has_252d_history", False),
                 "has_mops_event_90d_history": history_index.get("has_mops_event_90d_history", False),
             },
         },
@@ -130,6 +152,7 @@ def build_daily_qullamaggie_source(
             "failed_breakout": candidates.get("failed_breakout", []),
             "limitations": qullamaggie.get("limitations", []),
             "indicator_coverage": qullamaggie.get("indicator_coverage", {}),
+            "htf_structure_coverage": qullamaggie.get("htf_structure_coverage", {}),
         },
         "paper_trading_decision_gate": build_paper_trading_decision_gate(report, screening_summary),
         "supporting_candidates": {
@@ -189,6 +212,7 @@ def build_symbol_index(report: dict[str, Any], symbol_payloads: dict[str, dict[s
             "ohlcv_complete": bool(payload.get("data_quality", {}).get("ohlcv_complete")),
             "technical_indicators_complete": bool(payload.get("data_quality", {}).get("technical_indicators_complete")),
             "enhanced_indicators_complete": bool(payload.get("data_quality", {}).get("enhanced_indicators_complete")),
+            "htf_structure_complete": bool(payload.get("data_quality", {}).get("htf_structure_complete")),
             "path": f"data/chatgpt/symbols/{symbol}.json",
             "url": payload.get("source_url"),
         }
@@ -197,6 +221,7 @@ def build_symbol_index(report: dict[str, Any], symbol_payloads: dict[str, dict[s
     complete_ohlcv_count = sum(1 for item in symbols if item["ohlcv_complete"])
     complete_technical_count = sum(1 for item in symbols if item["technical_indicators_complete"])
     complete_enhanced_count = sum(1 for item in symbols if item["enhanced_indicators_complete"])
+    complete_htf_count = sum(1 for item in symbols if item["htf_structure_complete"])
     return {
         "schema_version": SYMBOL_SCHEMA_VERSION,
         "report_date": report.get("report_date"),
@@ -212,6 +237,9 @@ def build_symbol_index(report: dict[str, Any], symbol_payloads: dict[str, dict[s
         "complete_enhanced_indicators_count": complete_enhanced_count,
         "incomplete_enhanced_indicators_count": len(symbols) - complete_enhanced_count,
         "enhanced_indicator_coverage_pct": round(complete_enhanced_count / len(symbols) * 100, 4) if symbols else 0.0,
+        "complete_htf_structure_count": complete_htf_count,
+        "incomplete_htf_structure_count": len(symbols) - complete_htf_count,
+        "htf_structure_coverage_pct": round(complete_htf_count / len(symbols) * 100, 4) if symbols else 0.0,
         "incomplete_ohlcv_symbols": [item["symbol"] for item in symbols if not item["ohlcv_complete"]],
         "symbols": symbols,
     }
@@ -350,6 +378,9 @@ def build_weekly_qullamaggie_source(
         "indicator_coverage": (
             valid_payloads[-1].get("qullamaggie", {}).get("indicator_coverage", {}) if valid_payloads else {}
         ),
+        "htf_structure_coverage": (
+            valid_payloads[-1].get("qullamaggie", {}).get("htf_structure_coverage", {}) if valid_payloads else {}
+        ),
         "weekly_supporting_data": weekly_support,
         "next_week_watchlist_candidates": watchlist,
         "paper_trading_weekly_review_gate": {
@@ -374,6 +405,7 @@ def build_daily_qullamaggie_compact(payload: dict[str, Any]) -> dict[str, Any]:
         "market_context": payload.get("market_context", {}),
         "setup_counts": q.get("setup_counts", {}),
         "indicator_coverage": q.get("indicator_coverage", {}),
+        "htf_structure_coverage": q.get("htf_structure_coverage", {}),
         "top_candidates": [_compact_candidate(item) for item in q.get("top_candidates", [])[:100]],
         "breakout": [_compact_candidate(item) for item in q.get("breakout", [])[:100]],
         "episodic_pivot": [_compact_candidate(item) for item in q.get("episodic_pivot", [])[:100]],
@@ -398,6 +430,7 @@ def build_weekly_qullamaggie_compact(payload: dict[str, Any]) -> dict[str, Any]:
         "week_data_status": payload.get("week_data_status", {}),
         "setup_counts": weekly.get("setup_counts", {}),
         "indicator_coverage": payload.get("indicator_coverage", {}),
+        "htf_structure_coverage": payload.get("htf_structure_coverage", {}),
         "repeated_candidates": [_compact_weekly_candidate(item) for item in weekly.get("repeated_candidates", [])[:100]],
         "setup_transitions": weekly.get("setup_transitions", [])[:100],
         "next_week_watchlist_candidates": [
@@ -499,6 +532,10 @@ def build_schedule_readiness(
             symbol_index.get("symbol_count", 0) > 0
             and symbol_index.get("incomplete_enhanced_indicators_count") == 0
         ),
+        "htf_structure_complete": bool(
+            symbol_index.get("symbol_count", 0) > 0
+            and symbol_index.get("incomplete_htf_structure_count") == 0
+        ),
     }
     can_switch_daily_scan_schedule = all(
         checks[key]
@@ -549,6 +586,8 @@ def build_schedule_readiness(
         warnings.append("部分 symbol 技術檔 OHLCV 不完整。")
     if not checks["enhanced_technical_indicators_complete"]:
         warnings.append("部分波動或多期間相對強度指標資料不足；新指標僅供研究，不影響正式 v1 分級與排程 gate。")
+    if not checks["htf_structure_complete"]:
+        warnings.append("部分 High Tight Flag 結構資料不足；HTF 欄位僅供 v2 policy 研究，不影響正式 v1 分級與排程 gate。")
     return {
         "schema_version": SCHEMA_VERSION,
         "report_date": report.get("report_date"),
@@ -558,11 +597,17 @@ def build_schedule_readiness(
         "generated_at": report.get("generated_at"),
         "timezone": TIMEZONE,
         "checks": checks,
-        "non_blocking_checks": ["enhanced_technical_indicators_complete"],
+        "non_blocking_checks": ["enhanced_technical_indicators_complete", "htf_structure_complete"],
         "enhanced_indicator_completeness": {
             "complete_symbols": symbol_index.get("complete_enhanced_indicators_count", 0),
             "incomplete_symbols": symbol_index.get("incomplete_enhanced_indicators_count", 0),
             "coverage_pct": symbol_index.get("enhanced_indicator_coverage_pct", 0.0),
+            "affects_grading_policy_v1": False,
+        },
+        "htf_structure_completeness": {
+            "complete_symbols": symbol_index.get("complete_htf_structure_count", 0),
+            "incomplete_symbols": symbol_index.get("incomplete_htf_structure_count", 0),
+            "coverage_pct": symbol_index.get("htf_structure_coverage_pct", 0.0),
             "affects_grading_policy_v1": False,
         },
         "compact_sizes": {
@@ -805,6 +850,8 @@ def _symbol_data_quality(candidate: dict[str, Any]) -> dict[str, Any]:
         "technical_indicators_complete": _technical_indicators_complete(candidate),
         "enhanced_indicators_complete": _enhanced_indicators_complete(candidate),
         "enhanced_indicator_missing_reason": candidate.get("missing_reason", {}),
+        "htf_structure_complete": candidate.get("htf_structure_status") not in {None, "insufficient_data"},
+        "htf_structure_missing_reason": candidate.get("htf_missing_reason", {}),
         "source_market_file": _source_market_file(report_date, market),
     }
 
@@ -930,6 +977,24 @@ def _compact_candidate(candidate: dict[str, Any]) -> dict[str, Any]:
         "rs_rank_6m": candidate.get("rs_rank_6m"),
         "composite_rs_rank": candidate.get("composite_rs_rank"),
         "missing_reason": candidate.get("missing_reason", {}),
+        "prior_move_pct_20d": candidate.get("prior_move_pct_20d"),
+        "prior_move_pct_60d": candidate.get("prior_move_pct_60d"),
+        "distance_to_52w_high_pct": candidate.get("distance_to_52w_high_pct"),
+        "flag_duration_days": candidate.get("flag_duration_days"),
+        "flag_depth_pct": candidate.get("flag_depth_pct"),
+        "higher_lows_count": candidate.get("higher_lows_count"),
+        "range_contraction_ratio": candidate.get("range_contraction_ratio"),
+        "volume_contraction_ratio": candidate.get("volume_contraction_ratio"),
+        "ma10_slope": candidate.get("ma10_slope"),
+        "ma20_slope": candidate.get("ma20_slope"),
+        "distance_to_ma10_pct": candidate.get("distance_to_ma10_pct"),
+        "distance_to_ma20_pct": candidate.get("distance_to_ma20_pct"),
+        "monthly_above_ma12": candidate.get("monthly_above_ma12"),
+        "weekly_trend_state": candidate.get("weekly_trend_state"),
+        "daily_trigger_state": candidate.get("daily_trigger_state"),
+        "htf_structure_score": candidate.get("htf_structure_score"),
+        "htf_structure_status": candidate.get("htf_structure_status"),
+        "htf_rejection_reasons": candidate.get("htf_rejection_reasons", []),
         "pivot_price": candidate.get("pivot_price"),
         "stop_reference": candidate.get("stop_reference"),
         "extended_risk": candidate.get("extended_risk"),

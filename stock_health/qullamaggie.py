@@ -22,6 +22,7 @@ from .config import (
     QULLAMAGGIE_SETUP_TYPES,
 )
 from .models import InstitutionalTradingRecord, MopsEventRecord, OhlcvRecord
+from .high_tight_flag import build_htf_structure_coverage, calculate_htf_structure
 from .technical_indicators import (
     apply_multi_period_rs_ranks,
     build_enhanced_indicator_coverage,
@@ -89,6 +90,7 @@ def calculate_qullamaggie_signals(
         "top_candidates": top_candidates,
         "all_candidates": candidates,
         "indicator_coverage": calculated["indicator_coverage"],
+        "htf_structure_coverage": calculated["htf_structure_coverage"],
         "limitations": limitations,
     }
 
@@ -147,6 +149,7 @@ def calculate_qullamaggie_candidate_payloads(
         "market_regime": market_regime,
         "all_candidates": candidates,
         "indicator_coverage": build_enhanced_indicator_coverage(candidates),
+        "htf_structure_coverage": build_htf_structure_coverage(candidates),
         "limitations": limitations,
     }
 
@@ -373,6 +376,7 @@ def _calculate_metrics(
     rs20, rs60 = _relative_strength(row, history, benchmark_history)
     stop_reference = base["base_low"] if base["base_low"] is not None else (min(lows[-10:]) if len(lows) >= 10 else None)
     enhanced_metrics = calculate_enhanced_technical_metrics(row, history, stop_reference)
+    htf_metrics = calculate_htf_structure(row, history)
     distance_to_pivot_pct = _relative_pct(current_close, pivot_price)
     risk_to_stop_pct = _relative_pct(current_close, stop_reference)
     volume_ratio_20d = row.volume / avg_volume_20d if row.volume is not None and avg_volume_20d else None
@@ -463,6 +467,7 @@ def _calculate_metrics(
         "stop_reference": stop_reference,
         "risk_to_stop_pct": risk_to_stop_pct,
         **enhanced_metrics,
+        **htf_metrics,
         "mops_event_flag": mops_event_flag,
         "mops_event_count": mops_event_metrics.get("mops_event_count_7d", len(mops_events)),
         "mops_event_count_today": mops_event_metrics.get("mops_event_count_today", 0),
@@ -571,6 +576,27 @@ def _candidate_payload(metrics: dict[str, Any]) -> dict[str, Any]:
         "composite_rs_rank",
         "missing_reason",
         "indicator_basis",
+        "prior_move_pct_20d",
+        "prior_move_pct_60d",
+        "distance_to_52w_high_pct",
+        "flag_duration_days",
+        "flag_depth_pct",
+        "higher_lows_count",
+        "range_contraction_ratio",
+        "volume_contraction_ratio",
+        "ma10_slope",
+        "ma20_slope",
+        "distance_to_ma10_pct",
+        "distance_to_ma20_pct",
+        "monthly_above_ma12",
+        "weekly_trend_state",
+        "daily_trigger_state",
+        "htf_structure_score",
+        "htf_structure_status",
+        "htf_rejection_reasons",
+        "htf_missing_reason",
+        "htf_structure_basis",
+        "htf_data_quality",
         "mops_event_flag",
         "mops_event_count",
         "mops_event_count_today",
