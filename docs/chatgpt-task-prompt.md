@@ -82,6 +82,9 @@ https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-heal
 54. MOPS 只證明事件存在、日期、來源與類別。`catalyst_direction_interpreted=false` 時不得宣稱事件為利多、利空、超預期或低於預期。
 55. `catalyst_surprise_score`、`revenue_growth_yoy`、`eps_growth_yoy` 及盤中 15/30 分鐘量能與 opening range 為 `null` 時，必須揭露資料限制，不得自行搜尋、推估或以 0 代替。
 56. `mops_data_date_matches_analysis_date=false` 或 `ep_status=insufficient_data` 時，不得把該標的列為 Episodic Pivot 候選。
+57. ORH 只能讀取 `data/chatgpt/orh-shadow-policy-v1.json` 判斷可用性。目前 `data_reliability_gate.passed=false`，不得產生 ORH 訊號或比較績效。
+58. 不得使用日 K、突破日 high、收盤價或事後完整盤中資料推測 `orh_triggered_at`、`orh_entry_price`、`orh_initial_stop` 或 opening range。
+59. 正式進場模型維持突破日收盤確認；ORH 即使未來啟用也只能是影子模型，不得建立或改寫 TradePlan、SimEntry、SimExit、TradeLog。
 
 輸出格式：
 

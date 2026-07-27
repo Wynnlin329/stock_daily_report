@@ -1,0 +1,150 @@
+{
+  "policy_id": "orh-shadow-policy",
+  "version": "1.0.0",
+  "schema_version": 1,
+  "status": "blocked_data_source",
+  "assessed_at": "2026-07-27",
+  "timezone": "Asia/Taipei",
+  "official_entry_model": "breakout_confirmation_close",
+  "orh_model": {
+    "role": "shadow_only",
+    "enabled": false,
+    "may_write_tradeplan": false,
+    "may_execute_real_trade": false,
+    "daily_pipeline_integrated": false
+  },
+  "data_reliability_gate": {
+    "passed": false,
+    "required_timeframes_minutes": [
+      1,
+      5,
+      30,
+      60
+    ],
+    "required_capabilities": [
+      "ohlcv_available",
+      "timestamps_include_timezone",
+      "historical_retention_documented",
+      "corporate_actions_handled",
+      "abnormal_trading_handled",
+      "authenticated_runtime_verified",
+      "cross_market_coverage_verified"
+    ],
+    "blocking_reasons": [
+      "The repository has no authenticated intraday market-data provider.",
+      "No TWSE and TPEx cross-market minute-bar run has been verified in the GitHub Actions environment.",
+      "Corporate-action and abnormal-trading handling has not been verified end to end.",
+      "No append-only point-in-time intraday snapshot store exists yet."
+    ]
+  },
+  "source_assessment": [
+    {
+      "source_id": "twse_public_openapi",
+      "role": "official",
+      "timeframes_minutes": [],
+      "historical_retention": "No public minute-bar retention contract was found in the OpenAPI specification.",
+      "current_pipeline_usable": false,
+      "notes": "TWSE offers real-time and historical transaction information as information products, but the current repository does not subscribe to those products."
+    },
+    {
+      "source_id": "tpex_information_service",
+      "role": "official",
+      "timeframes_minutes": [],
+      "historical_retention": "No public minute-bar retention contract was verified for the current pipeline.",
+      "current_pipeline_usable": false,
+      "notes": "TPEx real-time information requires a contract or an authorized information vendor."
+    },
+    {
+      "source_id": "fugle_marketdata_candidate",
+      "role": "candidate_vendor",
+      "timeframes_minutes": [
+        1,
+        5,
+        30,
+        60
+      ],
+      "historical_retention": "Minute candles return the most recent 30 days and do not accept custom from/to ranges.",
+      "current_pipeline_usable": false,
+      "capabilities": {
+        "ohlcv_available": true,
+        "timestamps_include_timezone": true,
+        "historical_retention_documented": true,
+        "corporate_actions_handled": false,
+        "abnormal_trading_handled": false,
+        "authenticated_runtime_verified": false,
+        "cross_market_coverage_verified": false
+      },
+      "notes": "Documentation covers TWSE and TPEx candles and separate corporate-action endpoints. The unauthenticated feasibility probe returned HTTP 401; no credential or paid-plan behavior was tested."
+    }
+  ],
+  "output_contract": {
+    "nullable_fields": [
+      "orh_1m",
+      "orh_5m",
+      "orh_30m",
+      "orh_60m",
+      "orh_triggered_at",
+      "orh_entry_price",
+      "orh_initial_stop",
+      "orh_slippage_pct",
+      "confirmation_close_entry",
+      "orh_model_r",
+      "close_confirmation_model_r"
+    ],
+    "runtime_output_enabled": false,
+    "missing_values_must_be_null": true,
+    "zero_fill_forbidden": true
+  },
+  "snapshot_contract": {
+    "append_only": true,
+    "captured_at_timezone": "Asia/Taipei",
+    "source_payload_hash_required": true,
+    "required_metadata": [
+      "provider",
+      "symbol",
+      "market",
+      "trading_date",
+      "timeframe_minutes",
+      "source_event_at",
+      "received_at",
+      "captured_at",
+      "query_parameters",
+      "source_payload_hash",
+      "corporate_action_state",
+      "abnormal_trading_state",
+      "validation_status"
+    ]
+  },
+  "look_ahead_policy": {
+    "daily_ohlcv_inference_forbidden": true,
+    "future_bars_forbidden": true,
+    "recompute_past_signal_with_new_data_forbidden": true,
+    "signal_may_use_only_bars_received_by_trigger_time": true
+  },
+  "comparison_metrics": [
+    "win_rate",
+    "average_r",
+    "false_breakout_rate",
+    "average_slippage_pct",
+    "maximum_drawdown"
+  ],
+  "activation_criteria": [
+    "Configure the provider credential only through GitHub Actions Secrets.",
+    "Verify TWSE and TPEx common-stock coverage for at least five trading days.",
+    "Verify 1, 5, 30 and 60 minute OHLCV aggregation against source timestamps.",
+    "Implement append-only raw snapshot storage before calculating signals.",
+    "Verify dividend, split, capital reduction, halt, disposition and delayed-opening handling.",
+    "Add replay tests proving that bars received after a trigger timestamp cannot change the historical decision."
+  ],
+  "validation_rules": {
+    "official_model_must_remain_confirmation_close": true,
+    "orh_must_remain_shadow_only": true,
+    "business_writes_forbidden": true,
+    "real_trading_forbidden": true
+  },
+  "limitations": [
+    "This file defines a disabled interface only; it does not generate ORH signals.",
+    "The requested ORH fields are not added to daily artifacts while the reliability gate is false.",
+    "Daily OHLCV must never be used to reconstruct or guess an opening-range breakout."
+  ]
+}

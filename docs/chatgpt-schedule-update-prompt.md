@@ -17,3 +17,4 @@
 13. 若需將正式模型 A 的事件寫入 Google Sheets，寫入後必須回讀驗證；影子模型 B 僅可寫入報告或比較欄位。所有結果均為模擬研究，不得送出真實交易。
 14. Episodic Pivot 必須使用 `episodic-pivot-policy-v1.json`、`ep_status` 與 `ep_quality_score`，不得沿用一般 Breakout 分數。`ep_status=insufficient_data` 或 MOPS 日期不一致時不得建立 EP Watchlist／TradePlan。
 15. MOPS 事件存在與事件方向性解讀必須分開。驚喜、營收/EPS 年增或盤中欄位為 `null` 時不得猜測、補 0 或從外部網站補抓。
+16. ORH 必須先讀 `data/chatgpt/orh-shadow-policy-v1.json`。當 `data_reliability_gate.passed=false` 時，不得從日 K 或事後資料推測 ORH；正式進場仍使用突破日收盤確認，ORH 不得寫入任何業務表。
