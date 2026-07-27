@@ -75,6 +75,7 @@ data/chatgpt/symbol-index.json
 data/chatgpt/symbols/{symbol}.json
 data/chatgpt/qullamaggie-grading-policy-v1.json
 data/chatgpt/qullamaggie-grading-policy-v2.json
+data/chatgpt/position-management-policy-v1.json
 data/chatgpt/grading-shadow-v2-latest.json
 data/grading-shadow-v2/history-index.json
 data/grading-shadow-v2/YYYY/MM/YYYY-MM-DD.json
@@ -294,6 +295,32 @@ v2 固定為 `status=shadow`。`shadow_routing.watchlist_policy` 與 `tradeplan_
 python scripts/validate_grading_policy_v2.py
 ```
 
+### 模擬持倉管理狀態機
+
+`stock_health/position_management.py` 同時計算兩套模擬持倉模型：
+
+- `plus_2r_v1`：正式模擬模型，預設歷史收盤 `max_r_reached` 到達 +2R 後減碼 1/2，完成減碼後啟動成本停損與 10MA 收盤確認移動停利。
+- `qullamaggie_3_5d_shadow`：影子模型，進場後第 3 至第 5 個有效交易日建議減碼 1/3 至 1/2，完成減碼後啟動成本停損，剩餘部位使用可設定的 10MA 或 20MA 收盤確認。
+
+所有參數集中於 `data/chatgpt/position-management-policy-v1.json`。頂層正式輸出只使用模型 A；模型 B 僅存在於 `model_comparison_snapshot`，不得建立正式模擬出場或改寫持倉。
+
+狀態機固定保留原始 `entry_price` 與 `initial_stop`。`trigger_reference` 只是進場計畫參考，R 值一律使用實際 `entry_price` 與原始 `initial_stop` 計算。輸出包含：
+
+```text
+days_since_entry, current_r, max_r_reached, max_close_since_entry,
+partial_exit_due, partial_exit_ratio, break_even_stop_activated,
+active_trailing_ma, close_below_trailing_ma, position_stage,
+exit_model, exit_signal, exit_reason, model_comparison_snapshot
+```
+
+模擬事件 ID 由股票、模型、事件類型與首次訊號日組成。重跑會沿用 pending event；已存在於 `completed_event_ids` 的減碼或出場事件不會再次建立。只有正式模型會填入 `events_to_create`，影子模型只保留比較訊號。模組不執行真實交易或外部寫入。完整契約見 `docs/position-management-state-machine.md`。
+
+驗證命令：
+
+```bash
+python scripts/validate_position_management_policy.py
+```
+
 ### 法人買賣超
 
 法人買賣超優先使用官方公開資料來源：
@@ -428,6 +455,7 @@ https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-heal
 https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbol-index.json
 https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/qullamaggie-grading-policy-v1.json
 https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/qullamaggie-grading-policy-v2.json
+https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/position-management-policy-v1.json
 https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/grading-shadow-v2-latest.json
 https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/grading-shadow-v2/history-index.json
 https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/reports/chatgpt-daily-qullamaggie-source.md

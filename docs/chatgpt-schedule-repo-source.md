@@ -152,6 +152,19 @@ data/grading-shadow-v2/YYYY/MM/YYYY-MM-DD.json
 
 `checks.grading_v2_shadow_20d_ready` 是非阻擋檢查。歷史索引只計算實際產生且通過日期／routing 驗證的影子檔案，未滿 20 個交易日不會回填舊日推算值。市場 Gate 只影響 `market_gate_shadow`，不會改寫 v2 品質分數。
 
+## Simulated Position Management
+
+```text
+data/chatgpt/position-management-policy-v1.json
+docs/position-management-state-machine.md
+```
+
+正式模擬持倉模型是 `plus_2r_v1`；`qullamaggie_3_5d_shadow` 只輸出比較 snapshot，不得驅動 SimExit、TradeLog 或持倉狀態寫入。兩個模型都保留原始 `entry_price` 與 `initial_stop`，且不得使用 trigger 代替實際 Entry。
+
+狀態機事件使用穩定 event ID。Google Sheets 寫入前必須以 event ID 查重，寫入後回讀並把 ID 保存至 `completed_event_ids`。同一 pending event 重跑時 `events_to_create` 必須為空，避免重複減碼或重複出場。
+
+若 `schedule_switch.can_switch_position_management_schedule=false`，兩個模型都不得產生新的持倉管理事件。即使 Gate 允許，本階段也只執行模擬資料寫入，不進行真實交易或券商操作。
+
 ## Schedule Readiness
 
 正式切換排程前先讀：
@@ -220,6 +233,7 @@ data/screening/YYYY/MM/YYYY-MM-DD-screening-summary.json
 - `chatgpt_weekly_qullamaggie_compact`
 - `chatgpt_symbol_index`
 - `chatgpt_schedule_readiness`
+- `position_management_policy`
 - `screening_history_index`
 - `chatgpt_daily_qullamaggie_markdown`
 - `chatgpt_weekly_qullamaggie_markdown`

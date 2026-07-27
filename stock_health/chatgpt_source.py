@@ -694,6 +694,9 @@ def build_schedule_readiness(
             "grading_v2_shadow_history_index": github_raw_url(
                 "data/grading-shadow-v2/history-index.json"
             ),
+            "position_management_policy": github_raw_url(
+                "data/chatgpt/position-management-policy-v1.json"
+            ),
         },
     }
 
@@ -879,6 +882,7 @@ def _source_urls(artifact_urls: dict[str, str]) -> dict[str, str]:
         "grading_policy_v2_shadow",
         "grading_v2_shadow_latest",
         "grading_v2_shadow_history_index",
+        "position_management_policy",
         "screening_history_index",
         "chatgpt_daily_qullamaggie_markdown",
         "chatgpt_weekly_qullamaggie_markdown",
