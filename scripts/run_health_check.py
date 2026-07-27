@@ -115,6 +115,11 @@ def main() -> int:
         mops_events.limitations,
         mops_events.status,
         mops_events.source_url,
+        mops_events.requested_date,
+        mops_events.source_endpoint,
+        mops_events.fallback_used,
+        mops_events.date_validation,
+        mops_events.status_reason,
     )
     mops_summary["report_date"] = f"{report_date:%Y-%m-%d}"
     mops_summary["as_of_date"] = f"{market_data_date:%Y-%m-%d}"

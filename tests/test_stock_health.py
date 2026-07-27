@@ -1039,7 +1039,12 @@ def test_mops_historical_events_uses_t05st01_post() -> None:
     result = fetch_mops_historical_events(date(2026, 6, 17), client)
     assert result.ok is True
     assert result.status == "success"
+    assert result.requested_date == "2026-06-17"
     assert result.data_date == "2026-06-17"
+    assert result.source_endpoint == "https://mopsov.twse.com.tw/mops/web/ajax_t05st01"
+    assert result.fallback_used is False
+    assert result.date_validation == "matched"
+    assert result.status_reason == "historical_target_events_found"
     assert result.rows[0].symbol == "6443"
     assert result.rows[0].source == "MOPSOV:t05st01"
     assert client.urls == ["https://mopsov.twse.com.tw/mops/web/ajax_t05st01"]
@@ -1055,11 +1060,14 @@ def test_mops_historical_no_data_is_empty_but_valid() -> None:
     result = fetch_mops_historical_events(date(2026, 6, 17), FakeClient([HttpResponse("mock", 200, html.encode("utf-8"), 1)]))
     assert result.ok is True
     assert result.status == "empty_but_valid"
+    assert result.requested_date == "2026-06-17"
     assert result.data_date == "2026-06-17"
+    assert result.date_validation == "query_confirmed_empty"
+    assert result.status_reason == "historical_query_confirmed_no_events"
     assert result.rows == []
 
 
-def test_mops_zero_events_with_explicit_date_counts_as_success() -> None:
+def test_mops_realtime_stale_date_is_parser_error() -> None:
     html = """
     <html><body>
     <table>
@@ -1069,22 +1077,25 @@ def test_mops_zero_events_with_explicit_date_counts_as_success() -> None:
     </body></html>
     """
     result = fetch_mops_realtime_events(date(2026, 6, 16), FakeClient([HttpResponse("mock", 200, html.encode("utf-8"), 1)]))
-    payload = mops_events_payload("2026-06-16", "2026-06-16T18:15:00+08:00", result.data_date, result.data_date == "2026-06-16", result.rows, result.errors)
-    assert result.ok is True
-    assert result.status == "empty_but_valid"
+    assert result.ok is False
+    assert result.status == "parser_error"
+    assert result.requested_date == "2026-06-16"
+    assert result.data_date == "2026-06-15"
+    assert result.date_validation == "mismatch"
+    assert result.status_reason == "source_date_mismatch"
     assert result.rows == []
-    assert payload["event_count"] == 0
-    assert payload["is_current"] is False
 
 
-def test_mops_realtime_ignores_maintenance_date_in_html_comment() -> None:
+def test_mops_realtime_ignores_non_data_dates_in_html() -> None:
     html = """
     <html><body>
     <!--
       修改紀錄:
       2026040810thomas:(T88J)修改反詐騙連結
     -->
-    <div>即時重大訊息</div>
+    <script>const releaseDate = "20260509";</script>
+    <style>.build-20260610 { color: red; }</style>
+    <div>即時重大訊息，頁面版本 20260711</div>
     </body></html>
     """
     result = fetch_mops_realtime_events(
@@ -1094,6 +1105,8 @@ def test_mops_realtime_ignores_maintenance_date_in_html_comment() -> None:
     assert result.ok is False
     assert result.data_date is None
     assert result.status == "parser_error"
+    assert result.date_validation == "not_available"
+    assert result.status_reason == "response_date_unverified"
 
 
 def test_mops_events_falls_back_to_historical_when_realtime_date_is_stale() -> None:
@@ -1106,7 +1119,6 @@ def test_mops_events_falls_back_to_historical_when_realtime_date_is_stale() -> N
     </table>
     </body></html>
     """
-    current_day_form = "<html><body><input type='hidden' name='funcName' value='t05st02'>公司代號 查詢</body></html>"
     historical_html = """
     <html><body>
     <table>
@@ -1118,7 +1130,6 @@ def test_mops_events_falls_back_to_historical_when_realtime_date_is_stale() -> N
     client = FakeClient(
         [
             HttpResponse("mock-realtime", 200, realtime_html.encode("utf-8"), 1),
-            HttpResponse("mock-current", 200, current_day_form.encode("utf-8"), 1),
             HttpResponse("mock-historical", 200, historical_html.encode("utf-8"), 1),
         ]
     )
@@ -1127,15 +1138,48 @@ def test_mops_events_falls_back_to_historical_when_realtime_date_is_stale() -> N
 
     assert result.ok is True
     assert result.status == "success"
+    assert result.requested_date == "2026-07-24"
     assert result.data_date == "2026-07-24"
     assert [row.symbol for row in result.rows] == ["6443"]
     assert result.source_url == "https://mopsov.twse.com.tw/mops/web/ajax_t05st01"
+    assert result.source_endpoint == "https://mopsov.twse.com.tw/mops/web/ajax_t05st01"
+    assert result.fallback_used is True
+    assert result.date_validation == "matched"
+    assert result.status_reason == "historical_target_events_found"
     assert any("did not match target date 2026-07-24" in item for item in result.limitations)
     assert client.urls == [
         "https://mopsov.twse.com.tw/mops/web/t05sr01_1",
-        "https://mopsov.twse.com.tw/mops/web/t05st02",
         "https://mopsov.twse.com.tw/mops/web/ajax_t05st01",
     ]
+
+
+def test_mops_network_parser_and_confirmed_empty_have_distinct_states() -> None:
+    target_date = date(2026, 7, 24)
+    network_error = fetch_mops_historical_events(
+        target_date,
+        FakeClient([HttpResponse("mock", None, b"", 1, "URLError: mocked")]),
+    )
+    parser_error = fetch_mops_historical_events(
+        target_date,
+        FakeClient([HttpResponse("mock", 200, b"<html><body>unexpected response</body></html>", 1)]),
+    )
+    ambiguous_empty_text = fetch_mops_historical_events(
+        target_date,
+        FakeClient([HttpResponse("mock", 200, "<html><body>無資料欄位說明</body></html>".encode(), 1)]),
+    )
+    confirmed_empty = fetch_mops_historical_events(
+        target_date,
+        FakeClient([HttpResponse("mock", 200, "<html><body>資料庫中查無需求資料</body></html>".encode(), 1)]),
+    )
+
+    assert network_error.status == "source_unavailable"
+    assert network_error.status_reason == "network_or_http_error"
+    assert parser_error.status == "parser_error"
+    assert parser_error.status_reason == "response_date_unverified"
+    assert ambiguous_empty_text.status == "parser_error"
+    assert confirmed_empty.status == "empty_but_valid"
+    assert confirmed_empty.status_reason == "historical_query_confirmed_no_events"
+    assert confirmed_empty.date_validation == "query_confirmed_empty"
 
 
 def test_mops_security_page_stops_without_fallback() -> None:
@@ -1271,8 +1315,26 @@ def test_mops_csv_and_json_outputs_parseable() -> None:
     assert "date,time,symbol,name,market,title,category,summary,url,source" in csv_text.splitlines()[0]
     rows = mops_events_from_csv_text(csv_text)
     assert rows[0].symbol == "2330"
-    payload = mops_events_payload("2026-06-15", "2026-06-15T18:15:00+08:00", "2026-06-15", True, rows)
+    payload = mops_events_payload(
+        "2026-06-15",
+        "2026-06-15T18:15:00+08:00",
+        "2026-06-15",
+        True,
+        rows,
+        status="success",
+        source_url="https://example.invalid/mops",
+        requested_date="2026-06-15",
+        source_endpoint="https://example.invalid/mops",
+        fallback_used=True,
+        date_validation="matched",
+        status_reason="historical_target_events_found",
+    )
     assert payload["event_count"] == 1
+    assert payload["requested_date"] == "2026-06-15"
+    assert payload["source_endpoint"] == "https://example.invalid/mops"
+    assert payload["fallback_used"] is True
+    assert payload["date_validation"] == "matched"
+    assert payload["status_reason"] == "historical_target_events_found"
 
 
 def test_institutional_parser_missing_fields_does_not_fabricate_rows() -> None:

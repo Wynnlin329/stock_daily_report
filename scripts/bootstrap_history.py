@@ -145,6 +145,11 @@ def main() -> int:
             mops_events.limitations,
             mops_events.status,
             mops_events.source_url,
+            mops_events.requested_date,
+            mops_events.source_endpoint,
+            mops_events.fallback_used,
+            mops_events.date_validation,
+            mops_events.status_reason,
         )
         write_mops_event_outputs(root, target_date, mops_summary, mops_events.rows)
         if mops_events.ok and mops_events.data_date == day:
