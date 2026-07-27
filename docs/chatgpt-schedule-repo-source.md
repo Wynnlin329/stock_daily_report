@@ -84,14 +84,33 @@ https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-heal
 - `volume_ratio_20d`
 - `pivot_price`
 - `stop_reference`
+- `adr20_pct`
+- `atr14`
+- `atr14_pct`
+- `stop_risk_pct`
+- `stop_to_adr_ratio`
+- `stop_to_atr_ratio`
+- `return_1m`
+- `return_3m`
+- `return_6m`
+- `rs_rank_1m`
+- `rs_rank_3m`
+- `rs_rank_6m`
+- `composite_rs_rank`
+- `missing_reason`
+- `indicator_basis`
 - `setup_type`
 - `extended_risk`
 - `risk_notes`
 - `data_quality.ohlcv_complete`
 - `data_quality.technical_indicators_complete`
+- `data_quality.enhanced_indicators_complete`
+- `data_quality.enhanced_indicator_missing_reason`
 - `data_quality.source_market_file`
 
 這些逐檔檔案只保存研究用技術資料，不輸出真實交易建議。
+
+波動欄位與多期間 RS 欄位定義以 README 為準。它們會同步出現在 daily／weekly compact candidate；資料不足時必須保留 `null` 並讀取 `missing_reason`。這些欄位目前不參與正式 v1 grading policy，不得據此自行改寫既有 A／A-／B／C。
 
 ## Schedule Readiness
 
@@ -116,6 +135,9 @@ https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-heal
 - `checks.screening_history_5d_ready`
 - `checks.weekly_compact_source_ready`
 - `checks.weekly_review_gate_ready`
+- `checks.enhanced_technical_indicators_complete`
+- `non_blocking_checks`
+- `enhanced_indicator_completeness`
 - `schedule_switch.can_switch_daily_scan_schedule`
 - `schedule_switch.can_switch_watchlist_schedule`
 - `schedule_switch.can_switch_position_management_schedule`
@@ -125,6 +147,8 @@ https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-heal
 `report_date` 是報告產生日；`as_of_date` / `market_data_date` 是本次掃描依據的收盤行情日。若 GitHub Actions 延遲到隔天凌晨，`report_date` 可能是隔天，但 `market_data_date` 仍應是前一個交易日，ChatGPT 不得因此把前一交易日收盤資料視為過期。
 
 法人、資券與 MOPS 缺失可列入 `warnings`，但不得在 OHLCV 與技術資料完整時單獨阻止每日技術選股。若 `warnings` 顯示法人或資券停用，ChatGPT 不得宣稱法人確認，也不得宣稱資券風險已驗證。
+
+`checks.enhanced_technical_indicators_complete` 屬於 `non_blocking_checks`。在 126 個有效交易日尚未累積完成前可以為 false，但不得因此單獨關閉現有 schedule switch。
 
 若 `schedule_switch.can_switch_watchlist_schedule=false`，ChatGPT 不得新增、移除或取消 Watchlist / Pending / 候選項目。逐股 `data/chatgpt/symbols/{symbol}.json` 只能作為只讀技術資料查詢，不得在 gate=false 時驅動狀態變更。
 

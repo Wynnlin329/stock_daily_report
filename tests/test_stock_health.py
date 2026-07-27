@@ -302,6 +302,14 @@ def test_history_index_flags() -> None:
     index = build_history_index("2026-06-15T18:15:00+08:00", 60, [f"2026-05-{i:02d}" for i in range(1, 21)], [f"2026-05-{i:02d}" for i in range(1, 21)], [])
     assert index["has_20d_history"] is True
     assert index["has_60d_history"] is False
+    assert index["has_126d_history"] is False
+
+
+def test_history_index_flags_126_day_strength_window() -> None:
+    trading_days = [f"day-{index:03d}" for index in range(126)]
+    index = build_history_index("2026-06-15T18:15:00+08:00", 130, trading_days, trading_days, [])
+
+    assert index["has_126d_history"] is True
 
 
 def test_history_index_chip_and_mops_flags() -> None:

@@ -59,6 +59,8 @@ https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-heal
 36. 查詢單一股票技術資料時，先讀取 `data/chatgpt/symbol-index.json`，再依股票代號讀取 `data/chatgpt/symbols/{symbol}.json`；若 index 沒有該代號，不得自行補資料。
 37. A / A- / B / C / Ungraded / Eliminated 分級只可使用 `data/chatgpt/qullamaggie-grading-policy-v1.json`。`grade_score_v1` 必須依 policy 重新計算，不得由既有 `score` 或 `qullamaggie_score` 直接轉換；必要欄位缺失時必須為 Ungraded，`scan_eligible=false` 必須為 Eliminated。
 38. 逐股 JSON 沒有 `relative_strength_rank` 時，依 symbol 從 daily / weekly compact candidate 合併取得；若仍缺少則保持 Ungraded。market_regime 只控制 market_gate / action_status，不得改變 final_grade。
+39. `adr20_pct`、`atr14`、`atr14_pct`、`stop_risk_pct`、`stop_to_adr_ratio`、`stop_to_atr_ratio`、1／3／6 月 return 與 RS rank、`composite_rs_rank` 目前只作研究資訊，不得取代正式 v1 grading policy。欄位為 null 時必須讀取 `missing_reason`，不得當成 0。
+40. `checks.enhanced_technical_indicators_complete` 是 non-blocking check；歷史未滿 126 日不得據此單獨關閉每日或每週排程。
 
 輸出格式：
 

@@ -32,8 +32,8 @@ LOGGER = logging.getLogger("stock_health.bootstrap_history")
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Bootstrap recent Taiwan stock OHLCV history.")
-    parser.add_argument("--trading-days", type=int, default=60)
-    parser.add_argument("--max-calendar-days", type=int, default=180)
+    parser.add_argument("--trading-days", type=int, default=130)
+    parser.add_argument("--max-calendar-days", type=int, default=240)
     parser.add_argument("--include-institutional", action="store_true", default=True)
     parser.add_argument("--include-margin-short", action="store_true", default=True)
     parser.add_argument("--mops-calendar-days", type=int, default=90)
