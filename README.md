@@ -76,6 +76,7 @@ data/chatgpt/symbols/{symbol}.json
 data/chatgpt/qullamaggie-grading-policy-v1.json
 data/chatgpt/qullamaggie-grading-policy-v2.json
 data/chatgpt/position-management-policy-v1.json
+data/chatgpt/episodic-pivot-policy-v1.json
 data/chatgpt/grading-shadow-v2-latest.json
 data/grading-shadow-v2/history-index.json
 data/grading-shadow-v2/YYYY/MM/YYYY-MM-DD.json
@@ -179,8 +180,6 @@ MAX_BASE_DAYS = 30
 BREAKOUT_VOLUME_RATIO = 1.5
 MAX_EXTENDED_FROM_PIVOT_PCT = 8
 MAX_RISK_TO_STOP_PCT = 10
-EP_MIN_CHANGE_PCT = 5
-EP_MIN_VOLUME_RATIO = 2
 ```
 
 主要欄位包含：
@@ -209,6 +208,13 @@ ma10_slope, ma20_slope, distance_to_ma10_pct, distance_to_ma20_pct,
 monthly_above_ma12, weekly_trend_state, daily_trigger_state,
 htf_structure_score, htf_structure_status, htf_rejection_reasons,
 htf_missing_reason, htf_structure_basis,
+gap_pct, open_vs_prior_close_pct, daily_volume_ratio,
+catalyst_type, catalyst_date, catalyst_source,
+catalyst_surprise_score, revenue_growth_yoy, eps_growth_yoy,
+prior_3m_extension_pct, prior_6m_extension_pct,
+volume_first_15m_ratio, volume_first_30m_ratio,
+opening_range_high, opening_range_low,
+ep_quality_score, ep_status, ep_rejection_reasons,
 mops_event_flag, revenue_financial_flag, news_topic_flag,
 setup_type, qullamaggie_score, score_breakdown
 ```
@@ -254,6 +260,14 @@ extended, failed_breakout, insufficient_data
 ```
 
 `monthly_above_ma12`、`weekly_trend_state` 與 `daily_trigger_state` 分別保存月、週、日結構；`htf_structure_score` 由集中於 `stock_health/config.py` 的固定權重計算。所有拒絕條件會寫入 `htf_rejection_reasons`，缺值原因寫入 `htf_missing_reason`。HTF 欄位會供 v2 影子評分使用，但不參與正式 v1 grading policy，也不改變正式 A／A-／B／C。
+
+### Episodic Pivot 獨立評分
+
+EP 不再沿用一般 Breakout 掃描分數。參數與權重集中於 `data/chatgpt/episodic-pivot-policy-v1.json`，`setup_type=episodic_pivot` 只會在 `ep_status=valid_ep` 時產生，候選分數來源為 `ep_quality_score`。一般 Qullamaggie 分數只保留在 `general_qullamaggie_score` 與 `general_score_breakdown` 供稽核。
+
+EP 會檢查可驗證的 MOPS 事件、跳空或重新定價、20 日量比、事件時窗、3/6 個月延伸與末端跳空。63 日延伸是必要窗口；126 日為優先補充，尚未滿 126 日時保留 `prior_6m_extension_pct=null`，但不會把已有 63 日資料的標的全部停用。MOPS payload 的 requested/data date 必須與分析日一致，並通過 `matched` 或明確零事件的 `query_confirmed_empty` 驗證；當天 13:30 後發布的公告不會倒推為當日催化。事件存在與方向性解讀分開，系統不會從公告標題猜測利多或利空。
+
+目前缺少可靠盤中、結構化財報驚喜與成長率來源，因此 `volume_first_15m_ratio`、`volume_first_30m_ratio`、`opening_range_high`、`opening_range_low`、`catalyst_surprise_score`、`revenue_growth_yoy` 與 `eps_growth_yoy` 保留 `null`，原因寫入 `ep_missing_reason`，不得以 0 或猜測值替代。完整公式與狀態見 `docs/episodic-pivot.md`。
 
 `market_regime` 使用保守規則：指數收盤高於 MA20 與 MA50、MA20 >= MA50 且 20 日報酬為正時為 `risk_on`；收盤低於 MA20 與 MA50、MA20 < MA50 且 20 日報酬為負時為 `risk_off`；其他為 `neutral`。breakout 不會在 `risk_off` 市場狀態下產生。
 
@@ -456,6 +470,7 @@ https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-heal
 https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/qullamaggie-grading-policy-v1.json
 https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/qullamaggie-grading-policy-v2.json
 https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/position-management-policy-v1.json
+https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/episodic-pivot-policy-v1.json
 https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/grading-shadow-v2-latest.json
 https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/grading-shadow-v2/history-index.json
 https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/reports/chatgpt-daily-qullamaggie-source.md
@@ -478,7 +493,7 @@ ChatGPT 排程必須先讀取 `data/chatgpt/schedule-readiness.json`，再依 ga
 
 若需要查詢單一普通股技術欄位，ChatGPT 應先讀取 `data/chatgpt/symbol-index.json`，再依股票代號讀取 `data/chatgpt/symbols/{symbol}.json`。逐檔檔案只為 `scan_eligible=true` 的普通股產生，至少包含 OHLCV、MA10/20/50、20 日均量與量比、pivot、風險參考、setup 與 risk notes。
 
-Symbol JSON 與 symbol index 的 schema version 為 `1.4`；新增 v1／v2 影子比較欄位但不刪除既有必要欄位。
+Symbol JSON 與 symbol index 的 schema version 為 `1.5`；新增 EP 獨立評分欄位但不刪除既有必要欄位。
 
 若需要重大事件清單，ChatGPT 應讀取 `data/latest-mops-events.json` 與 `screening.mops_event_candidates`，不得重新爬 MOPS，也不得把重大訊息自動解讀為利多。摘要時應列出公司、分類、標題與需要人工閱讀確認的重點。
 

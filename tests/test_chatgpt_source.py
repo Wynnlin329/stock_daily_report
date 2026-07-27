@@ -73,6 +73,9 @@ def sample_report(*, fresh: bool = True, actionable_ready: bool = True) -> dict:
             "chatgpt_weekly_qullamaggie_compact": github_raw_url("data/chatgpt/weekly-qullamaggie-source-compact.json"),
             "chatgpt_symbol_index": github_raw_url("data/chatgpt/symbol-index.json"),
             "chatgpt_schedule_readiness": github_raw_url("data/chatgpt/schedule-readiness.json"),
+            "episodic_pivot_policy": github_raw_url(
+                "data/chatgpt/episodic-pivot-policy-v1.json"
+            ),
             "position_management_policy": github_raw_url(
                 "data/chatgpt/position-management-policy-v1.json"
             ),
@@ -140,6 +143,37 @@ def sample_candidate(symbol: str = "2330", setup_type: str = "breakout") -> dict
         "htf_missing_reason": {},
         "htf_structure_basis": {"informational_only": True},
         "htf_data_quality": {"excluded_isolated_price_outlier_dates": []},
+        "gap_pct": 5.0,
+        "open_vs_prior_close_pct": 5.0,
+        "daily_volume_ratio": 3.0,
+        "catalyst_type": "重大合約",
+        "catalyst_date": "2026-06-14",
+        "catalyst_source": "MOPS",
+        "catalyst_surprise_score": None,
+        "revenue_growth_yoy": None,
+        "eps_growth_yoy": None,
+        "prior_3m_extension_pct": 10.0,
+        "prior_6m_extension_pct": 20.0,
+        "volume_first_15m_ratio": None,
+        "volume_first_30m_ratio": None,
+        "opening_range_high": None,
+        "opening_range_low": None,
+        "ep_quality_score": 100,
+        "ep_status": "rejected" if setup_type != "episodic_pivot" else "valid_ep",
+        "ep_rejection_reasons": ["setup_not_ep"] if setup_type != "episodic_pivot" else [],
+        "ep_missing_reason": {
+            "catalyst_surprise_score": "directional_event_surprise_not_available"
+        },
+        "ep_score_breakdown": {},
+        "ep_policy_version": "1.0.0",
+        "ep_scoring_model": "episodic_pivot_v1",
+        "catalyst_event_verified": True,
+        "catalyst_direction": None,
+        "catalyst_direction_interpreted": False,
+        "mops_data_date": "2026-06-15",
+        "mops_date_validation": "matched",
+        "mops_data_date_matches_analysis_date": True,
+        "ep_basis": {"breakout_score_reused": False},
         "setup_type": setup_type,
         "extended_risk": False,
         "qullamaggie_score": 82.5,
@@ -184,6 +218,14 @@ def sample_screening_summary(*, include_actionable: bool = True, report_date: st
                 "insufficient_data": [],
             },
             "top_candidates": top_candidates,
+            "episodic_pivot_coverage": {
+                "eligible_symbols": 1,
+                "complete_symbols": 1,
+                "incomplete_symbols": 0,
+                "coverage_pct": 100.0,
+                "independent_scoring": True,
+                "breakout_score_reused": False,
+            },
             "limitations": ["僅針對 scan_eligible=true 普通股 universe。"],
         },
     }
@@ -214,6 +256,9 @@ def test_daily_chatgpt_source_schema_urls_and_gate() -> None:
     )
     assert payload["source_urls"]["chatgpt_weekly_qullamaggie_source"] == github_raw_url(
         "data/chatgpt/weekly-qullamaggie-source.json"
+    )
+    assert payload["source_urls"]["episodic_pivot_policy"] == github_raw_url(
+        "data/chatgpt/episodic-pivot-policy-v1.json"
     )
     assert payload["source_urls"]["position_management_policy"] == github_raw_url(
         "data/chatgpt/position-management-policy-v1.json"
@@ -297,23 +342,37 @@ def test_symbol_technical_payloads_and_index() -> None:
         "setup_type",
         "extended_risk",
         "risk_notes",
+        "gap_pct",
+        "daily_volume_ratio",
+        "catalyst_type",
+        "catalyst_date",
+        "catalyst_source",
+        "ep_quality_score",
+        "ep_status",
+        "ep_rejection_reasons",
+        "volume_first_15m_ratio",
+        "opening_range_high",
     ]:
         assert field in symbol_payload
     assert symbol_payload["scan_eligible"] is True
     assert symbol_payload["as_of_date"] == "2026-06-15"
     assert symbol_payload["market_data_date"] == "2026-06-15"
-    assert symbol_payload["schema_version"] == "1.4"
+    assert symbol_payload["schema_version"] == "1.5"
     assert symbol_payload["data_quality"]["ohlcv_complete"] is True
     assert symbol_payload["data_quality"]["technical_indicators_complete"] is True
     assert symbol_payload["data_quality"]["enhanced_indicators_complete"] is True
     assert symbol_payload["data_quality"]["htf_structure_complete"] is True
+    assert symbol_payload["data_quality"]["episodic_pivot_complete"] is True
+    assert symbol_payload["catalyst_surprise_score"] is None
+    assert symbol_payload["volume_first_15m_ratio"] is None
+    assert symbol_payload["catalyst_direction_interpreted"] is False
     assert symbol_payload["data_quality"]["source_market_file"] == "data/market/2026/06/2026-06-15-listed-ohlcv.csv"
     assert symbol_payload["source_url"] == github_raw_url("data/chatgpt/symbols/2330.json")
 
     index = build_symbol_index(sample_report(), payloads)
     assert index["as_of_date"] == "2026-06-15"
     assert index["market_data_date"] == "2026-06-15"
-    assert index["schema_version"] == "1.4"
+    assert index["schema_version"] == "1.5"
     assert index["symbol_count"] == 1
     assert index["complete_ohlcv_count"] == 1
     assert index["incomplete_ohlcv_count"] == 0
@@ -321,6 +380,8 @@ def test_symbol_technical_payloads_and_index() -> None:
     assert index["enhanced_indicator_coverage_pct"] == 100.0
     assert index["complete_htf_structure_count"] == 1
     assert index["htf_structure_coverage_pct"] == 100.0
+    assert index["complete_episodic_pivot_count"] == 1
+    assert index["episodic_pivot_coverage_pct"] == 100.0
     assert index["symbols"][0]["symbol"] == "2330"
     assert index["symbols"][0]["ohlcv_complete"] is True
     assert index["symbols"][0]["path"] == "data/chatgpt/symbols/2330.json"
@@ -400,6 +461,10 @@ def test_compact_sources_include_symbol_data_url_and_stay_small() -> None:
     assert compact["top_candidates"][0]["composite_rs_rank"] == 84.25
     assert compact["top_candidates"][0]["htf_structure_status"] == "valid_htf"
     assert compact["top_candidates"][0]["flag_duration_days"] == 20
+    assert compact["top_candidates"][0]["gap_pct"] == 5.0
+    assert compact["top_candidates"][0]["ep_status"] == "rejected"
+    assert compact["top_candidates"][0]["catalyst_surprise_score"] is None
+    assert compact["episodic_pivot_coverage"]["independent_scoring"] is True
     for field in (
         "grade_v1",
         "score_v1",
@@ -447,10 +512,14 @@ def test_weekly_compact_and_schedule_readiness() -> None:
     assert readiness["checks"]["symbol_ohlcv_complete"] is True
     assert readiness["checks"]["enhanced_technical_indicators_complete"] is True
     assert readiness["checks"]["htf_structure_complete"] is True
+    assert readiness["checks"]["episodic_pivot_data_complete"] is True
     assert readiness["checks"]["grading_v2_shadow_20d_ready"] is False
     assert "grading_v2_shadow_20d_ready" in readiness["non_blocking_checks"]
+    assert "episodic_pivot_data_complete" in readiness["non_blocking_checks"]
     assert readiness["enhanced_indicator_completeness"]["affects_grading_policy_v1"] is False
     assert readiness["htf_structure_completeness"]["affects_grading_policy_v1"] is False
+    assert readiness["episodic_pivot_completeness"]["independent_scoring"] is True
+    assert readiness["episodic_pivot_completeness"]["breakout_score_reused"] is False
     assert readiness["grading_v2_shadow_completeness"]["watchlist_policy"] == "v1"
     assert readiness["schedule_switch"]["can_switch_daily_scan_schedule"] is True
     assert readiness["schedule_switch"]["can_switch_watchlist_schedule"] is True

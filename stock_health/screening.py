@@ -46,6 +46,11 @@ def build_screening_summary(
         if mops_events_available
         else {}
     )
+    mops_context = _mops_analysis_context(
+        report_date,
+        mops_event_history_payloads,
+        mops_events_status,
+    )
     mops_events_by_symbol = {
         symbol: [event for event in metrics["events_7d"]]
         for symbol, metrics in mops_event_metrics_by_symbol.items()
@@ -90,7 +95,9 @@ def build_screening_summary(
         institutional_metrics_by_symbol=institutional_metrics_by_symbol,
         margin_short_by_symbol=margin_short_metrics_by_symbol,
         margin_short_attention_symbols=margin_short_attention_symbols,
+        mops_events_by_symbol=mops_events_by_symbol,
         mops_event_metrics_by_symbol=mops_event_metrics_by_symbol,
+        mops_context=mops_context,
     )
     symbol_candidates = qullamaggie.pop("all_candidates", [])
     limitations.extend(qullamaggie["limitations"])
@@ -547,6 +554,21 @@ def _mops_event_metrics_by_symbol(
             "events_7d": events_7d,
         }
     return output
+
+
+def _mops_analysis_context(
+    report_date: str,
+    history_payloads: dict[str, dict[str, Any]],
+    current_status: str,
+) -> dict[str, Any]:
+    payload = history_payloads.get(report_date, {})
+    return {
+        "requested_date": payload.get("requested_date"),
+        "data_date": payload.get("data_date"),
+        "status": payload.get("status") or current_status,
+        "source_endpoint": payload.get("source_endpoint"),
+        "date_validation": payload.get("date_validation"),
+    }
 
 
 def _events_since(events: list[MopsEventRecord], end_date: date, days: int) -> list[MopsEventRecord]:

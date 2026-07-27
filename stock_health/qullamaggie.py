@@ -7,8 +7,6 @@ from typing import Any
 from .config import (
     BREAKOUT_VOLUME_RATIO,
     CLOSE_NEAR_HIGH_PCT,
-    EP_MIN_CHANGE_PCT,
-    EP_MIN_VOLUME_RATIO,
     MAX_BASE_DAYS,
     MAX_BASE_DEPTH_PCT,
     MAX_EXTENDED_FROM_PIVOT_PCT,
@@ -22,6 +20,11 @@ from .config import (
     QULLAMAGGIE_SETUP_TYPES,
 )
 from .models import InstitutionalTradingRecord, MopsEventRecord, OhlcvRecord
+from .episodic_pivot import (
+    build_episodic_pivot_coverage,
+    calculate_episodic_pivot,
+    load_episodic_pivot_policy,
+)
 from .high_tight_flag import build_htf_structure_coverage, calculate_htf_structure
 from .technical_indicators import (
     apply_multi_period_rs_ranks,
@@ -43,6 +46,7 @@ def calculate_qullamaggie_signals(
     margin_short_attention_symbols: set[str] | None = None,
     mops_events_by_symbol: dict[str, list[MopsEventRecord]] | None = None,
     mops_event_metrics_by_symbol: dict[str, dict[str, Any]] | None = None,
+    mops_context: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     benchmark_history = benchmark_history or {}
     catalyst_symbols = catalyst_symbols or {}
@@ -52,6 +56,7 @@ def calculate_qullamaggie_signals(
     margin_short_attention_symbols = margin_short_attention_symbols or set()
     mops_events_by_symbol = mops_events_by_symbol or {}
     mops_event_metrics_by_symbol = mops_event_metrics_by_symbol or {}
+    mops_context = mops_context or {}
     calculated = calculate_qullamaggie_candidate_payloads(
         current_rows,
         history_rows,
@@ -63,6 +68,7 @@ def calculate_qullamaggie_signals(
         margin_short_attention_symbols=margin_short_attention_symbols,
         mops_events_by_symbol=mops_events_by_symbol,
         mops_event_metrics_by_symbol=mops_event_metrics_by_symbol,
+        mops_context=mops_context,
     )
     market_regime = calculated["market_regime"]
     limitations = list(calculated["limitations"])
@@ -91,6 +97,7 @@ def calculate_qullamaggie_signals(
         "all_candidates": candidates,
         "indicator_coverage": calculated["indicator_coverage"],
         "htf_structure_coverage": calculated["htf_structure_coverage"],
+        "episodic_pivot_coverage": calculated["episodic_pivot_coverage"],
         "limitations": limitations,
     }
 
@@ -106,6 +113,7 @@ def calculate_qullamaggie_candidate_payloads(
     margin_short_attention_symbols: set[str] | None = None,
     mops_events_by_symbol: dict[str, list[MopsEventRecord]] | None = None,
     mops_event_metrics_by_symbol: dict[str, dict[str, Any]] | None = None,
+    mops_context: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     benchmark_history = benchmark_history or {}
     catalyst_symbols = catalyst_symbols or {}
@@ -115,6 +123,8 @@ def calculate_qullamaggie_candidate_payloads(
     margin_short_attention_symbols = margin_short_attention_symbols or set()
     mops_events_by_symbol = mops_events_by_symbol or {}
     mops_event_metrics_by_symbol = mops_event_metrics_by_symbol or {}
+    mops_context = mops_context or {}
+    ep_policy = load_episodic_pivot_policy()
     market_regime = calculate_market_regime(benchmark_history)
     eligible_rows = [row for row in current_rows if row.scan_eligible]
     limitations: list[str] = ["Qullamaggie-style 掃描僅針對 scan_eligible=true 的普通股 universe。"]
@@ -134,6 +144,8 @@ def calculate_qullamaggie_candidate_payloads(
             margin_short_attention_symbols,
             mops_events_by_symbol,
             mops_event_metrics_by_symbol,
+            mops_context,
+            ep_policy,
         )
         for row in eligible_rows
     ]
@@ -150,6 +162,7 @@ def calculate_qullamaggie_candidate_payloads(
         "all_candidates": candidates,
         "indicator_coverage": build_enhanced_indicator_coverage(candidates),
         "htf_structure_coverage": build_htf_structure_coverage(candidates),
+        "episodic_pivot_coverage": build_episodic_pivot_coverage(candidates),
         "limitations": limitations,
     }
 
@@ -206,6 +219,8 @@ def calculate_market_regime(benchmark_history: BenchmarkHistory | None) -> dict[
 
 
 def classify_setup_type(metrics: dict[str, Any]) -> str:
+    if metrics.get("ep_status") == "valid_ep":
+        return "episodic_pivot"
     if (
         metrics["history_days"] < 20
         or metrics["close"] is None
@@ -239,15 +254,6 @@ def classify_setup_type(metrics: dict[str, Any]) -> str:
         and metrics.get("market_regime_status") != "risk_off"
     ):
         return "breakout"
-    if (
-        (metrics["mops_event_flag"] or metrics["revenue_financial_flag"] or metrics["news_topic_flag"])
-        and _ge(metrics["change_pct"], EP_MIN_CHANGE_PCT)
-        and _ge(metrics["volume_ratio_20d"], EP_MIN_VOLUME_RATIO)
-        and metrics["close_near_high"]
-        and metrics["liquidity_ok"]
-        and not metrics["extended_risk"]
-    ):
-        return "episodic_pivot"
     if (
         not metrics["new_high_20d"]
         and not metrics["new_high_60d"]
@@ -310,6 +316,8 @@ def _calculate_candidate(
     margin_short_attention_symbols: set[str],
     mops_events_by_symbol: dict[str, list[MopsEventRecord]],
     mops_event_metrics_by_symbol: dict[str, dict[str, Any]],
+    mops_context: dict[str, Any],
+    ep_policy: dict[str, Any],
 ) -> dict[str, Any]:
     history = _history_for_symbol_before_date(history_rows, row.symbol, row.date)
     metrics = _calculate_metrics(
@@ -323,12 +331,24 @@ def _calculate_candidate(
         row.symbol in margin_short_attention_symbols,
         mops_events_by_symbol.get(row.symbol, []),
         mops_event_metrics_by_symbol.get(row.symbol, {}),
+        mops_context,
+        ep_policy,
     )
     metrics["market_regime_status"] = market_regime.get("status")
     metrics["setup_type"] = classify_setup_type(metrics)
-    score, breakdown = score_qullamaggie_candidate(metrics, market_regime)
-    metrics["qullamaggie_score"] = score
-    metrics["score_breakdown"] = breakdown
+    general_score, general_breakdown = score_qullamaggie_candidate(
+        metrics, market_regime
+    )
+    if metrics["setup_type"] == "episodic_pivot":
+        metrics["qullamaggie_score"] = metrics["ep_quality_score"]
+        metrics["score_breakdown"] = metrics["ep_score_breakdown"]
+        metrics["scoring_model"] = "episodic_pivot_v1"
+    else:
+        metrics["qullamaggie_score"] = general_score
+        metrics["score_breakdown"] = general_breakdown
+        metrics["scoring_model"] = "general_qullamaggie_v1"
+    metrics["general_qullamaggie_score"] = general_score
+    metrics["general_score_breakdown"] = general_breakdown
     metrics["setup_reasons"] = _setup_reasons(metrics)
     metrics["risk_notes"] = _risk_notes(metrics)
     metrics["tags"] = _tags(metrics)
@@ -347,10 +367,13 @@ def _calculate_metrics(
     margin_short_attention_flag: bool = False,
     mops_events: list[MopsEventRecord] | None = None,
     mops_event_metrics: dict[str, Any] | None = None,
+    mops_context: dict[str, Any] | None = None,
+    ep_policy: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     institutional_metrics = institutional_metrics or {}
     mops_events = mops_events or []
     mops_event_metrics = mops_event_metrics or {}
+    mops_context = mops_context or {}
     closes = [item.close for item in history if item.close is not None]
     highs = [item.high for item in history if item.high is not None]
     lows = [item.low for item in history if item.low is not None]
@@ -384,6 +407,13 @@ def _calculate_metrics(
     mops_event_categories = mops_event_metrics.get("mops_event_categories_7d") or sorted({event.category for event in mops_events if event.category})
     mops_event_titles = mops_event_metrics.get("mops_recent_event_titles") or [event.title for event in mops_events if event.title]
     catalyst_tags = _catalyst_tags(row.symbol, catalyst_symbols, mops_event_categories, bool(mops_events))
+    ep_metrics = calculate_episodic_pivot(
+        row,
+        history,
+        mops_events=mops_events,
+        mops_context=mops_context,
+        policy=ep_policy,
+    )
 
     return {
         "symbol": row.symbol,
@@ -468,6 +498,7 @@ def _calculate_metrics(
         "risk_to_stop_pct": risk_to_stop_pct,
         **enhanced_metrics,
         **htf_metrics,
+        **ep_metrics,
         "mops_event_flag": mops_event_flag,
         "mops_event_count": mops_event_metrics.get("mops_event_count_7d", len(mops_events)),
         "mops_event_count_today": mops_event_metrics.get("mops_event_count_today", 0),
@@ -494,6 +525,9 @@ def _candidate_payload(metrics: dict[str, Any]) -> dict[str, Any]:
         "setup_type",
         "qullamaggie_score",
         "score_breakdown",
+        "scoring_model",
+        "general_qullamaggie_score",
+        "general_score_breakdown",
         "market_regime_status",
         "close",
         "high",
@@ -597,6 +631,36 @@ def _candidate_payload(metrics: dict[str, Any]) -> dict[str, Any]:
         "htf_missing_reason",
         "htf_structure_basis",
         "htf_data_quality",
+        "gap_pct",
+        "open_vs_prior_close_pct",
+        "daily_volume_ratio",
+        "ep_close_location_pct",
+        "catalyst_type",
+        "catalyst_date",
+        "catalyst_source",
+        "catalyst_surprise_score",
+        "revenue_growth_yoy",
+        "eps_growth_yoy",
+        "prior_3m_extension_pct",
+        "prior_6m_extension_pct",
+        "volume_first_15m_ratio",
+        "volume_first_30m_ratio",
+        "opening_range_high",
+        "opening_range_low",
+        "ep_quality_score",
+        "ep_status",
+        "ep_rejection_reasons",
+        "ep_missing_reason",
+        "ep_score_breakdown",
+        "ep_policy_version",
+        "ep_scoring_model",
+        "catalyst_event_verified",
+        "catalyst_direction",
+        "catalyst_direction_interpreted",
+        "mops_data_date",
+        "mops_date_validation",
+        "mops_data_date_matches_analysis_date",
+        "ep_basis",
         "mops_event_flag",
         "mops_event_count",
         "mops_event_count_today",
@@ -638,9 +702,15 @@ def _apply_relative_strength_ranks(candidates: list[dict[str, Any]]) -> None:
         for position, candidate in enumerate(ranked):
             candidate["relative_strength_rank"] = round(position / denominator * 100, 4) if len(ranked) > 1 else 100.0
             candidate["relative_strength_rank_basis"] = "scan_eligible_common_stock"
-            score, breakdown = score_qullamaggie_candidate(candidate, {"score": candidate["score_breakdown"]["market_regime"]})
-            candidate["qullamaggie_score"] = score
-            candidate["score_breakdown"] = breakdown
+            market_score = candidate["general_score_breakdown"]["market_regime"]
+            score, breakdown = score_qullamaggie_candidate(
+                candidate, {"score": market_score}
+            )
+            candidate["general_qullamaggie_score"] = score
+            candidate["general_score_breakdown"] = breakdown
+            if candidate["setup_type"] != "episodic_pivot":
+                candidate["qullamaggie_score"] = score
+                candidate["score_breakdown"] = breakdown
             candidate["risk_notes"] = _risk_notes(candidate)
 
 
@@ -768,6 +838,12 @@ def _catalyst_tags(
 
 def _setup_reasons(metrics: dict[str, Any]) -> list[str]:
     reasons: list[str] = []
+    if metrics["setup_type"] == "episodic_pivot":
+        reasons.append("Episodic Pivot 使用獨立 ep_quality_score")
+        if metrics.get("catalyst_event_verified"):
+            reasons.append("MOPS 催化事件與分析日期已驗證")
+        reasons.append("跳空或重新定價通過 EP policy 門檻")
+        reasons.append("當日成交量通過 EP policy 異常量門檻")
     if metrics["new_high_20d"]:
         reasons.append("收盤價高於今日以前 20 日高點")
     if metrics["new_high_60d"]:

@@ -10,6 +10,7 @@ https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-heal
 https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/qullamaggie-grading-policy-v1.json
 https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/qullamaggie-grading-policy-v2.json
 https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/position-management-policy-v1.json
+https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/episodic-pivot-policy-v1.json
 https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/grading-shadow-v2-latest.json
 https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/grading-shadow-v2/history-index.json
 https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/latest.json
@@ -77,6 +78,10 @@ https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-heal
 50. 停損與移動停利只使用收盤確認。盤中 low 跌破但 close 未跌破時，不得建立模擬出場事件。
 51. 每個減碼或出場事件必須使用 `symbol:model:event_type:first_signal_date` 的穩定 event ID。寫入前先以 event ID 查重；pending event 重跑時不得新增第二筆，完成後必須加入 `completed_event_ids` 並回讀驗證。
 52. 本階段只產生模擬建議與結構化狀態，禁止真實交易、券商操作或將 shadow model 當成正式出場模型。
+53. `setup_type=episodic_pivot` 必須讀取 `episodic-pivot-policy-v1.json` 與候選的 `ep_status`、`ep_quality_score`、`ep_rejection_reasons`；不得沿用一般 Breakout 分數，也不得把 `general_qullamaggie_score` 當成 EP 分數。
+54. MOPS 只證明事件存在、日期、來源與類別。`catalyst_direction_interpreted=false` 時不得宣稱事件為利多、利空、超預期或低於預期。
+55. `catalyst_surprise_score`、`revenue_growth_yoy`、`eps_growth_yoy` 及盤中 15/30 分鐘量能與 opening range 為 `null` 時，必須揭露資料限制，不得自行搜尋、推估或以 0 代替。
+56. `mops_data_date_matches_analysis_date=false` 或 `ep_status=insufficient_data` 時，不得把該標的列為 Episodic Pivot 候選。
 
 輸出格式：
 
