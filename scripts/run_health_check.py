@@ -228,6 +228,7 @@ def main() -> int:
         "grading_v2_shadow_latest": github_raw_url("data/chatgpt/grading-shadow-v2-latest.json"),
         "grading_v2_shadow_history_index": github_raw_url("data/grading-shadow-v2/history-index.json"),
         "position_management_policy": github_raw_url("data/chatgpt/position-management-policy-v1.json"),
+        "episodic_pivot_policy": github_raw_url("data/chatgpt/episodic-pivot-policy-v1.json"),
         "screening_history_index": github_raw_url("data/screening/history-index.json"),
         "chatgpt_daily_qullamaggie_markdown": github_raw_url("reports/chatgpt-daily-qullamaggie-source.md"),
         "chatgpt_weekly_qullamaggie_markdown": github_raw_url("reports/chatgpt-weekly-qullamaggie-source.md"),

@@ -1,0 +1,102 @@
+{
+  "policy_id": "episodic-pivot-policy",
+  "version": "1.0.0",
+  "schema_version": 1,
+  "status": "active_research",
+  "methodology": "qullamaggie_style_episodic_pivot",
+  "parameters": {
+    "average_volume_window_days": 20,
+    "prior_extension_windows": {
+      "3m": 63,
+      "6m": 126
+    },
+    "minimum_required_extension_window": "3m",
+    "preferred_extension_window": "6m",
+    "catalyst_lookback_calendar_days": 3,
+    "latest_same_day_catalyst_time": "13:30",
+    "minimum_gap_pct": 4.0,
+    "minimum_repricing_pct": 5.0,
+    "minimum_close_location_pct": 60.0,
+    "minimum_daily_volume_ratio": 2.0,
+    "maximum_prior_3m_extension_pct": 80.0,
+    "maximum_prior_6m_extension_pct": 150.0,
+    "terminal_gap_prior_3m_extension_pct": 50.0,
+    "terminal_gap_minimum_gap_pct": 8.0,
+    "valid_ep_score_minimum": 70
+  },
+  "scoring": {
+    "weights": {
+      "verified_catalyst": 25,
+      "repricing": 25,
+      "abnormal_volume": 25,
+      "catalyst_timing": 15,
+      "extension_quality": 10
+    },
+    "weights_must_sum_to": 100,
+    "breakout_score_reuse_forbidden": true
+  },
+  "event_interpretation": {
+    "event_existence_is_separate_from_direction": true,
+    "title_sentiment_inference_allowed": false,
+    "missing_surprise_must_remain_null": true,
+    "missing_financial_growth_must_remain_null": true
+  },
+  "intraday_data_policy": {
+    "available": false,
+    "fields_must_remain_null": [
+      "volume_first_15m_ratio",
+      "volume_first_30m_ratio",
+      "opening_range_high",
+      "opening_range_low"
+    ]
+  },
+  "mops_date_policy": {
+    "analysis_date_must_match_data_date": true,
+    "accepted_date_validation": [
+      "matched",
+      "query_confirmed_empty"
+    ],
+    "accepted_statuses": [
+      "success",
+      "empty_but_valid"
+    ],
+    "future_events_forbidden": true
+  },
+  "statuses": [
+    "valid_ep",
+    "rejected",
+    "insufficient_data"
+  ],
+  "required_output_fields": [
+    "gap_pct",
+    "open_vs_prior_close_pct",
+    "daily_volume_ratio",
+    "catalyst_type",
+    "catalyst_date",
+    "catalyst_source",
+    "catalyst_surprise_score",
+    "revenue_growth_yoy",
+    "eps_growth_yoy",
+    "prior_3m_extension_pct",
+    "prior_6m_extension_pct",
+    "volume_first_15m_ratio",
+    "volume_first_30m_ratio",
+    "opening_range_high",
+    "opening_range_low",
+    "ep_quality_score",
+    "ep_status",
+    "ep_rejection_reasons"
+  ],
+  "validation_rules": {
+    "required_policy_version_prefix": "1.",
+    "required_schema_version": 1,
+    "required_status": "active_research",
+    "real_trading_forbidden": true
+  },
+  "limitations": [
+    "MOPS verifies event existence but does not provide a reliable directional surprise score.",
+    "Revenue and EPS growth remain null until a verified structured financial source is integrated.",
+    "Intraday opening volume and range fields remain null until a reliable intraday feed is integrated.",
+    "This policy produces research data only and does not execute real trades."
+  ]
+}

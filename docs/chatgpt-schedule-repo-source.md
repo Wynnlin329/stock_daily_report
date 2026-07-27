@@ -165,6 +165,17 @@ docs/position-management-state-machine.md
 
 若 `schedule_switch.can_switch_position_management_schedule=false`，兩個模型都不得產生新的持倉管理事件。即使 Gate 允許，本階段也只執行模擬資料寫入，不進行真實交易或券商操作。
 
+## Episodic Pivot
+
+```text
+data/chatgpt/episodic-pivot-policy-v1.json
+docs/episodic-pivot.md
+```
+
+EP 使用獨立的 `ep_quality_score` 與 `ep_status`，不得沿用一般 Breakout 分數。只有 `ep_status=valid_ep` 可成為 `setup_type=episodic_pivot`；`insufficient_data` 不得由 ChatGPT 自行補足。
+
+MOPS 僅驗證事件存在。事件方向、驚喜程度、營收與 EPS 成長以及盤中 opening range 欄位沒有可靠資料時均為 `null`。ChatGPT 不得從標題推測事件方向，也不得用外部網站補值。
+
 ## Schedule Readiness
 
 正式切換排程前先讀：
@@ -234,6 +245,7 @@ data/screening/YYYY/MM/YYYY-MM-DD-screening-summary.json
 - `chatgpt_symbol_index`
 - `chatgpt_schedule_readiness`
 - `position_management_policy`
+- `episodic_pivot_policy`
 - `screening_history_index`
 - `chatgpt_daily_qullamaggie_markdown`
 - `chatgpt_weekly_qullamaggie_markdown`

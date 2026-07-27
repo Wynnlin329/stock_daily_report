@@ -10,7 +10,7 @@ from .config import SCHEMA_VERSION, TIMEZONE, github_raw_url
 
 ACTIONABLE_SETUPS = {"breakout", "episodic_pivot", "anticipation"}
 TOP_WEEKLY_LIMIT = 50
-SYMBOL_SCHEMA_VERSION = "1.4"
+SYMBOL_SCHEMA_VERSION = "1.5"
 COMPACT_SIZE_LIMIT_BYTES = 1_048_576
 SYMBOL_TECHNICAL_FIELDS = [
     "date",
@@ -64,6 +64,36 @@ SYMBOL_TECHNICAL_FIELDS = [
     "htf_missing_reason",
     "htf_structure_basis",
     "htf_data_quality",
+    "gap_pct",
+    "open_vs_prior_close_pct",
+    "daily_volume_ratio",
+    "ep_close_location_pct",
+    "catalyst_type",
+    "catalyst_date",
+    "catalyst_source",
+    "catalyst_surprise_score",
+    "revenue_growth_yoy",
+    "eps_growth_yoy",
+    "prior_3m_extension_pct",
+    "prior_6m_extension_pct",
+    "volume_first_15m_ratio",
+    "volume_first_30m_ratio",
+    "opening_range_high",
+    "opening_range_low",
+    "ep_quality_score",
+    "ep_status",
+    "ep_rejection_reasons",
+    "ep_missing_reason",
+    "ep_score_breakdown",
+    "ep_policy_version",
+    "ep_scoring_model",
+    "catalyst_event_verified",
+    "catalyst_direction",
+    "catalyst_direction_interpreted",
+    "mops_data_date",
+    "mops_date_validation",
+    "mops_data_date_matches_analysis_date",
+    "ep_basis",
     "setup_type",
     "extended_risk",
     "risk_notes",
@@ -154,6 +184,9 @@ def build_daily_qullamaggie_source(
             "limitations": qullamaggie.get("limitations", []),
             "indicator_coverage": qullamaggie.get("indicator_coverage", {}),
             "htf_structure_coverage": qullamaggie.get("htf_structure_coverage", {}),
+            "episodic_pivot_coverage": qullamaggie.get(
+                "episodic_pivot_coverage", {}
+            ),
         },
         "grading_policy": screening_summary.get("grading_policy", {}),
         "paper_trading_decision_gate": build_paper_trading_decision_gate(report, screening_summary),
@@ -215,6 +248,9 @@ def build_symbol_index(report: dict[str, Any], symbol_payloads: dict[str, dict[s
             "technical_indicators_complete": bool(payload.get("data_quality", {}).get("technical_indicators_complete")),
             "enhanced_indicators_complete": bool(payload.get("data_quality", {}).get("enhanced_indicators_complete")),
             "htf_structure_complete": bool(payload.get("data_quality", {}).get("htf_structure_complete")),
+            "episodic_pivot_complete": bool(
+                payload.get("data_quality", {}).get("episodic_pivot_complete")
+            ),
             "grade_v1": payload.get("grade_v1"),
             "score_v1": payload.get("score_v1"),
             "grade_v2_shadow": payload.get("grade_v2_shadow"),
@@ -230,6 +266,9 @@ def build_symbol_index(report: dict[str, Any], symbol_payloads: dict[str, dict[s
     complete_technical_count = sum(1 for item in symbols if item["technical_indicators_complete"])
     complete_enhanced_count = sum(1 for item in symbols if item["enhanced_indicators_complete"])
     complete_htf_count = sum(1 for item in symbols if item["htf_structure_complete"])
+    complete_ep_count = sum(
+        1 for item in symbols if item["episodic_pivot_complete"]
+    )
     comparable_grading_count = sum(
         1
         for item in symbols
@@ -253,6 +292,18 @@ def build_symbol_index(report: dict[str, Any], symbol_payloads: dict[str, dict[s
         "complete_htf_structure_count": complete_htf_count,
         "incomplete_htf_structure_count": len(symbols) - complete_htf_count,
         "htf_structure_coverage_pct": round(complete_htf_count / len(symbols) * 100, 4) if symbols else 0.0,
+        "complete_episodic_pivot_count": complete_ep_count,
+        "incomplete_episodic_pivot_count": len(symbols) - complete_ep_count,
+        "episodic_pivot_coverage_pct": round(
+            complete_ep_count / len(symbols) * 100, 4
+        )
+        if symbols
+        else 0.0,
+        "incomplete_episodic_pivot_symbols": [
+            item["symbol"]
+            for item in symbols
+            if not item["episodic_pivot_complete"]
+        ],
         "comparable_grading_count": comparable_grading_count,
         "ungraded_v2_shadow_count": sum(
             1 for item in symbols if item["grade_v2_shadow"] == "Ungraded"
@@ -398,6 +449,13 @@ def build_weekly_qullamaggie_source(
         "htf_structure_coverage": (
             valid_payloads[-1].get("qullamaggie", {}).get("htf_structure_coverage", {}) if valid_payloads else {}
         ),
+        "episodic_pivot_coverage": (
+            valid_payloads[-1]
+            .get("qullamaggie", {})
+            .get("episodic_pivot_coverage", {})
+            if valid_payloads
+            else {}
+        ),
         "grading_policy": (
             valid_payloads[-1].get("grading_policy", {}) if valid_payloads else {}
         ),
@@ -426,6 +484,7 @@ def build_daily_qullamaggie_compact(payload: dict[str, Any]) -> dict[str, Any]:
         "setup_counts": q.get("setup_counts", {}),
         "indicator_coverage": q.get("indicator_coverage", {}),
         "htf_structure_coverage": q.get("htf_structure_coverage", {}),
+        "episodic_pivot_coverage": q.get("episodic_pivot_coverage", {}),
         "grading_policy": payload.get("grading_policy", {}),
         "top_candidates": [_compact_candidate(item) for item in q.get("top_candidates", [])[:100]],
         "breakout": [_compact_candidate(item) for item in q.get("breakout", [])[:100]],
@@ -452,6 +511,9 @@ def build_weekly_qullamaggie_compact(payload: dict[str, Any]) -> dict[str, Any]:
         "setup_counts": weekly.get("setup_counts", {}),
         "indicator_coverage": payload.get("indicator_coverage", {}),
         "htf_structure_coverage": payload.get("htf_structure_coverage", {}),
+        "episodic_pivot_coverage": payload.get(
+            "episodic_pivot_coverage", {}
+        ),
         "grading_policy": payload.get("grading_policy", {}),
         "repeated_candidates": [_compact_weekly_candidate(item) for item in weekly.get("repeated_candidates", [])[:100]],
         "setup_transitions": weekly.get("setup_transitions", [])[:100],
@@ -559,6 +621,10 @@ def build_schedule_readiness(
             symbol_index.get("symbol_count", 0) > 0
             and symbol_index.get("incomplete_htf_structure_count") == 0
         ),
+        "episodic_pivot_data_complete": bool(
+            symbol_index.get("symbol_count", 0) > 0
+            and symbol_index.get("incomplete_episodic_pivot_count") == 0
+        ),
         "grading_v2_shadow_20d_ready": bool(
             (shadow_history_index or {}).get("has_20d_shadow_history")
         ),
@@ -614,6 +680,11 @@ def build_schedule_readiness(
         warnings.append("部分波動或多期間相對強度指標資料不足；新指標僅供研究，不影響正式 v1 分級與排程 gate。")
     if not checks["htf_structure_complete"]:
         warnings.append("部分 High Tight Flag 結構資料不足；HTF 欄位僅供 v2 policy 研究，不影響正式 v1 分級與排程 gate。")
+    if not checks["episodic_pivot_data_complete"]:
+        warnings.append(
+            "部分 Episodic Pivot 必要歷史或 MOPS 日期驗證不足；"
+            "對應標的 ep_status=insufficient_data，不得自行補足事件方向或財報驚喜。"
+        )
     if not checks["grading_v2_shadow_20d_ready"]:
         warnings.append("v2 影子評分歷史未滿 20 個交易日；正式 Watchlist 與 TradePlan 仍只使用 v1。")
     return {
@@ -628,6 +699,7 @@ def build_schedule_readiness(
         "non_blocking_checks": [
             "enhanced_technical_indicators_complete",
             "htf_structure_complete",
+            "episodic_pivot_data_complete",
             "grading_v2_shadow_20d_ready",
         ],
         "enhanced_indicator_completeness": {
@@ -641,6 +713,19 @@ def build_schedule_readiness(
             "incomplete_symbols": symbol_index.get("incomplete_htf_structure_count", 0),
             "coverage_pct": symbol_index.get("htf_structure_coverage_pct", 0.0),
             "affects_grading_policy_v1": False,
+        },
+        "episodic_pivot_completeness": {
+            "complete_symbols": symbol_index.get(
+                "complete_episodic_pivot_count", 0
+            ),
+            "incomplete_symbols": symbol_index.get(
+                "incomplete_episodic_pivot_count", 0
+            ),
+            "coverage_pct": symbol_index.get(
+                "episodic_pivot_coverage_pct", 0.0
+            ),
+            "independent_scoring": True,
+            "breakout_score_reused": False,
         },
         "grading_v2_shadow_completeness": {
             "available_valid_days": (shadow_history_index or {}).get(
@@ -696,6 +781,9 @@ def build_schedule_readiness(
             ),
             "position_management_policy": github_raw_url(
                 "data/chatgpt/position-management-policy-v1.json"
+            ),
+            "episodic_pivot_policy": github_raw_url(
+                "data/chatgpt/episodic-pivot-policy-v1.json"
             ),
         },
     }
@@ -883,6 +971,7 @@ def _source_urls(artifact_urls: dict[str, str]) -> dict[str, str]:
         "grading_v2_shadow_latest",
         "grading_v2_shadow_history_index",
         "position_management_policy",
+        "episodic_pivot_policy",
         "screening_history_index",
         "chatgpt_daily_qullamaggie_markdown",
         "chatgpt_weekly_qullamaggie_markdown",
@@ -917,6 +1006,11 @@ def _symbol_data_quality(candidate: dict[str, Any]) -> dict[str, Any]:
         "enhanced_indicators_complete": _enhanced_indicators_complete(candidate),
         "enhanced_indicator_missing_reason": candidate.get("missing_reason", {}),
         "htf_structure_complete": candidate.get("htf_structure_status") not in {None, "insufficient_data"},
+        "episodic_pivot_complete": candidate.get("ep_status")
+        not in {None, "insufficient_data"},
+        "episodic_pivot_missing_reason": candidate.get(
+            "ep_missing_reason", {}
+        ),
         "htf_structure_missing_reason": candidate.get("htf_missing_reason", {}),
         "source_market_file": _source_market_file(report_date, market),
     }
@@ -1061,6 +1155,56 @@ def _compact_candidate(candidate: dict[str, Any]) -> dict[str, Any]:
         "htf_structure_score": candidate.get("htf_structure_score"),
         "htf_structure_status": candidate.get("htf_structure_status"),
         "htf_rejection_reasons": candidate.get("htf_rejection_reasons", []),
+        "gap_pct": candidate.get("gap_pct"),
+        "open_vs_prior_close_pct": candidate.get(
+            "open_vs_prior_close_pct"
+        ),
+        "daily_volume_ratio": candidate.get("daily_volume_ratio"),
+        "ep_close_location_pct": candidate.get(
+            "ep_close_location_pct"
+        ),
+        "catalyst_type": candidate.get("catalyst_type"),
+        "catalyst_date": candidate.get("catalyst_date"),
+        "catalyst_source": candidate.get("catalyst_source"),
+        "catalyst_surprise_score": candidate.get(
+            "catalyst_surprise_score"
+        ),
+        "revenue_growth_yoy": candidate.get("revenue_growth_yoy"),
+        "eps_growth_yoy": candidate.get("eps_growth_yoy"),
+        "prior_3m_extension_pct": candidate.get(
+            "prior_3m_extension_pct"
+        ),
+        "prior_6m_extension_pct": candidate.get(
+            "prior_6m_extension_pct"
+        ),
+        "volume_first_15m_ratio": candidate.get(
+            "volume_first_15m_ratio"
+        ),
+        "volume_first_30m_ratio": candidate.get(
+            "volume_first_30m_ratio"
+        ),
+        "opening_range_high": candidate.get("opening_range_high"),
+        "opening_range_low": candidate.get("opening_range_low"),
+        "ep_quality_score": candidate.get("ep_quality_score"),
+        "ep_status": candidate.get("ep_status"),
+        "ep_rejection_reasons": candidate.get(
+            "ep_rejection_reasons", []
+        ),
+        "ep_missing_reason": candidate.get("ep_missing_reason", {}),
+        "ep_score_breakdown": candidate.get("ep_score_breakdown", {}),
+        "ep_scoring_model": candidate.get("ep_scoring_model"),
+        "catalyst_event_verified": candidate.get(
+            "catalyst_event_verified"
+        ),
+        "catalyst_direction": candidate.get("catalyst_direction"),
+        "catalyst_direction_interpreted": candidate.get(
+            "catalyst_direction_interpreted"
+        ),
+        "mops_data_date_matches_analysis_date": candidate.get(
+            "mops_data_date_matches_analysis_date"
+        ),
+        "mops_data_date": candidate.get("mops_data_date"),
+        "mops_date_validation": candidate.get("mops_date_validation"),
         "grade_v1": candidate.get("grade_v1"),
         "score_v1": candidate.get("score_v1"),
         "grade_v2_shadow": candidate.get("grade_v2_shadow"),
