@@ -77,6 +77,7 @@ data/chatgpt/qullamaggie-grading-policy-v1.json
 data/chatgpt/qullamaggie-grading-policy-v2.json
 data/chatgpt/position-management-policy-v1.json
 data/chatgpt/episodic-pivot-policy-v1.json
+data/chatgpt/orh-shadow-policy-v1.json
 data/chatgpt/grading-shadow-v2-latest.json
 data/grading-shadow-v2/history-index.json
 data/grading-shadow-v2/YYYY/MM/YYYY-MM-DD.json
@@ -333,6 +334,34 @@ exit_model, exit_signal, exit_reason, model_comparison_snapshot
 
 ```bash
 python scripts/validate_position_management_policy.py
+```
+
+### ORH 影子模擬可行性
+
+`data/chatgpt/orh-shadow-policy-v1.json` 定義 ORH 影子模型的資料閘門與未來介面，
+但目前固定為 `status=blocked_data_source`、`enabled=false`。正式進場模型仍是
+突破日收盤確認，ORH 不會寫入 TradePlan、SimEntry、SimExit 或 TradeLog，也不會
+觸發真實交易。
+
+資料查核確認候選供應商文件支援上市櫃 1／5／30／60 分 K、OHLCV 與近 30 日
+盤中歷史，但目前 repository 沒有已授權且經 GitHub Actions 驗證的盤中來源，
+公司行動與異常交易處理也尚未完成端對端驗證。因此本階段只建立 nullable
+欄位契約與 point-in-time snapshot 契約，不把下列欄位加入每日 runtime artifact：
+
+```text
+orh_1m, orh_5m, orh_30m, orh_60m,
+orh_triggered_at, orh_entry_price, orh_initial_stop,
+orh_slippage_pct, confirmation_close_entry,
+orh_model_r, close_confirmation_model_r
+```
+
+不得使用現有日 K 回推開盤區間、觸發時間或 ORH 成交價。完整來源矩陣、啟用條件
+與保存規則見 `docs/orh-shadow-feasibility.md`。
+
+驗證命令：
+
+```bash
+python scripts/validate_orh_shadow_policy.py
 ```
 
 ### 法人買賣超

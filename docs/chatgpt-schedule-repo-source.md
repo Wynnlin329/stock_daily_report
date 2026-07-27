@@ -176,6 +176,20 @@ EP 使用獨立的 `ep_quality_score` 與 `ep_status`，不得沿用一般 Break
 
 MOPS 僅驗證事件存在。事件方向、驚喜程度、營收與 EPS 成長以及盤中 opening range 欄位沒有可靠資料時均為 `null`。ChatGPT 不得從標題推測事件方向，也不得用外部網站補值。
 
+## ORH Shadow
+
+```text
+data/chatgpt/orh-shadow-policy-v1.json
+docs/orh-shadow-feasibility.md
+```
+
+目前 ORH 的 `data_reliability_gate.passed=false`，每日 runtime artifact 不提供 ORH
+訊號。ChatGPT 不得從日 K、突破日 high 或收盤資料推測 `orh_triggered_at`、
+`orh_entry_price`、`orh_initial_stop` 或任何 opening range。
+
+正式進場模型維持突破日收盤確認。ORH 即使未來通過資料驗證，也只能作影子比較，
+不得建立或改寫 TradePlan、SimEntry、SimExit、TradeLog，也不得執行真實交易。
+
 ## Schedule Readiness
 
 正式切換排程前先讀：
