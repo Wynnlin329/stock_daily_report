@@ -1,40 +1,40 @@
-# ChatGPT Daily Qullamaggie Source: 2026-07-22
+# ChatGPT Daily Qullamaggie Source: 2026-07-25
 
 本資料包僅供 ChatGPT 排程研究與人工複核，不構成交易建議。
 
 ## 資料日期與 Freshness
-- data_freshness: {'report_date': '2026-07-22', 'as_of_date': '2026-07-21', 'market_data_date': '2026-07-21', 'expected_market_data_date': '2026-07-21', 'latest_market_data_date': '2026-07-21', 'is_latest_trading_data_current': True, 'reason': 'Latest trading data is current'}
+- data_freshness: {'report_date': '2026-07-25', 'as_of_date': '2026-07-24', 'market_data_date': '2026-07-24', 'expected_market_data_date': '2026-07-24', 'latest_market_data_date': '2026-07-24', 'is_latest_trading_data_current': True, 'reason': 'Latest trading data is current'}
 
 ## Scan Readiness
 - scan_readiness: {'can_run_technical_scan': True, 'can_run_qullamaggie_scan': True, 'can_generate_new_paper_trade_candidate': True, 'can_use_institutional_confirmation': True, 'can_use_margin_short_risk': True, 'can_use_mops_catalyst': False, 'reasons': []}
 
 ## Qullamaggie Market Regime
-- market_regime: {'status': 'risk_off', 'score': 0, 'reasons': ['benchmark regime=risk_off'], 'risk_notes': [], 'metrics': {'listed': {'close': 44232.87, 'ma20': 45474.7125, 'ma50': 44340.3378, 'return_20d_pct': -7.3492}, 'otc': {'close': 381.96, 'ma20': 418.9665, 'ma50': 423.628, 'return_20d_pct': -15.7751}}}
+- market_regime: {'status': 'risk_off', 'score': 0, 'reasons': ['benchmark regime=risk_off'], 'risk_notes': [], 'metrics': {'listed': {'close': 43654.84, 'ma20': 45171.3085, 'ma50': 44501.12, 'return_20d_pct': -5.6219}, 'otc': {'close': 377.63, 'ma20': 411.0755, 'ma50': 421.5612, 'return_20d_pct': -14.1438}}}
 
 ## Setup Counts
-- setup_counts: {'breakout': 0, 'episodic_pivot': 0, 'anticipation': 15, 'extended_watch': 35, 'failed_breakout': 9, 'insufficient_data': 50}
+- setup_counts: {'breakout': 0, 'episodic_pivot': 0, 'anticipation': 19, 'extended_watch': 17, 'failed_breakout': 12, 'insufficient_data': 50}
 
 ## Top Candidates
-- 4105 東洋 setup=anticipation score=65
-- 2646 星宇航空 setup=anticipation score=60
-- 3479 安勤 setup=anticipation score=55
-- 2915 潤泰全 setup=anticipation score=55
-- 5876 上海商銀 setup=anticipation score=55
-- 2206 三陽工業 setup=anticipation score=55
-- 9939 宏全 setup=anticipation score=55
-- 2006 東和鋼鐵 setup=anticipation score=55
-- 2812 台中銀 setup=anticipation score=55
-- 2377 微星 setup=anticipation score=50
-- 5880 合庫金 setup=anticipation score=50
-- 2834 臺企銀 setup=anticipation score=50
-- 2845 遠東銀 setup=anticipation score=50
-- 2330 台積電 setup=anticipation score=45
-- 2633 台灣高鐵 setup=anticipation score=40
-- 1736 喬山 setup=extended_watch score=75
-- 2634 漢翔 setup=extended_watch score=70
-- 2892 第一金 setup=extended_watch score=70
-- 2880 華南金 setup=extended_watch score=70
-- 2801 彰銀 setup=extended_watch score=70
+- 5876 上海商銀 setup=anticipation score=65
+- 2425 承啟 setup=anticipation score=60
+- 2892 第一金 setup=anticipation score=60
+- 2801 彰銀 setup=anticipation score=60
+- 5880 合庫金 setup=anticipation score=60
+- 2006 東和鋼鐵 setup=anticipation score=60
+- 2812 台中銀 setup=anticipation score=60
+- 2207 和泰車 setup=anticipation score=60
+- 3022 威強電 setup=anticipation score=55
+- 2637 慧洋-KY setup=anticipation score=55
+- 2880 華南金 setup=anticipation score=55
+- 2884 玉山金 setup=anticipation score=55
+- 2834 臺企銀 setup=anticipation score=55
+- 2845 遠東銀 setup=anticipation score=55
+- 8464 億豐 setup=anticipation score=55
+- 9939 宏全 setup=anticipation score=50
+- 2027 大成鋼 setup=anticipation score=45
+- 5871 中租-KY setup=anticipation score=45
+- 2633 台灣高鐵 setup=anticipation score=45
+- 6461 益得 setup=extended_watch score=65
 
 ## Paper Trading Decision Gate
 - gate: {'can_create_new_simulated_buy_candidate': True, 'reason': ['MOPS 不可用或歷史不足，僅停用事件延續性判斷'], 'allowed_actions': ['可產生資料狀態報告', '可產生候選股研究清單', '可更新觀察名單'], 'blocked_actions': []}
