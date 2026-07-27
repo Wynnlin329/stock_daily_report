@@ -1,10 +1,10 @@
 {
   "schema_version": "1.0",
-  "report_date": "2026-07-25",
-  "as_of_date": "2026-07-24",
-  "market_data_date": "2026-07-24",
-  "latest_market_data_date": "2026-07-24",
-  "generated_at": "2026-07-25T01:24:02+08:00",
+  "report_date": "2026-07-28",
+  "as_of_date": "2026-07-27",
+  "market_data_date": "2026-07-27",
+  "latest_market_data_date": "2026-07-27",
+  "generated_at": "2026-07-28T01:38:11+08:00",
   "timezone": "Asia/Taipei",
   "checks": {
     "latest_market_data_current": true,
@@ -15,11 +15,48 @@
     "symbol_ohlcv_complete": true,
     "screening_history_5d_ready": true,
     "weekly_compact_source_ready": true,
-    "weekly_review_gate_ready": true
+    "weekly_review_gate_ready": true,
+    "enhanced_technical_indicators_complete": false,
+    "htf_structure_complete": false,
+    "episodic_pivot_data_complete": false,
+    "grading_v2_shadow_20d_ready": false
+  },
+  "non_blocking_checks": [
+    "enhanced_technical_indicators_complete",
+    "htf_structure_complete",
+    "episodic_pivot_data_complete",
+    "grading_v2_shadow_20d_ready"
+  ],
+  "enhanced_indicator_completeness": {
+    "complete_symbols": 0,
+    "incomplete_symbols": 1914,
+    "coverage_pct": 0.0,
+    "affects_grading_policy_v1": false
+  },
+  "htf_structure_completeness": {
+    "complete_symbols": 0,
+    "incomplete_symbols": 1914,
+    "coverage_pct": 0.0,
+    "affects_grading_policy_v1": false
+  },
+  "episodic_pivot_completeness": {
+    "complete_symbols": 1842,
+    "incomplete_symbols": 72,
+    "coverage_pct": 96.2382,
+    "independent_scoring": true,
+    "breakout_score_reused": false
+  },
+  "grading_v2_shadow_completeness": {
+    "available_valid_days": 1,
+    "required_trading_days": 20,
+    "has_20d_shadow_history": false,
+    "affects_grading_policy_v1": false,
+    "watchlist_policy": "v1",
+    "tradeplan_policy": "v1"
   },
   "compact_sizes": {
-    "daily_qullamaggie_source_compact_bytes": 47486,
-    "weekly_qullamaggie_source_compact_bytes": 82545,
+    "daily_qullamaggie_source_compact_bytes": 244862,
+    "weekly_qullamaggie_source_compact_bytes": 293283,
     "limit_bytes": 1048576
   },
   "schedule_switch": {
@@ -31,12 +68,21 @@
   },
   "blocking_reasons": [],
   "warnings": [
-    "MOPS 催化延續性停用或不足；僅可列為人工複核素材。"
+    "部分波動或多期間相對強度指標資料不足；新指標僅供研究，不影響正式 v1 分級與排程 gate。",
+    "部分 High Tight Flag 結構資料不足；HTF 欄位僅供 v2 policy 研究，不影響正式 v1 分級與排程 gate。",
+    "部分 Episodic Pivot 必要歷史或 MOPS 日期驗證不足；對應標的 ep_status=insufficient_data，不得自行補足事件方向或財報驚喜。",
+    "v2 影子評分歷史未滿 20 個交易日；正式 Watchlist 與 TradePlan 仍只使用 v1。"
   ],
   "source_urls": {
     "daily_compact": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/daily-qullamaggie-source-compact.json",
     "weekly_compact": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/weekly-qullamaggie-source-compact.json",
     "symbol_index": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbol-index.json",
-    "screening_history_index": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/screening/history-index.json"
+    "screening_history_index": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/screening/history-index.json",
+    "grading_policy_v1": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/qullamaggie-grading-policy-v1.json",
+    "grading_policy_v2_shadow": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/qullamaggie-grading-policy-v2.json",
+    "grading_v2_shadow_latest": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/grading-shadow-v2-latest.json",
+    "grading_v2_shadow_history_index": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/grading-shadow-v2/history-index.json",
+    "position_management_policy": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/position-management-policy-v1.json",
+    "episodic_pivot_policy": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/episodic-pivot-policy-v1.json"
   }
 }
