@@ -296,7 +296,7 @@ def test_symbol_technical_payloads_and_index() -> None:
     assert symbol_payload["scan_eligible"] is True
     assert symbol_payload["as_of_date"] == "2026-06-15"
     assert symbol_payload["market_data_date"] == "2026-06-15"
-    assert symbol_payload["schema_version"] == "1.3"
+    assert symbol_payload["schema_version"] == "1.4"
     assert symbol_payload["data_quality"]["ohlcv_complete"] is True
     assert symbol_payload["data_quality"]["technical_indicators_complete"] is True
     assert symbol_payload["data_quality"]["enhanced_indicators_complete"] is True
@@ -307,7 +307,7 @@ def test_symbol_technical_payloads_and_index() -> None:
     index = build_symbol_index(sample_report(), payloads)
     assert index["as_of_date"] == "2026-06-15"
     assert index["market_data_date"] == "2026-06-15"
-    assert index["schema_version"] == "1.3"
+    assert index["schema_version"] == "1.4"
     assert index["symbol_count"] == 1
     assert index["complete_ohlcv_count"] == 1
     assert index["incomplete_ohlcv_count"] == 0
@@ -394,6 +394,15 @@ def test_compact_sources_include_symbol_data_url_and_stay_small() -> None:
     assert compact["top_candidates"][0]["composite_rs_rank"] == 84.25
     assert compact["top_candidates"][0]["htf_structure_status"] == "valid_htf"
     assert compact["top_candidates"][0]["flag_duration_days"] == 20
+    for field in (
+        "grade_v1",
+        "score_v1",
+        "grade_v2_shadow",
+        "score_v2_shadow",
+        "grade_difference",
+        "v2_rejection_reasons",
+    ):
+        assert field in compact["top_candidates"][0]
     assert len(json.dumps(compact, ensure_ascii=False).encode("utf-8")) < 1_048_576
 
 
@@ -432,8 +441,11 @@ def test_weekly_compact_and_schedule_readiness() -> None:
     assert readiness["checks"]["symbol_ohlcv_complete"] is True
     assert readiness["checks"]["enhanced_technical_indicators_complete"] is True
     assert readiness["checks"]["htf_structure_complete"] is True
+    assert readiness["checks"]["grading_v2_shadow_20d_ready"] is False
+    assert "grading_v2_shadow_20d_ready" in readiness["non_blocking_checks"]
     assert readiness["enhanced_indicator_completeness"]["affects_grading_policy_v1"] is False
     assert readiness["htf_structure_completeness"]["affects_grading_policy_v1"] is False
+    assert readiness["grading_v2_shadow_completeness"]["watchlist_policy"] == "v1"
     assert readiness["schedule_switch"]["can_switch_daily_scan_schedule"] is True
     assert readiness["schedule_switch"]["can_switch_watchlist_schedule"] is True
     assert readiness["schedule_switch"]["can_switch_position_management_schedule"] is True

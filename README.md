@@ -74,6 +74,10 @@ data/chatgpt/weekly-qullamaggie-source-compact.json
 data/chatgpt/symbol-index.json
 data/chatgpt/symbols/{symbol}.json
 data/chatgpt/qullamaggie-grading-policy-v1.json
+data/chatgpt/qullamaggie-grading-policy-v2.json
+data/chatgpt/grading-shadow-v2-latest.json
+data/grading-shadow-v2/history-index.json
+data/grading-shadow-v2/YYYY/MM/YYYY-MM-DD.json
 reports/latest-market-scan.md
 ```
 
@@ -248,7 +252,7 @@ valid_htf, developing, too_loose, too_deep,
 extended, failed_breakout, insufficient_data
 ```
 
-`monthly_above_ma12`、`weekly_trend_state` 與 `daily_trigger_state` 分別保存月、週、日結構；`htf_structure_score` 由集中於 `stock_health/config.py` 的固定權重計算。所有拒絕條件會寫入 `htf_rejection_reasons`，缺值原因寫入 `htf_missing_reason`。HTF 欄位目前只供下一階段 v2 policy 研究，不參與正式 v1 grading policy，也不改變 A／A-／B／C。
+`monthly_above_ma12`、`weekly_trend_state` 與 `daily_trigger_state` 分別保存月、週、日結構；`htf_structure_score` 由集中於 `stock_health/config.py` 的固定權重計算。所有拒絕條件會寫入 `htf_rejection_reasons`，缺值原因寫入 `htf_missing_reason`。HTF 欄位會供 v2 影子評分使用，但不參與正式 v1 grading policy，也不改變正式 A／A-／B／C。
 
 `market_regime` 使用保守規則：指數收盤高於 MA20 與 MA50、MA20 >= MA50 且 20 日報酬為正時為 `risk_on`；收盤低於 MA20 與 MA50、MA20 < MA50 且 20 日報酬為負時為 `risk_off`；其他為 `neutral`。breakout 不會在 `risk_off` 市場狀態下產生。
 
@@ -266,6 +270,28 @@ extended, failed_breakout, insufficient_data
 
 ```bash
 python scripts/validate_grading_policy.py
+```
+
+### Qullamaggie-style v2 影子分級
+
+`data/chatgpt/qullamaggie-grading-policy-v2.json` 定義 v2 影子評分，整合月／週／日趨勢、1／3／6 月相對強度、前段漲幅、HTF 整理品質、Pivot、ADR／ATR 相對停損、量縮與突破量、流動性及過度延伸風險。權重、ADR／ATR 門檻、停損限制、grade caps 與 A／A- 硬性風險檢查都集中於此 JSON。
+
+v1 與 v2 會同時輸出：
+
+```text
+grade_v1, score_v1,
+grade_v2_shadow, score_v2_shadow,
+grade_difference, v2_rejection_reasons
+```
+
+v2 固定為 `status=shadow`。`shadow_routing.watchlist_policy` 與 `tradeplan_policy` 都是 `v1`，且 `v2_may_drive_business_writes=false`；正式 Watchlist、TradePlan 與排程決策仍只使用 v1。市場 `risk_on`／`neutral`／`risk_off` 只產生獨立的 `market_gate_shadow`，不會改寫 v2 個股品質分數或等級。
+
+必要欄位為 null、缺少、型別錯誤或 OHLCV 不完整時，v2 必須輸出 `Ungraded`、`score_v2_shadow=null` 及明確原因；不得把缺值當成 0 分或直接當成 C。每日結果會寫入 `data/grading-shadow-v2/YYYY/MM/YYYY-MM-DD.json`，並由 `history-index.json` 逐日累積。未滿 20 個真實交易日只標示歷史不足，不會用舊資料偽造 v2 結果；20 日初步比較完成後仍需進行 12 週影子覆盤，且不得自動升為正式版。
+
+驗證命令：
+
+```bash
+python scripts/validate_grading_policy_v2.py
 ```
 
 ### 法人買賣超
@@ -401,6 +427,9 @@ https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-heal
 https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/weekly-qullamaggie-source.json
 https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbol-index.json
 https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/qullamaggie-grading-policy-v1.json
+https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/qullamaggie-grading-policy-v2.json
+https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/grading-shadow-v2-latest.json
+https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/grading-shadow-v2/history-index.json
 https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/reports/chatgpt-daily-qullamaggie-source.md
 https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/reports/chatgpt-weekly-qullamaggie-source.md
 ```
@@ -421,7 +450,7 @@ ChatGPT 排程必須先讀取 `data/chatgpt/schedule-readiness.json`，再依 ga
 
 若需要查詢單一普通股技術欄位，ChatGPT 應先讀取 `data/chatgpt/symbol-index.json`，再依股票代號讀取 `data/chatgpt/symbols/{symbol}.json`。逐檔檔案只為 `scan_eligible=true` 的普通股產生，至少包含 OHLCV、MA10/20/50、20 日均量與量比、pivot、風險參考、setup 與 risk notes。
 
-Symbol JSON 與 symbol index 的 schema version 為 `1.3`；新增 HTF 欄位但不刪除既有必要欄位。
+Symbol JSON 與 symbol index 的 schema version 為 `1.4`；新增 v1／v2 影子比較欄位但不刪除既有必要欄位。
 
 若需要重大事件清單，ChatGPT 應讀取 `data/latest-mops-events.json` 與 `screening.mops_event_candidates`，不得重新爬 MOPS，也不得把重大訊息自動解讀為利多。摘要時應列出公司、分類、標題與需要人工閱讀確認的重點。
 

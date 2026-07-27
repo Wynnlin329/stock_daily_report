@@ -68,7 +68,7 @@ https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-heal
 
 `data/chatgpt/symbol-index.json` 列出所有已產生逐檔資料的 `scan_eligible=true` 普通股。查詢單一股票時，先用 index 確認代號存在，再讀取 `data/chatgpt/symbols/{symbol}.json`。
 
-HTF 欄位加入後，symbol JSON 與 symbol index 的 schema version 為 `1.3`。
+v2 影子比較欄位加入後，symbol JSON 與 symbol index 的 schema version 為 `1.4`。
 
 每個 symbol JSON 至少包含：
 
@@ -135,9 +135,22 @@ HTF 欄位加入後，symbol JSON 與 symbol index 的 schema version 為 `1.3`�
 
 這些逐檔檔案只保存研究用技術資料，不輸出真實交易建議。
 
-波動欄位與多期間 RS 欄位定義以 README 為準。它們會同步出現在 daily／weekly compact candidate；資料不足時必須保留 `null` 並讀取 `missing_reason`。這些欄位目前不參與正式 v1 grading policy，不得據此自行改寫既有 A／A-／B／C。
+波動欄位與多期間 RS 欄位定義以 README 為準。它們會同步出現在 daily／weekly compact candidate；資料不足時必須保留 `null` 並讀取 `missing_reason`。這些欄位供 v2 影子評分，但不參與正式 v1 grading policy，不得據此自行改寫既有 A／A-／B／C。
 
-HTF 欄位定義以 `docs/high-tight-flag.md` 為準。`htf_structure_status` 不可由 `setup_type=anticipation` 推導，必須使用逐股 JSON 或 compact 中的原始數值、狀態與 `htf_rejection_reasons`。目前只供 v2 policy 研究。
+HTF 欄位定義以 `docs/high-tight-flag.md` 為準。`htf_structure_status` 不可由 `setup_type=anticipation` 推導，必須使用逐股 JSON 或 compact 中的原始數值、狀態與 `htf_rejection_reasons`。v2 只在影子模式使用這些欄位。
+
+## v2 Shadow Grading
+
+```text
+data/chatgpt/qullamaggie-grading-policy-v2.json
+data/chatgpt/grading-shadow-v2-latest.json
+data/grading-shadow-v2/history-index.json
+data/grading-shadow-v2/YYYY/MM/YYYY-MM-DD.json
+```
+
+逐股 JSON、symbol index 與 daily／weekly compact 同時輸出 `grade_v1`、`score_v1`、`grade_v2_shadow`、`score_v2_shadow`、`grade_difference`、`v2_rejection_reasons`。正式 Watchlist 與 TradePlan 固定使用 v1；`v2_may_drive_business_writes=false`。
+
+`checks.grading_v2_shadow_20d_ready` 是非阻擋檢查。歷史索引只計算實際產生且通過日期／routing 驗證的影子檔案，未滿 20 個交易日不會回填舊日推算值。市場 Gate 只影響 `market_gate_shadow`，不會改寫 v2 品質分數。
 
 ## Schedule Readiness
 
@@ -164,9 +177,11 @@ https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-heal
 - `checks.weekly_review_gate_ready`
 - `checks.enhanced_technical_indicators_complete`
 - `checks.htf_structure_complete`
+- `checks.grading_v2_shadow_20d_ready`
 - `non_blocking_checks`
 - `enhanced_indicator_completeness`
 - `htf_structure_completeness`
+- `grading_v2_shadow_completeness`
 - `schedule_switch.can_switch_daily_scan_schedule`
 - `schedule_switch.can_switch_watchlist_schedule`
 - `schedule_switch.can_switch_position_management_schedule`
