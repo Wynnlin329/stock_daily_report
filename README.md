@@ -303,7 +303,7 @@ Qullamaggie-style candidate 會附上可選欄位 `margin_balance`、`margin_cha
 https://mopsov.twse.com.tw/mops/web/t05sr01_1
 ```
 
-若即時頁不可用，才嘗試 `https://mopsov.twse.com.tw/mops/web/t05st02` 作為第二來源。手動歷史回補使用 MOPSOV 歷史重大訊息查詢端點 `https://mopsov.twse.com.tw/mops/web/ajax_t05st01`，以空公司代號低頻查詢單一日期的全市場重大訊息。若任何 MOPS 來源回傳 security page、驗證頁或禁止存取頁，系統會立即停止該 MOPS 來源，標示 `blocked_or_security_page`，且不嘗試繞過、不使用瀏覽器自動化、不偽造 Cookie/Token/Session。每日輸出：
+即時頁只有在事件列明確包含目標日期時才視為成功；日期不符或無法確認時，每日流程會直接 fallback 至 MOPSOV 歷史重大訊息查詢端點 `https://mopsov.twse.com.tw/mops/web/ajax_t05st01`，以空公司代號低頻查詢單一日期的全市場重大訊息。`t05st02` 保留為當日頁診斷函式，不作為指定歷史日期的有效證據。若任何 MOPS 來源回傳 security page、驗證頁或禁止存取頁，系統會立即停止該 MOPS 來源，標示 `blocked_or_security_page`，且不嘗試繞過、不使用瀏覽器自動化、不偽造 Cookie/Token/Session。每日輸出：
 
 ```text
 data/latest-mops-events.json
@@ -316,7 +316,9 @@ JSON 欄位包含：
 
 ```text
 schema_version, report_date, generated_at, timezone,
-data_date, is_current, event_count, status, source_url, events, errors, limitations
+requested_date, data_date, is_current, event_count, status,
+source_url, source_endpoint, fallback_used, date_validation,
+status_reason, events, errors, limitations
 ```
 
 CSV 與 `events` 欄位包含：
@@ -325,9 +327,9 @@ CSV 與 `events` 欄位包含：
 date, time, symbol, name, market, title, category, summary, url, source
 ```
 
-第一版分類只用公告標題與摘要的可重現關鍵字：財報、營收、股利、除權息、董事會、併購、處分資產、取得資產、增資、減資、法說會、重大合約、訴訟、注意事項；未命中則為「其他」。若 MOPS 回傳安全頁、無法解析、或沒有明確資料日期，`coverage.material_information.available=false`，不會把請求日期當成資料日期。
+第一版分類只用公告標題與摘要的可重現關鍵字：財報、營收、股利、除權息、董事會、併購、處分資產、取得資產、增資、減資、法說會、重大合約、訴訟、注意事項；未命中則為「其他」。日期只接受事件資料列，或歷史查詢明確回覆「查無資料」時的 requested date。HTML comments、script、style 與頁面版本日期不作為資料日期。只有歷史查詢明確確認目標日期無事件時，才會輸出 `empty_but_valid`。若 MOPS 回傳安全頁、網路錯誤、無法解析或日期不一致，`coverage.material_information.available=false`，不會把舊資料偽裝成當期資料。
 
-MOPS 歷史預設採 forward accumulation：每日 GitHub Actions 抓一次即時重大訊息並寫入 `data/mops/YYYY/MM/`，自然累積成 7 日、30 日、90 日事件歷史。`bootstrap_history.py` 預設不強制回補 90 天；只有手動指定 `--include-mops-backfill` 才會改用 `t05st01` 歷史查詢端點，低頻嘗試少量日期，且任一天遇到 security page 會立即停止。`screening.mops_event_candidates` 僅列出今日或近 7 日有 MOPS 事件且 `scan_eligible=true` 的普通股。重大訊息只作為研究與人工複核清單，不代表利多，也不得自動解讀為方向性訊號。
+MOPS 歷史預設採 forward accumulation：每日 GitHub Actions 優先讀取目標日即時重大訊息，必要時以 `t05st01` 查詢該目標日，並寫入 `data/mops/YYYY/MM/`，自然累積成 7 日、30 日、90 日事件歷史。`bootstrap_history.py` 預設不強制回補 90 天；只有手動指定 `--include-mops-backfill` 才會直接使用 `t05st01`，低頻嘗試少量日期，且任一天遇到 security page 會立即停止。`screening.mops_event_candidates` 僅列出今日或近 7 日有 MOPS 事件且 `scan_eligible=true` 的普通股。重大訊息只作為研究與人工複核清單，不代表利多，也不得自動解讀為方向性訊號。
 
 Qullamaggie-style candidate 會附上 `mops_event_flag`、`mops_event_count`、`mops_event_categories`、`mops_event_titles` 與 `catalyst_tags`。MOPS 事件只作為 catalyst，不會單獨產生 breakout；episodic pivot 仍需符合既有價格、量能與流動性條件。
 

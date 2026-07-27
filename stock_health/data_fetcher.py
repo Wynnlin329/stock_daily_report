@@ -580,115 +580,186 @@ def fetch_tpex_margin_short(target_date: date, client: HttpClient | None = None)
 
 def fetch_mops_events(target_date: date, client: HttpClient | None = None) -> MopsEventFetchResult:
     client = client or HttpClient()
-    realtime = _require_mops_target_date(
-        fetch_mops_realtime_events(target_date, client),
-        target_date,
-        "MOPSOV realtime material information",
-    )
+    realtime = fetch_mops_realtime_events(target_date, client)
     if realtime.status == STATUS_BLOCKED_OR_SECURITY_PAGE or realtime.ok:
         return realtime
 
-    current_day = _require_mops_target_date(
-        fetch_mops_current_day_events(target_date, client),
-        target_date,
-        "MOPSOV current-day material information",
-    )
-    preferred = _prefer_mops_result(realtime, current_day)
-    if current_day.status == STATUS_BLOCKED_OR_SECURITY_PAGE or current_day.ok:
-        return preferred
-
-    historical = _require_mops_target_date(
-        fetch_mops_historical_events(target_date, client),
-        target_date,
-        "MOPSOV historical material information",
-    )
-    return _prefer_mops_result(preferred, historical)
+    historical = fetch_mops_historical_events(target_date, client)
+    historical.fallback_used = True
+    historical.limitations = [
+        *realtime.limitations,
+        *(f"realtime fallback: {error}" for error in realtime.errors),
+        *historical.limitations,
+    ]
+    if not historical.ok and historical.status != STATUS_BLOCKED_OR_SECURITY_PAGE:
+        historical.errors = [*realtime.errors, *historical.errors]
+    return historical
 
 
 def fetch_mops_realtime_events(report_date: date, client: HttpClient | None = None) -> MopsEventFetchResult:
     client = client or HttpClient()
     source_url = mops_realtime_events_url()
+    report_day = report_date.isoformat()
     response = client.get(source_url)
     if response.status != 200:
         return MopsEventFetchResult(
+            requested_date=report_day,
             errors=[response.error or f"MOPSOV realtime material information HTTP status {response.status}"],
             status=STATUS_SOURCE_UNAVAILABLE,
             source_url=source_url,
+            source_endpoint=source_url,
+            date_validation="not_available",
+            status_reason="network_or_http_error",
         )
 
     text = response.text
     if _looks_like_mops_security_page(text):
         return MopsEventFetchResult(
+            requested_date=report_day,
             errors=["MOPSOV realtime material information response returned security page; stop this source"],
             limitations=["MOPS 重大訊息來源回傳 security page，未納入事件催化判斷。"],
             status=STATUS_BLOCKED_OR_SECURITY_PAGE,
             source_url=source_url,
+            source_endpoint=source_url,
+            date_validation="not_available",
+            status_reason="security_page",
         )
 
     all_events, parser_errors = parse_mops_events_html(text)
-    report_day = f"{report_date:%Y-%m-%d}"
     events = [event for event in all_events if event.date == report_day]
-    data_date = _extract_mops_data_date(text, all_events)
-    errors = list(parser_errors)
+    data_date = _extract_mops_data_date(all_events)
+    if parser_errors:
+        return MopsEventFetchResult(
+            requested_date=report_day,
+            data_date=data_date,
+            errors=parser_errors,
+            status=STATUS_PARSER_ERROR,
+            source_url=source_url,
+            source_endpoint=source_url,
+            date_validation="not_available" if data_date is None else "mismatch",
+            status_reason="unexpected_html",
+        )
     if data_date is None:
-        errors.append("MOPSOV realtime material information response did not expose an explicit data date")
-    if errors:
-        return MopsEventFetchResult(rows=events, data_date=data_date, errors=errors, status=STATUS_PARSER_ERROR, source_url=source_url)
+        return MopsEventFetchResult(
+            requested_date=report_day,
+            errors=["MOPSOV realtime material information response did not expose event-row dates"],
+            status=STATUS_PARSER_ERROR,
+            source_url=source_url,
+            source_endpoint=source_url,
+            date_validation="not_available",
+            status_reason="response_date_unverified",
+        )
+    if data_date != report_day:
+        return MopsEventFetchResult(
+            requested_date=report_day,
+            data_date=data_date,
+            errors=[f"MOPSOV realtime material information data date {data_date} did not match target date {report_day}"],
+            status=STATUS_PARSER_ERROR,
+            source_url=source_url,
+            source_endpoint=source_url,
+            date_validation="mismatch",
+            status_reason="source_date_mismatch",
+        )
     return MopsEventFetchResult(
         rows=events,
+        requested_date=report_day,
         data_date=data_date,
         errors=[],
-        status=STATUS_SUCCESS if events else STATUS_EMPTY_BUT_VALID,
+        status=STATUS_SUCCESS,
         source_url=source_url,
+        source_endpoint=source_url,
+        date_validation="matched",
+        status_reason="realtime_target_events_found",
     )
 
 
 def fetch_mops_current_day_events(report_date: date, client: HttpClient | None = None) -> MopsEventFetchResult:
     client = client or HttpClient()
     source_url = mops_current_day_events_url()
+    report_day = report_date.isoformat()
     response = client.get(source_url)
     if response.status != 200:
         return MopsEventFetchResult(
+            requested_date=report_day,
             errors=[response.error or f"MOPSOV current-day material information HTTP status {response.status}"],
             status=STATUS_SOURCE_UNAVAILABLE,
             source_url=source_url,
+            source_endpoint=source_url,
+            date_validation="not_available",
+            status_reason="network_or_http_error",
         )
     text = response.text
     if _looks_like_mops_security_page(text):
         return MopsEventFetchResult(
+            requested_date=report_day,
             errors=["MOPSOV current-day material information response returned security page; stop this source"],
             limitations=["MOPS 重大訊息來源回傳 security page，未納入事件催化判斷。"],
             status=STATUS_BLOCKED_OR_SECURITY_PAGE,
             source_url=source_url,
+            source_endpoint=source_url,
+            date_validation="not_available",
+            status_reason="security_page",
         )
 
     all_events, parser_errors = parse_mops_events_html(text)
-    report_day = f"{report_date:%Y-%m-%d}"
     events = [event for event in all_events if event.date == report_day]
-    data_date = _extract_mops_data_date(text, all_events)
-    if data_date:
+    data_date = _extract_mops_data_date(all_events)
+    if parser_errors:
         return MopsEventFetchResult(
-            rows=events,
+            requested_date=report_day,
             data_date=data_date,
             errors=parser_errors,
-            status=STATUS_PARSER_ERROR if parser_errors else (STATUS_SUCCESS if events else STATUS_EMPTY_BUT_VALID),
+            status=STATUS_PARSER_ERROR,
             source_url=source_url,
+            source_endpoint=source_url,
+            date_validation="not_available" if data_date is None else "mismatch",
+            status_reason="unexpected_html",
+        )
+    if data_date == report_day and events:
+        return MopsEventFetchResult(
+            rows=events,
+            requested_date=report_day,
+            data_date=data_date,
+            status=STATUS_SUCCESS,
+            source_url=source_url,
+            source_endpoint=source_url,
+            date_validation="matched",
+            status_reason="current_day_target_events_found",
+        )
+    if data_date is not None:
+        return MopsEventFetchResult(
+            requested_date=report_day,
+            data_date=data_date,
+            errors=[f"MOPSOV current-day material information data date {data_date} did not match target date {report_day}"],
+            status=STATUS_PARSER_ERROR,
+            source_url=source_url,
+            source_endpoint=source_url,
+            date_validation="mismatch",
+            status_reason="source_date_mismatch",
         )
     if _looks_like_current_day_query_form(text):
         return MopsEventFetchResult(
             rows=[],
+            requested_date=report_day,
             data_date=None,
             errors=[],
             limitations=["MOPSOV 當日重大訊息頁僅回傳查詢表單，未取得可驗證資料日期。"],
             status=STATUS_SOURCE_UNAVAILABLE,
             source_url=source_url,
+            source_endpoint=source_url,
+            date_validation="not_available",
+            status_reason="query_form_only",
         )
     return MopsEventFetchResult(
         rows=[],
+        requested_date=report_day,
         data_date=None,
         errors=parser_errors or ["MOPSOV current-day material information response did not expose a verifiable data date"],
         status=STATUS_PARSER_ERROR,
         source_url=source_url,
+        source_endpoint=source_url,
+        date_validation="not_available",
+        status_reason="response_date_unverified",
     )
 
 
@@ -696,7 +767,7 @@ def fetch_mops_historical_events(report_date: date, client: HttpClient | None = 
     client = client or HttpClient()
     source_url = mops_historical_events_url()
     roc_year = report_date.year - 1911
-    report_day = f"{report_date:%Y-%m-%d}"
+    report_day = report_date.isoformat()
     payload = {
         "step": "1",
         "firstin": "ture",
@@ -713,91 +784,82 @@ def fetch_mops_historical_events(report_date: date, client: HttpClient | None = 
     response = client.post(source_url, payload)
     if response.status != 200:
         return MopsEventFetchResult(
+            requested_date=report_day,
             errors=[response.error or f"MOPSOV historical material information HTTP status {response.status}"],
             status=STATUS_SOURCE_UNAVAILABLE,
             source_url=source_url,
+            source_endpoint=source_url,
+            date_validation="not_available",
+            status_reason="network_or_http_error",
         )
     text = response.text
     if _looks_like_mops_security_page(text):
         return MopsEventFetchResult(
+            requested_date=report_day,
             errors=["MOPSOV historical material information response returned security page; stop this source"],
             limitations=["MOPS 歷史重大訊息來源回傳 security page，未納入事件回補。"],
             status=STATUS_BLOCKED_OR_SECURITY_PAGE,
             source_url=source_url,
+            source_endpoint=source_url,
+            date_validation="not_available",
+            status_reason="security_page",
         )
 
-    events, parser_errors = parse_mops_events_html(text, source="MOPSOV:t05st01", base_url=source_url)
-    events = [event for event in events if event.date == report_day]
-    data_date = _extract_mops_data_date(text, events)
-    if data_date:
+    all_events, parser_errors = parse_mops_events_html(text, source="MOPSOV:t05st01", base_url=source_url)
+    events = [event for event in all_events if event.date == report_day]
+    data_date = _extract_mops_data_date(all_events)
+    if events:
         return MopsEventFetchResult(
             rows=events,
-            data_date=data_date,
+            requested_date=report_day,
+            data_date=report_day,
             errors=parser_errors,
-            status=STATUS_SUCCESS if events else STATUS_EMPTY_BUT_VALID,
+            status=STATUS_SUCCESS,
             source_url=source_url,
+            source_endpoint=source_url,
+            date_validation="matched",
+            status_reason="historical_target_events_found",
         )
-    if _looks_like_no_mops_events(text):
+    if _looks_like_no_mops_events(_clean_mops_html(text)):
         return MopsEventFetchResult(
             rows=[],
+            requested_date=report_day,
             data_date=report_day,
             errors=[],
             status=STATUS_EMPTY_BUT_VALID,
             source_url=source_url,
+            source_endpoint=source_url,
+            date_validation="query_confirmed_empty",
+            status_reason="historical_query_confirmed_no_events",
+        )
+    if data_date is not None:
+        return MopsEventFetchResult(
+            requested_date=report_day,
+            data_date=data_date,
+            errors=[f"MOPSOV historical material information data date {data_date} did not match target date {report_day}"],
+            status=STATUS_PARSER_ERROR,
+            source_url=source_url,
+            source_endpoint=source_url,
+            date_validation="mismatch",
+            status_reason="source_date_mismatch",
         )
     return MopsEventFetchResult(
         rows=[],
+        requested_date=report_day,
         data_date=None,
         errors=parser_errors or ["MOPSOV historical material information response did not expose a verifiable data date"],
         status=STATUS_PARSER_ERROR,
         source_url=source_url,
-    )
-
-
-def _prefer_mops_result(primary: MopsEventFetchResult, fallback: MopsEventFetchResult) -> MopsEventFetchResult:
-    if fallback.status in {STATUS_SUCCESS, STATUS_EMPTY_BUT_VALID, STATUS_BLOCKED_OR_SECURITY_PAGE}:
-        if primary.errors or primary.limitations:
-            fallback.limitations = [
-                *primary.limitations,
-                *(f"realtime fallback: {error}" for error in primary.errors),
-                *fallback.limitations,
-            ]
-        return fallback
-    return MopsEventFetchResult(
-        rows=[],
-        data_date=primary.data_date or fallback.data_date,
-        errors=[*primary.errors, *fallback.errors],
-        limitations=[*primary.limitations, *fallback.limitations],
-        status=primary.status if primary.status == STATUS_PARSER_ERROR else fallback.status,
-        source_url=primary.source_url or fallback.source_url,
-    )
-
-
-def _require_mops_target_date(
-    result: MopsEventFetchResult,
-    target_date: date,
-    source_name: str,
-) -> MopsEventFetchResult:
-    target_day = target_date.isoformat()
-    if not result.ok or result.data_date == target_day:
-        return result
-    observed_date = result.data_date or "unknown"
-    return MopsEventFetchResult(
-        rows=[],
-        data_date=None,
-        errors=[
-            *result.errors,
-            f"{source_name} data date {observed_date} did not match target date {target_day}",
-        ],
-        limitations=result.limitations,
-        status=STATUS_PARSER_ERROR,
-        source_url=result.source_url,
+        source_endpoint=source_url,
+        date_validation="not_available",
+        status_reason="response_date_unverified",
     )
 
 
 def parse_mops_events_html(text: str, source: str = "MOPSOV:t05sr01_1", base_url: str | None = None) -> tuple[list[MopsEventRecord], list[str]]:
+    cleaned_text = _clean_mops_html(text)
     parser = _MopsTableParser()
-    parser.feed(text)
+    parser.feed(cleaned_text)
     events: list[MopsEventRecord] = []
     errors: list[str] = []
     for table in parser.tables:
@@ -813,7 +875,7 @@ def parse_mops_events_html(text: str, source: str = "MOPSOV:t05sr01_1", base_url
             event = _mops_event_from_row(headers, row, source, base_url or mops_realtime_events_url())
             if event:
                 events.append(event)
-    if not events and parser.tables and not _looks_like_no_mops_events(text):
+    if not events and parser.tables and not _looks_like_no_mops_events(cleaned_text):
         errors.append("MOPS material information HTML tables did not match expected company/date/title headers")
     return events, errors
 
@@ -882,8 +944,21 @@ def _looks_like_mops_security_page(text: str) -> bool:
     return any(marker in text or marker.lower() in lowered for marker in markers)
 
 
+def _clean_mops_html(text: str) -> str:
+    cleaned = re.sub(r"<!--.*?-->", " ", text, flags=re.DOTALL)
+    cleaned = re.sub(r"<script\b[^>]*>.*?</script\s*>", " ", cleaned, flags=re.DOTALL | re.IGNORECASE)
+    return re.sub(r"<style\b[^>]*>.*?</style\s*>", " ", cleaned, flags=re.DOTALL | re.IGNORECASE)
+
+
 def _looks_like_no_mops_events(text: str) -> bool:
-    return any(marker in text for marker in ["資料庫中查無需求資料", "查無資料", "無符合條件", "無重大訊息", "無資料"])
+    return any(
+        marker in text
+        for marker in [
+            "資料庫中查無需求資料",
+            "查無符合條件之資料",
+            "無符合條件之資料",
+        ]
+    )
 
 
 def _looks_like_current_day_query_form(text: str) -> bool:
@@ -952,28 +1027,34 @@ def _mops_event_from_row(headers: list[str], row: list[dict[str, str]], source: 
     )
 
 
-def _extract_mops_data_date(text: str, events: list[MopsEventRecord]) -> str | None:
+def _extract_mops_data_date(events: list[MopsEventRecord]) -> str | None:
     event_dates = sorted({event.date for event in events if event.date})
-    if event_dates:
-        return event_dates[-1]
-    without_comments = re.sub(r"<!--.*?-->", " ", text, flags=re.DOTALL)
-    plain = re.sub(r"<[^>]+>", " ", without_comments)
-    for pattern in (
-        r"(20\d{2})[/-](\d{1,2})[/-](\d{1,2})",
-        r"(20\d{2})(\d{2})(\d{2})",
-    ):
-        match = re.search(pattern, plain)
-        if match:
-            return f"{int(match.group(1)):04d}-{int(match.group(2)):02d}-{int(match.group(3)):02d}"
-    roc_match = re.search(r"(?:民國)?(1\d{2})[年/-](\d{1,2})[月/-](\d{1,2})", plain)
-    if roc_match:
-        year = int(roc_match.group(1)) + 1911
-        return f"{year:04d}-{int(roc_match.group(2)):02d}-{int(roc_match.group(3)):02d}"
-    return None
+    return event_dates[-1] if event_dates else None
 
 
 def _normalize_mops_date(value: str) -> str | None:
-    return _extract_mops_data_date(value, [])
+    for pattern in (
+        r"(20\d{2})[年/-](\d{1,2})[月/-](\d{1,2})",
+        r"\b(20\d{2})(\d{2})(\d{2})\b",
+    ):
+        match = re.search(pattern, value)
+        if match:
+            return _validated_date(int(match.group(1)), int(match.group(2)), int(match.group(3)))
+    roc_match = re.search(r"(?:民國)?(1\d{2})[年/-](\d{1,2})[月/-](\d{1,2})", value)
+    if not roc_match:
+        return None
+    return _validated_date(
+        int(roc_match.group(1)) + 1911,
+        int(roc_match.group(2)),
+        int(roc_match.group(3)),
+    )
+
+
+def _validated_date(year: int, month: int, day: int) -> str | None:
+    try:
+        return date(year, month, day).isoformat()
+    except ValueError:
+        return None
 
 
 def _normalize_mops_time(value: str) -> str | None:
@@ -1355,17 +1436,27 @@ def mops_events_payload(
     limitations: list[str] | None = None,
     status: str = STATUS_SOURCE_UNAVAILABLE,
     source_url: str | None = None,
+    requested_date: str | None = None,
+    source_endpoint: str | None = None,
+    fallback_used: bool = False,
+    date_validation: str = "not_available",
+    status_reason: str = "source_unavailable",
 ) -> dict[str, Any]:
     return {
         "schema_version": "1.0",
         "report_date": report_date,
         "generated_at": generated_at,
         "timezone": "Asia/Taipei",
+        "requested_date": requested_date or report_date,
         "data_date": data_date,
         "is_current": is_current,
         "event_count": len(events),
         "status": status,
         "source_url": source_url,
+        "source_endpoint": source_endpoint or source_url,
+        "fallback_used": fallback_used,
+        "date_validation": date_validation,
+        "status_reason": status_reason,
         "events": [
             {
                 "date": event.date,

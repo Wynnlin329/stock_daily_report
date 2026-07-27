@@ -296,12 +296,24 @@ class MopsEventRecord:
 @dataclass
 class MopsEventFetchResult:
     rows: list[MopsEventRecord] = field(default_factory=list)
+    requested_date: str | None = None
     data_date: str | None = None
     errors: list[str] = field(default_factory=list)
     limitations: list[str] = field(default_factory=list)
     status: str = "source_unavailable"
     source_url: str | None = None
+    source_endpoint: str | None = None
+    fallback_used: bool = False
+    date_validation: str = "not_available"
+    status_reason: str = "source_unavailable"
 
     @property
     def ok(self) -> bool:
-        return self.data_date is not None and self.status in {"success", "empty_but_valid"}
+        if self.data_date is None or self.status not in {"success", "empty_but_valid"}:
+            return False
+        if self.requested_date is None:
+            return True
+        return (
+            self.data_date == self.requested_date
+            and self.date_validation in {"matched", "query_confirmed_empty"}
+        )

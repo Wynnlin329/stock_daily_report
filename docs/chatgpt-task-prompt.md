@@ -119,8 +119,9 @@ Universe 摘要時請包含：
 
 ```text
 - schedule-readiness warnings 與 latest.json coverage.material_information.available
-- data/latest-mops-events.json 的 data_date、is_current、event_count、errors、limitations
-- data/latest-mops-events.json 的 status 與 source_url；若 MOPS 歷史尚未滿 90 自然日，需說明採每日 forward accumulation，或由手動 backfill 透過 MOPSOV `t05st01` 低頻補齊。
+- data/latest-mops-events.json 的 requested_date、data_date、is_current、event_count、errors、limitations
+- data/latest-mops-events.json 的 status、status_reason、source_endpoint、fallback_used 與 date_validation；只有 date_validation=matched 或 query_confirmed_empty 且 requested_date=data_date 時，才可視為目標日已驗證。
+- 若 MOPS 歷史尚未滿 90 自然日，需說明採每日 forward accumulation，或由手動 backfill 透過 MOPSOV `t05st01` 低頻補齊。
 - 如需詳細事件候選，讀取 data/chatgpt/daily-qullamaggie-source.json.supporting_candidates.mops_event_candidates 前 10 名
 - 逐項列出公司、分類、標題，以及需要人工閱讀公告內容確認的重點
 - 若 MOPS 日期未知、回傳安全頁或解析失敗，清楚標示不可解讀，不得自行補事件
