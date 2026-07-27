@@ -101,6 +101,21 @@ def sample_candidate(symbol: str = "2330", setup_type: str = "breakout") -> dict
         "volume_ratio_20d": 1.25,
         "pivot_price": 103.0,
         "stop_reference": 95.0,
+        "adr20_pct": 4.0,
+        "atr14": 3.5,
+        "atr14_pct": 3.3654,
+        "stop_risk_pct": 8.6538,
+        "stop_to_adr_ratio": 2.1635,
+        "stop_to_atr_ratio": 2.5714,
+        "return_1m": 10.0,
+        "return_3m": 20.0,
+        "return_6m": 30.0,
+        "rs_rank_1m": 80.0,
+        "rs_rank_3m": 85.0,
+        "rs_rank_6m": 90.0,
+        "composite_rs_rank": 84.25,
+        "missing_reason": {},
+        "indicator_basis": {"atr_method": "sma"},
         "setup_type": setup_type,
         "extended_risk": False,
         "qullamaggie_score": 82.5,
@@ -260,19 +275,22 @@ def test_symbol_technical_payloads_and_index() -> None:
     assert symbol_payload["scan_eligible"] is True
     assert symbol_payload["as_of_date"] == "2026-06-15"
     assert symbol_payload["market_data_date"] == "2026-06-15"
-    assert symbol_payload["schema_version"] == "1.1"
+    assert symbol_payload["schema_version"] == "1.2"
     assert symbol_payload["data_quality"]["ohlcv_complete"] is True
     assert symbol_payload["data_quality"]["technical_indicators_complete"] is True
+    assert symbol_payload["data_quality"]["enhanced_indicators_complete"] is True
     assert symbol_payload["data_quality"]["source_market_file"] == "data/market/2026/06/2026-06-15-listed-ohlcv.csv"
     assert symbol_payload["source_url"] == github_raw_url("data/chatgpt/symbols/2330.json")
 
     index = build_symbol_index(sample_report(), payloads)
     assert index["as_of_date"] == "2026-06-15"
     assert index["market_data_date"] == "2026-06-15"
-    assert index["schema_version"] == "1.1"
+    assert index["schema_version"] == "1.2"
     assert index["symbol_count"] == 1
     assert index["complete_ohlcv_count"] == 1
     assert index["incomplete_ohlcv_count"] == 0
+    assert index["complete_enhanced_indicators_count"] == 1
+    assert index["enhanced_indicator_coverage_pct"] == 100.0
     assert index["symbols"][0]["symbol"] == "2330"
     assert index["symbols"][0]["ohlcv_complete"] is True
     assert index["symbols"][0]["path"] == "data/chatgpt/symbols/2330.json"
@@ -348,6 +366,8 @@ def test_compact_sources_include_symbol_data_url_and_stay_small() -> None:
     assert compact["as_of_date"] == "2026-06-15"
     assert compact["market_data_date"] == "2026-06-15"
     assert compact["top_candidates"][0]["symbol_data_url"] == github_raw_url("data/chatgpt/symbols/2330.json")
+    assert compact["top_candidates"][0]["adr20_pct"] == 4.0
+    assert compact["top_candidates"][0]["composite_rs_rank"] == 84.25
     assert len(json.dumps(compact, ensure_ascii=False).encode("utf-8")) < 1_048_576
 
 
@@ -384,6 +404,8 @@ def test_weekly_compact_and_schedule_readiness() -> None:
     assert readiness["market_data_date"] == "2026-06-15"
     assert readiness["latest_market_data_date"] == "2026-06-15"
     assert readiness["checks"]["symbol_ohlcv_complete"] is True
+    assert readiness["checks"]["enhanced_technical_indicators_complete"] is True
+    assert readiness["enhanced_indicator_completeness"]["affects_grading_policy_v1"] is False
     assert readiness["schedule_switch"]["can_switch_daily_scan_schedule"] is True
     assert readiness["schedule_switch"]["can_switch_watchlist_schedule"] is True
     assert readiness["schedule_switch"]["can_switch_position_management_schedule"] is True

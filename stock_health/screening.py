@@ -155,6 +155,7 @@ def _historical_data_status(history_index: dict[str, Any], history_days: list[st
         "available_trading_days": int(history_index.get("available_trading_days", len(common_days))),
         "has_20d_history": bool(history_index.get("has_20d_history", len(common_days) >= 20)),
         "has_60d_history": bool(history_index.get("has_60d_history", len(common_days) >= 60)),
+        "has_126d_history": bool(history_index.get("has_126d_history", len(common_days) >= 126)),
         "start_date": history_index.get("start_date") or (common_days[0] if common_days else None),
         "end_date": history_index.get("end_date") or (common_days[-1] if common_days else None),
     }

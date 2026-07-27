@@ -37,10 +37,10 @@ python -m pytest -q
 
 ## 回補歷史資料
 
-第一次建立專案時可手動回補最近 60 個交易日：
+第一次建立專案時可手動回補最近 130 個交易日：
 
 ```bash
-python scripts/bootstrap_history.py --trading-days 60
+python scripts/bootstrap_history.py --trading-days 130
 ```
 
 腳本會從 Asia/Taipei 執行日往前檢查最多約 120 個自然日，跳過週末，單日失敗不會中止整體流程。若執行環境無法連外，輸出會明確記錄錯誤，不會偽造可用資料。
@@ -81,7 +81,7 @@ reports/latest-market-scan.md
 
 `daily-health-check.yml` 每週一至週五台灣時間 23:55 執行。GitHub Actions cron 使用 UTC，因此設定為 `55 15 * * 1-5`。流程會先執行 pytest，測試通過後才產生正式資料並提交限定產物。
 
-`bootstrap-history.yml` 僅支援手動執行，input `trading_days` 預設 60。
+`bootstrap-history.yml` 僅支援手動執行，input `trading_days` 預設 130，足以計算 126 日報酬窗口。
 
 ## latest.json schema
 
@@ -192,6 +192,11 @@ range_contraction, volatility_contraction, tight_close_count,
 relative_strength_20d, relative_strength_60d, relative_strength_rank,
 relative_strength_rank_basis,
 extended_from_pivot_pct, extended_risk, stop_reference, risk_to_stop_pct,
+adr20_pct, atr14, atr14_pct, stop_risk_pct,
+stop_to_adr_ratio, stop_to_atr_ratio,
+return_1m, return_3m, return_6m,
+rs_rank_1m, rs_rank_3m, rs_rank_6m, composite_rs_rank,
+missing_reason, indicator_basis,
 mops_event_flag, revenue_financial_flag, news_topic_flag,
 setup_type, qullamaggie_score, score_breakdown
 ```
@@ -211,6 +216,19 @@ breakout, episodic_pivot, anticipation, extended_watch, failed_breakout, insuffi
 ```
 
 `relative_strength_20d` 與 `relative_strength_60d` 定義為個股 20/60 日報酬減同市場指數 20/60 日報酬；`relative_strength_rank` 是在 `scan_eligible=true` 普通股 universe 中的百分位排名，`relative_strength_rank_basis=scan_eligible_common_stock`。
+
+新增的波動與多期間強度欄位目前只提供結構化研究資料，不參與正式 v1 grading policy，也不改變既有 A／A-／B／C 結果：
+
+- `adr20_pct`：最近 20 個有效交易日 `(high-low)/close*100` 的算術平均。
+- `atr14`：最近 14 個 True Range 的 SMA ATR；每個 True Range 為 `max(high-low, abs(high-prev_close), abs(low-prev_close))`。
+- `atr14_pct`：`atr14/current_close*100`。
+- `stop_risk_pct`：`(current_close-stop_reference)/current_close*100`，且 stop 必須低於 close。
+- `stop_to_adr_ratio`／`stop_to_atr_ratio`：`stop_risk_pct` 分別除以 `adr20_pct`／`atr14_pct`。
+- `return_1m`／`return_3m`／`return_6m`：目前收盤相對 21／63／126 個有效交易日前收盤的百分比報酬。
+- `rs_rank_1m`／`rs_rank_3m`／`rs_rank_6m`：同一行情日、同一 `scan_eligible=true` universe 的橫截面百分位；同值使用平均名次。
+- `composite_rs_rank`：`1m*0.40 + 3m*0.35 + 6m*0.25`，權重集中於 `stock_health/config.py`。
+
+有效交易日必須有正數且完整的 OHLC，並且 `volume>0`。停牌列、缺少 OHLC 的列與未來日期不會進入窗口。上市天數或有效資料不足時，欄位輸出 `null`，原因寫入 `missing_reason`，不得以 0 代替。`indicator_coverage` 與 readiness 的 enhanced completeness 是非阻擋資訊；歷史尚未滿 126 日時不會關閉既有排程 gate。
 
 `market_regime` 使用保守規則：指數收盤高於 MA20 與 MA50、MA20 >= MA50 且 20 日報酬為正時為 `risk_on`；收盤低於 MA20 與 MA50、MA20 < MA50 且 20 日報酬為負時為 `risk_off`；其他為 `neutral`。breakout 不會在 `risk_off` 市場狀態下產生。
 
@@ -338,7 +356,7 @@ Qullamaggie-style candidate 會附上 `mops_event_flag`、`mops_event_count`、`
 本專案的歷史窗口固定如下：
 
 ```text
-OHLCV：60 個交易日，用於技術面、突破、量能與 Qullamaggie-style setup。
+OHLCV：預設回補 130 個交易日；前 60 日維持既有技術面、突破、量能與 Qullamaggie-style setup，126 日窗口供新增 6 個月相對強度研究欄位使用。
 法人買賣超：60 個交易日，用於 5D / 20D / 60D 累積買賣超與連買連賣天數。
 融資融券：60 個交易日，用於 5D / 20D / 60D 餘額變化、20D 比例與資券風險複核。
 MOPS 重大訊息：每日累積，手動 backfill 可用 `t05st01` 低頻回補，最多使用近 90 個自然日，用於 7D / 30D / 90D 事件統計與 catalyst 標記。

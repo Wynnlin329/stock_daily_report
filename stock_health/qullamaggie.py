@@ -22,6 +22,11 @@ from .config import (
     QULLAMAGGIE_SETUP_TYPES,
 )
 from .models import InstitutionalTradingRecord, MopsEventRecord, OhlcvRecord
+from .technical_indicators import (
+    apply_multi_period_rs_ranks,
+    build_enhanced_indicator_coverage,
+    calculate_enhanced_technical_metrics,
+)
 
 BenchmarkHistory = dict[str, list[float]]
 
@@ -83,6 +88,7 @@ def calculate_qullamaggie_signals(
         "candidates": grouped,
         "top_candidates": top_candidates,
         "all_candidates": candidates,
+        "indicator_coverage": calculated["indicator_coverage"],
         "limitations": limitations,
     }
 
@@ -130,6 +136,7 @@ def calculate_qullamaggie_candidate_payloads(
         for row in eligible_rows
     ]
     _apply_relative_strength_ranks(candidates)
+    apply_multi_period_rs_ranks(candidates)
 
     if any(candidate["setup_type"] == "insufficient_data" for candidate in candidates):
         limitations.append("部分個股歷史或必要欄位不足，已歸類為 insufficient_data")
@@ -139,6 +146,7 @@ def calculate_qullamaggie_candidate_payloads(
     return {
         "market_regime": market_regime,
         "all_candidates": candidates,
+        "indicator_coverage": build_enhanced_indicator_coverage(candidates),
         "limitations": limitations,
     }
 
@@ -364,6 +372,7 @@ def _calculate_metrics(
     tight_close_count = _tight_close_count(history, row)
     rs20, rs60 = _relative_strength(row, history, benchmark_history)
     stop_reference = base["base_low"] if base["base_low"] is not None else (min(lows[-10:]) if len(lows) >= 10 else None)
+    enhanced_metrics = calculate_enhanced_technical_metrics(row, history, stop_reference)
     distance_to_pivot_pct = _relative_pct(current_close, pivot_price)
     risk_to_stop_pct = _relative_pct(current_close, stop_reference)
     volume_ratio_20d = row.volume / avg_volume_20d if row.volume is not None and avg_volume_20d else None
@@ -453,6 +462,7 @@ def _calculate_metrics(
         "extended_risk": bool(distance_to_pivot_pct is not None and max(0, distance_to_pivot_pct) > MAX_EXTENDED_FROM_PIVOT_PCT),
         "stop_reference": stop_reference,
         "risk_to_stop_pct": risk_to_stop_pct,
+        **enhanced_metrics,
         "mops_event_flag": mops_event_flag,
         "mops_event_count": mops_event_metrics.get("mops_event_count_7d", len(mops_events)),
         "mops_event_count_today": mops_event_metrics.get("mops_event_count_today", 0),
@@ -546,6 +556,21 @@ def _candidate_payload(metrics: dict[str, Any]) -> dict[str, Any]:
         "extended_risk",
         "stop_reference",
         "risk_to_stop_pct",
+        "adr20_pct",
+        "atr14",
+        "atr14_pct",
+        "stop_risk_pct",
+        "stop_to_adr_ratio",
+        "stop_to_atr_ratio",
+        "return_1m",
+        "return_3m",
+        "return_6m",
+        "rs_rank_1m",
+        "rs_rank_3m",
+        "rs_rank_6m",
+        "composite_rs_rank",
+        "missing_reason",
+        "indicator_basis",
         "mops_event_flag",
         "mops_event_count",
         "mops_event_count_today",

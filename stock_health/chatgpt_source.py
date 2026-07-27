@@ -10,7 +10,7 @@ from .config import SCHEMA_VERSION, TIMEZONE, github_raw_url
 
 ACTIONABLE_SETUPS = {"breakout", "episodic_pivot", "anticipation"}
 TOP_WEEKLY_LIMIT = 50
-SYMBOL_SCHEMA_VERSION = "1.1"
+SYMBOL_SCHEMA_VERSION = "1.2"
 COMPACT_SIZE_LIMIT_BYTES = 1_048_576
 SYMBOL_TECHNICAL_FIELDS = [
     "date",
@@ -27,6 +27,21 @@ SYMBOL_TECHNICAL_FIELDS = [
     "volume_ratio_20d",
     "pivot_price",
     "stop_reference",
+    "adr20_pct",
+    "atr14",
+    "atr14_pct",
+    "stop_risk_pct",
+    "stop_to_adr_ratio",
+    "stop_to_atr_ratio",
+    "return_1m",
+    "return_3m",
+    "return_6m",
+    "rs_rank_1m",
+    "rs_rank_3m",
+    "rs_rank_6m",
+    "composite_rs_rank",
+    "missing_reason",
+    "indicator_basis",
     "setup_type",
     "extended_risk",
     "risk_notes",
@@ -99,6 +114,7 @@ def build_daily_qullamaggie_source(
             "history_index": {
                 "available_trading_days": history_index.get("available_trading_days", 0),
                 "has_60d_history": history_index.get("has_60d_history", False),
+                "has_126d_history": history_index.get("has_126d_history", False),
                 "has_mops_event_90d_history": history_index.get("has_mops_event_90d_history", False),
             },
         },
@@ -113,6 +129,7 @@ def build_daily_qullamaggie_source(
             "extended_watch": candidates.get("extended_watch", []),
             "failed_breakout": candidates.get("failed_breakout", []),
             "limitations": qullamaggie.get("limitations", []),
+            "indicator_coverage": qullamaggie.get("indicator_coverage", {}),
         },
         "paper_trading_decision_gate": build_paper_trading_decision_gate(report, screening_summary),
         "supporting_candidates": {
@@ -171,6 +188,7 @@ def build_symbol_index(report: dict[str, Any], symbol_payloads: dict[str, dict[s
             "extended_risk": payload.get("extended_risk"),
             "ohlcv_complete": bool(payload.get("data_quality", {}).get("ohlcv_complete")),
             "technical_indicators_complete": bool(payload.get("data_quality", {}).get("technical_indicators_complete")),
+            "enhanced_indicators_complete": bool(payload.get("data_quality", {}).get("enhanced_indicators_complete")),
             "path": f"data/chatgpt/symbols/{symbol}.json",
             "url": payload.get("source_url"),
         }
@@ -178,6 +196,7 @@ def build_symbol_index(report: dict[str, Any], symbol_payloads: dict[str, dict[s
     ]
     complete_ohlcv_count = sum(1 for item in symbols if item["ohlcv_complete"])
     complete_technical_count = sum(1 for item in symbols if item["technical_indicators_complete"])
+    complete_enhanced_count = sum(1 for item in symbols if item["enhanced_indicators_complete"])
     return {
         "schema_version": SYMBOL_SCHEMA_VERSION,
         "report_date": report.get("report_date"),
@@ -190,6 +209,9 @@ def build_symbol_index(report: dict[str, Any], symbol_payloads: dict[str, dict[s
         "incomplete_ohlcv_count": len(symbols) - complete_ohlcv_count,
         "complete_technical_indicators_count": complete_technical_count,
         "incomplete_technical_indicators_count": len(symbols) - complete_technical_count,
+        "complete_enhanced_indicators_count": complete_enhanced_count,
+        "incomplete_enhanced_indicators_count": len(symbols) - complete_enhanced_count,
+        "enhanced_indicator_coverage_pct": round(complete_enhanced_count / len(symbols) * 100, 4) if symbols else 0.0,
         "incomplete_ohlcv_symbols": [item["symbol"] for item in symbols if not item["ohlcv_complete"]],
         "symbols": symbols,
     }
@@ -325,6 +347,9 @@ def build_weekly_qullamaggie_source(
             "limitations": limitations,
         },
         "weekly_setup_summary": weekly_summary,
+        "indicator_coverage": (
+            valid_payloads[-1].get("qullamaggie", {}).get("indicator_coverage", {}) if valid_payloads else {}
+        ),
         "weekly_supporting_data": weekly_support,
         "next_week_watchlist_candidates": watchlist,
         "paper_trading_weekly_review_gate": {
@@ -348,6 +373,7 @@ def build_daily_qullamaggie_compact(payload: dict[str, Any]) -> dict[str, Any]:
         "source_urls": payload.get("source_urls", {}),
         "market_context": payload.get("market_context", {}),
         "setup_counts": q.get("setup_counts", {}),
+        "indicator_coverage": q.get("indicator_coverage", {}),
         "top_candidates": [_compact_candidate(item) for item in q.get("top_candidates", [])[:100]],
         "breakout": [_compact_candidate(item) for item in q.get("breakout", [])[:100]],
         "episodic_pivot": [_compact_candidate(item) for item in q.get("episodic_pivot", [])[:100]],
@@ -371,6 +397,7 @@ def build_weekly_qullamaggie_compact(payload: dict[str, Any]) -> dict[str, Any]:
         "source_urls": payload.get("source_urls", {}),
         "week_data_status": payload.get("week_data_status", {}),
         "setup_counts": weekly.get("setup_counts", {}),
+        "indicator_coverage": payload.get("indicator_coverage", {}),
         "repeated_candidates": [_compact_weekly_candidate(item) for item in weekly.get("repeated_candidates", [])[:100]],
         "setup_transitions": weekly.get("setup_transitions", [])[:100],
         "next_week_watchlist_candidates": [
@@ -468,6 +495,10 @@ def build_schedule_readiness(
         "weekly_review_gate_ready": bool(
             weekly_compact.get("paper_trading_weekly_review_gate", {}).get("can_generate_weekly_review")
         ),
+        "enhanced_technical_indicators_complete": bool(
+            symbol_index.get("symbol_count", 0) > 0
+            and symbol_index.get("incomplete_enhanced_indicators_count") == 0
+        ),
     }
     can_switch_daily_scan_schedule = all(
         checks[key]
@@ -495,7 +526,18 @@ def build_schedule_readiness(
             "weekly_review_gate_ready",
         )
     )
-    blocking_reasons = [key for key, value in checks.items() if not value]
+    blocking_check_keys = {
+        "latest_market_data_current",
+        "technical_scan_ready",
+        "qullamaggie_scan_ready",
+        "daily_compact_source_ready",
+        "symbol_index_ready",
+        "symbol_ohlcv_complete",
+        "screening_history_5d_ready",
+        "weekly_compact_source_ready",
+        "weekly_review_gate_ready",
+    }
+    blocking_reasons = [key for key, value in checks.items() if key in blocking_check_keys and not value]
     warnings: list[str] = []
     if not scan_readiness.get("can_use_institutional_confirmation"):
         warnings.append("法人確認停用；不得宣稱法人確認。")
@@ -505,6 +547,8 @@ def build_schedule_readiness(
         warnings.append("MOPS 催化延續性停用或不足；僅可列為人工複核素材。")
     if symbol_index.get("incomplete_ohlcv_symbols"):
         warnings.append("部分 symbol 技術檔 OHLCV 不完整。")
+    if not checks["enhanced_technical_indicators_complete"]:
+        warnings.append("部分波動或多期間相對強度指標資料不足；新指標僅供研究，不影響正式 v1 分級與排程 gate。")
     return {
         "schema_version": SCHEMA_VERSION,
         "report_date": report.get("report_date"),
@@ -514,6 +558,13 @@ def build_schedule_readiness(
         "generated_at": report.get("generated_at"),
         "timezone": TIMEZONE,
         "checks": checks,
+        "non_blocking_checks": ["enhanced_technical_indicators_complete"],
+        "enhanced_indicator_completeness": {
+            "complete_symbols": symbol_index.get("complete_enhanced_indicators_count", 0),
+            "incomplete_symbols": symbol_index.get("incomplete_enhanced_indicators_count", 0),
+            "coverage_pct": symbol_index.get("enhanced_indicator_coverage_pct", 0.0),
+            "affects_grading_policy_v1": False,
+        },
         "compact_sizes": {
             "daily_qullamaggie_source_compact_bytes": daily_compact_size,
             "weekly_qullamaggie_source_compact_bytes": weekly_compact_size,
@@ -752,6 +803,8 @@ def _symbol_data_quality(candidate: dict[str, Any]) -> dict[str, Any]:
     return {
         "ohlcv_complete": _ohlcv_complete(candidate),
         "technical_indicators_complete": _technical_indicators_complete(candidate),
+        "enhanced_indicators_complete": _enhanced_indicators_complete(candidate),
+        "enhanced_indicator_missing_reason": candidate.get("missing_reason", {}),
         "source_market_file": _source_market_file(report_date, market),
     }
 
@@ -771,6 +824,25 @@ def _ohlcv_complete(candidate: dict[str, Any]) -> bool:
 
 def _technical_indicators_complete(candidate: dict[str, Any]) -> bool:
     fields = ["ma10", "ma20", "ma50", "avg_volume_20d", "volume_ratio_20d", "pivot_price", "stop_reference"]
+    return all(_number(candidate.get(field)) is not None for field in fields)
+
+
+def _enhanced_indicators_complete(candidate: dict[str, Any]) -> bool:
+    fields = [
+        "adr20_pct",
+        "atr14",
+        "atr14_pct",
+        "stop_risk_pct",
+        "stop_to_adr_ratio",
+        "stop_to_atr_ratio",
+        "return_1m",
+        "return_3m",
+        "return_6m",
+        "rs_rank_1m",
+        "rs_rank_3m",
+        "rs_rank_6m",
+        "composite_rs_rank",
+    ]
     return all(_number(candidate.get(field)) is not None for field in fields)
 
 
@@ -844,6 +916,20 @@ def _compact_candidate(candidate: dict[str, Any]) -> dict[str, Any]:
         "volume": candidate.get("volume"),
         "volume_ratio_20d": candidate.get("volume_ratio_20d"),
         "relative_strength_rank": candidate.get("relative_strength_rank"),
+        "adr20_pct": candidate.get("adr20_pct"),
+        "atr14": candidate.get("atr14"),
+        "atr14_pct": candidate.get("atr14_pct"),
+        "stop_risk_pct": candidate.get("stop_risk_pct"),
+        "stop_to_adr_ratio": candidate.get("stop_to_adr_ratio"),
+        "stop_to_atr_ratio": candidate.get("stop_to_atr_ratio"),
+        "return_1m": candidate.get("return_1m"),
+        "return_3m": candidate.get("return_3m"),
+        "return_6m": candidate.get("return_6m"),
+        "rs_rank_1m": candidate.get("rs_rank_1m"),
+        "rs_rank_3m": candidate.get("rs_rank_3m"),
+        "rs_rank_6m": candidate.get("rs_rank_6m"),
+        "composite_rs_rank": candidate.get("composite_rs_rank"),
+        "missing_reason": candidate.get("missing_reason", {}),
         "pivot_price": candidate.get("pivot_price"),
         "stop_reference": candidate.get("stop_reference"),
         "extended_risk": candidate.get("extended_risk"),
