@@ -8,7 +8,7 @@
   "report_date": "2026-07-29",
   "as_of_date": "2026-07-28",
   "market_data_date": "2026-07-28",
-  "generated_at": "2026-07-29T01:22:30+08:00",
+  "generated_at": "2026-07-29T18:50:37+08:00",
   "timezone": "Asia/Taipei",
   "source_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/6945.json",
   "data_quality": {
@@ -19,8 +19,8 @@
       "stop_risk_pct": "stop_reference_not_below_close",
       "stop_to_adr_ratio": "stop_reference_not_below_close",
       "stop_to_atr_ratio": "stop_reference_not_below_close",
-      "return_6m": "insufficient_valid_trading_days:92/127",
-      "rs_rank_6m": "insufficient_valid_trading_days:92/127",
+      "return_6m": "insufficient_valid_trading_days:95/127",
+      "rs_rank_6m": "insufficient_valid_trading_days:95/127",
       "composite_rs_rank": "one_or_more_rs_periods_missing"
     },
     "htf_structure_complete": false,
@@ -33,10 +33,12 @@
       "volume_first_30m_ratio": "reliable_intraday_data_not_available",
       "opening_range_high": "reliable_intraday_data_not_available",
       "opening_range_low": "reliable_intraday_data_not_available",
-      "prior_6m_extension_pct": "insufficient_valid_trading_days:91/127"
+      "prior_6m_extension_pct": "insufficient_valid_trading_days:94/127"
     },
     "htf_structure_missing_reason": {
-      "distance_to_52w_high_pct": "insufficient_valid_trading_days:92/252",
+      "high_52w": "insufficient_valid_trading_days:95/252",
+      "distance_to_52w_high_pct": "insufficient_valid_trading_days:95/252",
+      "monthly_ma12": "insufficient_monthly_closes:requires_12",
       "monthly_above_ma12": "insufficient_monthly_closes:requires_12"
     },
     "source_market_file": "data/market/2026/07/2026-07-28-otc-ohlcv.csv"
@@ -65,16 +67,16 @@
   "return_1m": -4.1139,
   "return_3m": -9.5522,
   "return_6m": null,
-  "rs_rank_1m": 56.0313,
-  "rs_rank_3m": 38.9474,
+  "rs_rank_1m": 56.0417,
+  "rs_rank_3m": 36.5445,
   "rs_rank_6m": null,
   "composite_rs_rank": null,
   "missing_reason": {
     "stop_risk_pct": "stop_reference_not_below_close",
     "stop_to_adr_ratio": "stop_reference_not_below_close",
     "stop_to_atr_ratio": "stop_reference_not_below_close",
-    "return_6m": "insufficient_valid_trading_days:92/127",
-    "rs_rank_6m": "insufficient_valid_trading_days:92/127",
+    "return_6m": "insufficient_valid_trading_days:95/127",
+    "rs_rank_6m": "insufficient_valid_trading_days:95/127",
     "composite_rs_rank": "one_or_more_rs_periods_missing"
   },
   "indicator_basis": {
@@ -98,6 +100,7 @@
   },
   "prior_move_pct_20d": 30.2703,
   "prior_move_pct_60d": 30.2703,
+  "high_52w": null,
   "distance_to_52w_high_pct": null,
   "flag_duration_days": 14,
   "flag_depth_pct": 24.8963,
@@ -106,10 +109,14 @@
   "volume_contraction_ratio": 0.5287,
   "ma10_slope": -7.7498,
   "ma20_slope": -0.7645,
+  "ma50_slope": -0.5197,
   "distance_to_ma10_pct": -7.8841,
   "distance_to_ma20_pct": -11.3603,
+  "monthly_close": 90.9,
+  "monthly_ma12": null,
   "monthly_above_ma12": null,
   "weekly_trend_state": "downtrend",
+  "long_term_ma_state": "falling",
   "daily_trigger_state": "inside_flag",
   "htf_structure_score": 45,
   "htf_structure_status": "insufficient_data",
@@ -121,7 +128,9 @@
     "weekly_trend_downtrend"
   ],
   "htf_missing_reason": {
-    "distance_to_52w_high_pct": "insufficient_valid_trading_days:92/252",
+    "high_52w": "insufficient_valid_trading_days:95/252",
+    "distance_to_52w_high_pct": "insufficient_valid_trading_days:95/252",
+    "monthly_ma12": "insufficient_monthly_closes:requires_12",
     "monthly_above_ma12": "insufficient_monthly_closes:requires_12"
   },
   "htf_structure_basis": {
@@ -136,6 +145,7 @@
     "min_higher_lows_ratio": 0.4,
     "max_distance_to_52w_high_pct": 15,
     "ma_slope_lookback_days": 5,
+    "monthly_ma_months": 12,
     "valid_score_min": 75,
     "score_weights": {
       "prior_move": 25,
@@ -186,7 +196,7 @@
     "volume_first_30m_ratio": "reliable_intraday_data_not_available",
     "opening_range_high": "reliable_intraday_data_not_available",
     "opening_range_low": "reliable_intraday_data_not_available",
-    "prior_6m_extension_pct": "insufficient_valid_trading_days:91/127"
+    "prior_6m_extension_pct": "insufficient_valid_trading_days:94/127"
   },
   "ep_score_breakdown": {
     "verified_catalyst": 0,

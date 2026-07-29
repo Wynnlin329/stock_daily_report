@@ -9,14 +9,14 @@
 - missing_dates: []
 
 ## 本週 Setup 統計
-- counts: {'breakout': 0, 'episodic_pivot': 2, 'anticipation': 84, 'extended_watch': 86, 'failed_breakout': 51, 'insufficient_data': 250}
+- counts: {'breakout': 0, 'episodic_pivot': 1, 'anticipation': 84, 'extended_watch': 86, 'failed_breakout': 51, 'insufficient_data': 250}
 
 ## 重複出現候選
 - 2892 第一金 setup=anticipation score=60
 - 2834 臺企銀 setup=anticipation score=65
 - 5871 中租-KY setup=anticipation score=50
-- 2615 萬海 setup=anticipation score=50
-- 2006 東和鋼鐵 setup=anticipation score=55
+- 2615 萬海 setup=anticipation score=45
+- 2006 東和鋼鐵 setup=anticipation score=60
 - 2812 台中銀 setup=anticipation score=65
 - 2884 玉山金 setup=anticipation score=55
 - 2880 華南金 setup=anticipation score=60
@@ -60,8 +60,8 @@
 - 2892 第一金 setup=anticipation score=60
 - 2834 臺企銀 setup=anticipation score=65
 - 5871 中租-KY setup=anticipation score=50
-- 2615 萬海 setup=anticipation score=50
-- 2006 東和鋼鐵 setup=anticipation score=55
+- 2615 萬海 setup=anticipation score=45
+- 2006 東和鋼鐵 setup=anticipation score=60
 - 2812 台中銀 setup=anticipation score=65
 - 2884 玉山金 setup=anticipation score=55
 - 2880 華南金 setup=anticipation score=60
@@ -95,6 +95,7 @@
 - chatgpt_weekly_qullamaggie_source: https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/weekly-qullamaggie-source.json
 - chatgpt_weekly_qullamaggie_compact: https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/weekly-qullamaggie-source-compact.json
 - chatgpt_symbol_index: https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbol-index.json
+- chatgpt_symbol_index_compact: https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbol-index-compact.json
 - chatgpt_schedule_readiness: https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/schedule-readiness.json
 - grading_policy_v1: https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/qullamaggie-grading-policy-v1.json
 - grading_policy_v2_shadow: https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/qullamaggie-grading-policy-v2.json

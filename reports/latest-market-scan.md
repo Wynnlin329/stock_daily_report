@@ -2,10 +2,10 @@
 
 本摘要僅供研究與人工複核，不構成買賣建議。
 
-- 執行時間：2026-07-29T01:22:30+08:00
+- 執行時間：2026-07-29T18:50:37+08:00
 - 是否足以執行全市場掃描：True
 - 整體信心等級：high
-- 可用歷史交易日：92
+- 可用歷史交易日：260
 
 ## 普通股 Universe 過濾摘要
 
@@ -135,7 +135,6 @@
 - 無
 
 ### episodic_pivot
-- 6226 光鼎（listed）：close=20.5 change_pct=9.9196 volume=23361676 turnover=458485199
 - 7767 仁大資訊（otc）：close=51.4 change_pct=8.2105 volume=188471 turnover=9401614
 
 ### anticipation
@@ -146,8 +145,8 @@
 - 2812 台中銀（listed）：close=20.75 change_pct=0.0 volume=27529526 turnover=569372299
 - 2880 華南金（listed）：close=41.4 change_pct=0.0 volume=21609607 turnover=892486157
 - 2892 第一金（listed）：close=34.8 change_pct=0.0 volume=42613912 turnover=1483783627
-- 2884 玉山金（listed）：close=36.25 change_pct=-0.4121 volume=32331292 turnover=1172165568
 - 2006 東和鋼鐵（listed）：close=72.5 change_pct=-0.6849 volume=2094278 turnover=151967109
+- 2884 玉山金（listed）：close=36.25 change_pct=-0.4121 volume=32331292 turnover=1172165568
 - 2207 和泰車（listed）：close=500.0 change_pct=0.4016 volume=550204 turnover=275644153
 
 ### extended_watch
@@ -167,17 +166,16 @@
 - 2836 高雄銀（listed）：close=13.0 change_pct=0.7752 volume=12821515 turnover=165773213
 - 5904 寶雅（otc）：close=679.0 change_pct=1.6467 volume=1187487 turnover=820028327
 - 2610 華航（listed）：close=21.75 change_pct=2.3529 volume=108306108 turnover=2371753630
-- 5269 祥碩（listed）：close=1455.0 change_pct=5.0542 volume=1586935 turnover=2259532320
 - 2618 長榮航（listed）：close=42.75 change_pct=1.907 volume=72120873 turnover=3056748425
 - 6214 精誠（listed）：close=143.0 change_pct=-1.7182 volume=1747864 turnover=249492191
-- 6919 康霈*（listed）：close=103.5 change_pct=1.4706 volume=5644014 turnover=575616934
 - 7743 金利食安（otc）：close=21.0 change_pct=0.0 volume=3000 turnover=60400
 - 4153 鈺緯（otc）：close=31.5 change_pct=-0.3165 volume=14444 turnover=450646
 - 2754 亞洲藏壽司（otc）：close=69.0 change_pct=1.0249 volume=23245 turnover=1590108
+- 4535 至興（otc）：close=27.85 change_pct=0.1799 volume=28449 turnover=786527
+- 4950 金耘國際（otc）：close=16.45 change_pct=-0.6042 volume=6047 turnover=97078
 
 ### top_candidates
 
-- 6226 光鼎（listed）：close=20.5 change_pct=9.9196 volume=23361676 turnover=458485199
 - 7767 仁大資訊（otc）：close=51.4 change_pct=8.2105 volume=188471 turnover=9401614
 - 5880 合庫金（listed）：close=25.95 change_pct=0.0 volume=15876007 turnover=410316293
 - 2801 彰銀（listed）：close=24.55 change_pct=-0.6073 volume=31435900 turnover=773106433
@@ -186,6 +184,7 @@
 - 2812 台中銀（listed）：close=20.75 change_pct=0.0 volume=27529526 turnover=569372299
 - 2880 華南金（listed）：close=41.4 change_pct=0.0 volume=21609607 turnover=892486157
 - 2892 第一金（listed）：close=34.8 change_pct=0.0 volume=42613912 turnover=1483783627
+- 2006 東和鋼鐵（listed）：close=72.5 change_pct=-0.6849 volume=2094278 turnover=151967109
 - 2884 玉山金（listed）：close=36.25 change_pct=-0.4121 volume=32331292 turnover=1172165568
 
 ## 缺少的資料段落

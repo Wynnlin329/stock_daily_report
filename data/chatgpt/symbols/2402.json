@@ -8,7 +8,7 @@
   "report_date": "2026-07-29",
   "as_of_date": "2026-07-28",
   "market_data_date": "2026-07-28",
-  "generated_at": "2026-07-29T01:22:30+08:00",
+  "generated_at": "2026-07-29T18:50:37+08:00",
   "timezone": "Asia/Taipei",
   "source_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/2402.json",
   "data_quality": {
@@ -18,12 +18,9 @@
     "enhanced_indicator_missing_reason": {
       "stop_risk_pct": "stop_reference_not_below_close",
       "stop_to_adr_ratio": "stop_reference_not_below_close",
-      "stop_to_atr_ratio": "stop_reference_not_below_close",
-      "return_6m": "insufficient_valid_trading_days:92/127",
-      "rs_rank_6m": "insufficient_valid_trading_days:92/127",
-      "composite_rs_rank": "one_or_more_rs_periods_missing"
+      "stop_to_atr_ratio": "stop_reference_not_below_close"
     },
-    "htf_structure_complete": false,
+    "htf_structure_complete": true,
     "episodic_pivot_complete": true,
     "episodic_pivot_missing_reason": {
       "catalyst_surprise_score": "directional_event_surprise_not_available",
@@ -32,14 +29,9 @@
       "volume_first_15m_ratio": "reliable_intraday_data_not_available",
       "volume_first_30m_ratio": "reliable_intraday_data_not_available",
       "opening_range_high": "reliable_intraday_data_not_available",
-      "opening_range_low": "reliable_intraday_data_not_available",
-      "prior_6m_extension_pct": "insufficient_valid_trading_days:91/127"
+      "opening_range_low": "reliable_intraday_data_not_available"
     },
-    "htf_structure_missing_reason": {
-      "prior_move_pct_60d": "insufficient_pre_peak_trading_days:54/60",
-      "distance_to_52w_high_pct": "insufficient_valid_trading_days:90/252",
-      "monthly_above_ma12": "insufficient_monthly_closes:requires_12"
-    },
+    "htf_structure_missing_reason": {},
     "source_market_file": "data/market/2026/07/2026-07-28-listed-ohlcv.csv"
   },
   "date": "2026-07-28",
@@ -51,11 +43,11 @@
   "turnover": 121740591,
   "ma10": 58.81,
   "ma20": 62.315,
-  "ma50": 63.961,
+  "ma50": 64.914,
   "avg_volume_20d": 3495291.25,
   "avg_turnover_20d": 229656907.6,
   "volume_ratio_20d": 0.6246,
-  "pivot_price": 73.7,
+  "pivot_price": 74.4,
   "stop_reference": 55.3,
   "adr20_pct": 4.0665,
   "atr14": 2.4857,
@@ -64,19 +56,16 @@
   "stop_to_adr_ratio": null,
   "stop_to_atr_ratio": null,
   "return_1m": -14.1966,
-  "return_3m": -23.1844,
-  "return_6m": null,
-  "rs_rank_1m": 26.1097,
-  "rs_rank_3m": 12.6316,
-  "rs_rank_6m": null,
-  "composite_rs_rank": null,
+  "return_3m": -20.7493,
+  "return_6m": -4.014,
+  "rs_rank_1m": 26.0938,
+  "rs_rank_3m": 14.712,
+  "rs_rank_6m": 49.3362,
+  "composite_rs_rank": 27.9208,
   "missing_reason": {
     "stop_risk_pct": "stop_reference_not_below_close",
     "stop_to_adr_ratio": "stop_reference_not_below_close",
-    "stop_to_atr_ratio": "stop_reference_not_below_close",
-    "return_6m": "insufficient_valid_trading_days:92/127",
-    "rs_rank_6m": "insufficient_valid_trading_days:92/127",
-    "composite_rs_rank": "one_or_more_rs_periods_missing"
+    "stop_to_atr_ratio": "stop_reference_not_below_close"
   },
   "indicator_basis": {
     "adr_window": 20,
@@ -98,34 +87,35 @@
     "valid_trading_day": "positive complete OHLC and volume>0"
   },
   "prior_move_pct_20d": 18.4641,
-  "prior_move_pct_60d": null,
-  "distance_to_52w_high_pct": null,
-  "flag_duration_days": 37,
+  "prior_move_pct_60d": 57.9521,
+  "high_52w": 85.0,
+  "distance_to_52w_high_pct": -35.2941,
+  "flag_duration_days": 38,
   "flag_depth_pct": 24.1379,
-  "higher_lows_count": 12,
-  "range_contraction_ratio": 0.5163,
+  "higher_lows_count": 13,
+  "range_contraction_ratio": 0.6318,
   "volume_contraction_ratio": 0.1498,
   "ma10_slope": -5.4502,
   "ma20_slope": -3.3651,
+  "ma50_slope": -1.6931,
   "distance_to_ma10_pct": -6.4785,
   "distance_to_ma20_pct": -11.7387,
-  "monthly_above_ma12": null,
+  "monthly_close": 55.0,
+  "monthly_ma12": 57.9458,
+  "monthly_above_ma12": false,
   "weekly_trend_state": "neutral",
+  "long_term_ma_state": "falling",
   "daily_trigger_state": "inside_flag",
-  "htf_structure_score": 30,
-  "htf_structure_status": "insufficient_data",
+  "htf_structure_score": 55,
+  "htf_structure_status": "too_loose",
   "htf_rejection_reasons": [
-    "prior_move_below_threshold",
     "higher_lows_insufficient",
     "ma10_not_rising",
     "ma20_not_rising",
+    "monthly_below_ma12",
     "weekly_trend_neutral"
   ],
-  "htf_missing_reason": {
-    "prior_move_pct_60d": "insufficient_pre_peak_trading_days:54/60",
-    "distance_to_52w_high_pct": "insufficient_valid_trading_days:90/252",
-    "monthly_above_ma12": "insufficient_monthly_closes:requires_12"
-  },
+  "htf_missing_reason": {},
   "htf_structure_basis": {
     "flag_duration_range": [
       10,
@@ -138,6 +128,7 @@
     "min_higher_lows_ratio": 0.4,
     "max_distance_to_52w_high_pct": 15,
     "ma_slope_lookback_days": 5,
+    "monthly_ma_months": 12,
     "valid_score_min": 75,
     "score_weights": {
       "prior_move": 25,
@@ -169,8 +160,8 @@
   "catalyst_surprise_score": null,
   "revenue_growth_yoy": null,
   "eps_growth_yoy": null,
-  "prior_3m_extension_pct": -26.2679,
-  "prior_6m_extension_pct": null,
+  "prior_3m_extension_pct": -19.6884,
+  "prior_6m_extension_pct": -0.5263,
   "volume_first_15m_ratio": null,
   "volume_first_30m_ratio": null,
   "opening_range_high": null,
@@ -190,8 +181,7 @@
     "volume_first_15m_ratio": "reliable_intraday_data_not_available",
     "volume_first_30m_ratio": "reliable_intraday_data_not_available",
     "opening_range_high": "reliable_intraday_data_not_available",
-    "opening_range_low": "reliable_intraday_data_not_available",
-    "prior_6m_extension_pct": "insufficient_valid_trading_days:91/127"
+    "opening_range_low": "reliable_intraday_data_not_available"
   },
   "ep_score_breakdown": {
     "verified_catalyst": 0,
@@ -274,10 +264,6 @@
     "component_scores": {},
     "pivot_distance_pct": null,
     "missing_fields": [
-      "monthly_above_ma12",
-      "rs_rank_6m",
-      "composite_rs_rank",
-      "prior_move_pct_60d",
       "stop_risk_pct",
       "stop_to_adr_ratio",
       "stop_to_atr_ratio"

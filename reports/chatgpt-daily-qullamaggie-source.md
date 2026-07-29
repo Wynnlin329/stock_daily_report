@@ -12,10 +12,9 @@
 - market_regime: {'status': 'risk_off', 'score': 0, 'reasons': ['benchmark regime=risk_off'], 'risk_notes': [], 'metrics': {'listed': {'close': 41603.36, 'ma20': 44954.603, 'ma50': 44543.346, 'return_20d_pct': -7.5479}, 'otc': {'close': 352.42, 'ma20': 406.1915, 'ma50': 419.4164, 'return_20d_pct': -14.6538}}}
 
 ## Setup Counts
-- setup_counts: {'breakout': 0, 'episodic_pivot': 2, 'anticipation': 15, 'extended_watch': 5, 'failed_breakout': 4, 'insufficient_data': 50}
+- setup_counts: {'breakout': 0, 'episodic_pivot': 1, 'anticipation': 15, 'extended_watch': 5, 'failed_breakout': 4, 'insufficient_data': 50}
 
 ## Top Candidates
-- 6226 光鼎 setup=episodic_pivot score=100
 - 7767 仁大資訊 setup=episodic_pivot score=100
 - 5880 合庫金 setup=anticipation score=70
 - 2801 彰銀 setup=anticipation score=65
@@ -24,17 +23,18 @@
 - 2812 台中銀 setup=anticipation score=65
 - 2880 華南金 setup=anticipation score=60
 - 2892 第一金 setup=anticipation score=60
+- 2006 東和鋼鐵 setup=anticipation score=60
 - 2884 玉山金 setup=anticipation score=55
-- 2006 東和鋼鐵 setup=anticipation score=55
 - 2207 和泰車 setup=anticipation score=55
-- 2615 萬海 setup=anticipation score=50
 - 2845 遠東銀 setup=anticipation score=50
 - 8464 億豐 setup=anticipation score=50
-- 2412 中華電 setup=anticipation score=50
 - 5871 中租-KY setup=anticipation score=50
+- 2412 中華電 setup=anticipation score=50
+- 2615 萬海 setup=anticipation score=45
 - 1101 台泥 setup=extended_watch score=60
 - 6804 明係 setup=extended_watch score=55
 - 3018 隆銘綠能 setup=extended_watch score=45
+- 4442 竣邦-KY setup=extended_watch score=40
 
 ## Paper Trading Decision Gate
 - gate: {'can_create_new_simulated_buy_candidate': True, 'reason': [], 'allowed_actions': ['可產生資料狀態報告', '可產生候選股研究清單', '可更新觀察名單', '可做 MOPS 事件人工複核'], 'blocked_actions': []}
@@ -56,6 +56,7 @@
 - chatgpt_weekly_qullamaggie_source: https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/weekly-qullamaggie-source.json
 - chatgpt_weekly_qullamaggie_compact: https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/weekly-qullamaggie-source-compact.json
 - chatgpt_symbol_index: https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbol-index.json
+- chatgpt_symbol_index_compact: https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbol-index-compact.json
 - chatgpt_schedule_readiness: https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/schedule-readiness.json
 - grading_policy_v1: https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/qullamaggie-grading-policy-v1.json
 - grading_policy_v2_shadow: https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/qullamaggie-grading-policy-v2.json
