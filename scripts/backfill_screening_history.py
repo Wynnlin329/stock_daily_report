@@ -55,7 +55,7 @@ def main() -> int:
     if not target_days:
         raise SystemExit("data/history-index.json has no common_ohlcv_days.")
 
-    ohlcv_history = load_history_rows(root)
+    ohlcv_history = load_history_rows(root, scan_eligible_only=True)
     index_history_rows = load_index_history_rows(root)
     institutional_history_rows = load_institutional_history_rows(root)
     margin_short_history_rows = load_margin_short_history_rows(root)

@@ -58,13 +58,20 @@ jobs:
             --include-institutional \
             --include-margin-short \
             --mops-calendar-days "${{ inputs.mops_calendar_days }}" \
+            --require-complete \
             ${MOPS_BACKFILL_ARGS}
 
-      - name: Commit generated history
+      - name: Regenerate derived data and ChatGPT artifacts
+        run: python scripts/run_health_check.py
+
+      - name: Validate generated artifacts
+        run: python scripts/validate_generated_artifacts.py --minimum-history-days 252
+
+      - name: Commit generated history and derived artifacts
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/history-index.json data/latest-listed-ohlcv.csv data/latest-otc-ohlcv.csv data/latest-institutional-trading.csv data/latest-institutional-trading-summary.json data/latest-margin-short.csv data/latest-margin-short-summary.json data/latest-mops-events.json data/latest-mops-events.csv data/market/ data/institutional/ data/margin_short/ data/mops/
+          git add latest.json latest.md history/ data/ reports/
           if git diff --cached --quiet; then
             echo "No generated history changes to commit."
             exit 0

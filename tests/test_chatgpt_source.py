@@ -11,6 +11,7 @@ from stock_health.chatgpt_source import (
     build_schedule_readiness,
     build_screening_history_index,
     build_symbol_index,
+    build_symbol_index_compact,
     build_symbol_technical_payloads,
     build_weekly_qullamaggie_compact,
     build_weekly_qullamaggie_markdown,
@@ -18,9 +19,10 @@ from stock_health.chatgpt_source import (
     load_recent_screening_summaries,
     screening_history_index_path,
     screening_history_path,
+    validate_symbol_artifacts,
 )
 from stock_health.config import github_raw_url
-from stock_health.history_store import write_json
+from stock_health.history_store import write_chatgpt_symbol_outputs, write_json
 
 
 def sample_report(*, fresh: bool = True, actionable_ready: bool = True) -> dict:
@@ -124,6 +126,7 @@ def sample_candidate(symbol: str = "2330", setup_type: str = "breakout") -> dict
         "indicator_basis": {"atr_method": "sma"},
         "prior_move_pct_20d": 55.0,
         "prior_move_pct_60d": 90.0,
+        "high_52w": 106.0,
         "distance_to_52w_high_pct": -2.0,
         "flag_duration_days": 20,
         "flag_depth_pct": 10.0,
@@ -132,10 +135,14 @@ def sample_candidate(symbol: str = "2330", setup_type: str = "breakout") -> dict
         "volume_contraction_ratio": 0.5,
         "ma10_slope": 2.0,
         "ma20_slope": 1.0,
+        "ma50_slope": 0.5,
         "distance_to_ma10_pct": 2.0,
         "distance_to_ma20_pct": 4.0,
+        "monthly_close": 104.0,
+        "monthly_ma12": 95.0,
         "monthly_above_ma12": True,
         "weekly_trend_state": "uptrend",
+        "long_term_ma_state": "rising",
         "daily_trigger_state": "near_trigger",
         "htf_structure_score": 90,
         "htf_structure_status": "valid_htf",
@@ -387,6 +394,54 @@ def test_symbol_technical_payloads_and_index() -> None:
     assert index["symbols"][0]["path"] == "data/chatgpt/symbols/2330.json"
 
 
+def test_compact_symbol_index_is_small_and_validated(tmp_path: Path) -> None:
+    payloads = build_symbol_technical_payloads(
+        sample_report(),
+        [sample_candidate("2330"), sample_candidate("2317")],
+    )
+    index = build_symbol_index(sample_report(), payloads)
+    compact, shards = build_symbol_index_compact(sample_report(), index)
+
+    write_chatgpt_symbol_outputs(tmp_path, payloads, index, compact, shards)
+    validation = validate_symbol_artifacts(
+        tmp_path,
+        index,
+        compact,
+        shards,
+    )
+
+    assert validation["ready"] is True
+    assert compact["symbol_count"] == index["symbol_count"] == 2
+    assert compact["full_index"]["byte_size"] > 0
+    assert compact["full_index"]["blob_sha"]
+    assert all(set(item) == {"symbol", "market", "path"} for item in compact["symbols"])
+    assert (
+        tmp_path / "data" / "chatgpt" / "symbol-index-compact.json"
+    ).stat().st_size > 0
+
+
+def test_compact_symbol_index_shards_when_inline_index_exceeds_limit() -> None:
+    payloads = {
+        f"{index:04d}": {
+            "name": f"公司{index}",
+            "market": "listed" if index % 2 else "otc",
+            "source_url": github_raw_url(
+                f"data/chatgpt/symbols/{index:04d}.json"
+            ),
+            "data_quality": {},
+        }
+        for index in range(10_000, 17_000)
+    }
+    index = build_symbol_index(sample_report(), payloads)
+
+    compact, shards = build_symbol_index_compact(sample_report(), index)
+
+    assert compact["sharded"] is True
+    assert compact["symbol_count"] == 7_000
+    assert len(shards) == 14
+    assert sum(shard["symbol_count"] for shard in shards.values()) == 7_000
+
+
 def test_symbol_technical_payload_marks_incomplete_high_low() -> None:
     candidate = sample_candidate("2330")
     candidate["high"] = None
@@ -460,6 +515,8 @@ def test_compact_sources_include_symbol_data_url_and_stay_small() -> None:
     assert compact["top_candidates"][0]["adr20_pct"] == 4.0
     assert compact["top_candidates"][0]["composite_rs_rank"] == 84.25
     assert compact["top_candidates"][0]["htf_structure_status"] == "valid_htf"
+    assert compact["top_candidates"][0]["high_52w"] == 106.0
+    assert compact["top_candidates"][0]["monthly_ma12"] == 95.0
     assert compact["top_candidates"][0]["flag_duration_days"] == 20
     assert compact["top_candidates"][0]["gap_pct"] == 5.0
     assert compact["top_candidates"][0]["ep_status"] == "rejected"
@@ -527,6 +584,43 @@ def test_weekly_compact_and_schedule_readiness() -> None:
     assert readiness["schedule_switch"]["can_switch_weekly_review_schedule"] is True
     assert readiness["schedule_switch"]["can_switch_all_schedules"] is True
     assert readiness["blocking_reasons"] == []
+
+
+def test_readiness_uses_verified_history_and_compact_index_counts() -> None:
+    report = sample_report()
+    symbol_payloads = build_symbol_technical_payloads(
+        report,
+        [sample_candidate("2330")],
+    )
+    symbol_index = build_symbol_index(report, symbol_payloads)
+    compact, _ = build_symbol_index_compact(report, symbol_index)
+    readiness = build_schedule_readiness(
+        report,
+        symbol_index,
+        {"has_5d_history": False},
+        {"top_candidates": []},
+        {"week_data_status": None},
+        {},
+        {
+            "available_common_trading_days": 260,
+            "earliest_market_data_date": "2025-07-15",
+            "latest_market_data_date": "2026-07-28",
+            "has_126d_history": True,
+            "has_252d_history": True,
+            "history_bootstrap_status": "complete",
+            "history_bootstrap_last_success_at": "2026-07-29T01:00:00+08:00",
+            "history_bootstrap_errors": [],
+        },
+        compact,
+        {"ready": True, "errors": []},
+    )
+
+    assert readiness["available_trading_days"] == 260
+    assert readiness["has_126d_history"] is True
+    assert readiness["has_252d_history"] is True
+    assert readiness["symbol_count"] == 1
+    assert readiness["symbol_index_ready"] is True
+    assert readiness["history_bootstrap_status"] == "complete"
 
 
 def test_chatgpt_source_outputs_do_not_contain_real_trade_advice_terms() -> None:

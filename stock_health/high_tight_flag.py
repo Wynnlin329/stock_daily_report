@@ -33,6 +33,7 @@ from .models import OhlcvRecord
 HTF_OUTPUT_FIELDS = [
     "prior_move_pct_20d",
     "prior_move_pct_60d",
+    "high_52w",
     "distance_to_52w_high_pct",
     "flag_duration_days",
     "flag_depth_pct",
@@ -41,10 +42,14 @@ HTF_OUTPUT_FIELDS = [
     "volume_contraction_ratio",
     "ma10_slope",
     "ma20_slope",
+    "ma50_slope",
     "distance_to_ma10_pct",
     "distance_to_ma20_pct",
+    "monthly_close",
+    "monthly_ma12",
     "monthly_above_ma12",
     "weekly_trend_state",
+    "long_term_ma_state",
     "daily_trigger_state",
     "htf_structure_score",
     "htf_structure_status",
@@ -78,10 +83,16 @@ def calculate_htf_structure(current: OhlcvRecord, history: list[OhlcvRecord]) ->
     ma20 = _moving_average(rows, 20)
     ma10_slope = _ma_slope(rows, 10, HTF_MA_SLOPE_LOOKBACK_DAYS)
     ma20_slope = _ma_slope(rows, 20, HTF_MA_SLOPE_LOOKBACK_DAYS)
+    ma50_slope = _ma_slope(rows, 50, HTF_MA_SLOPE_LOOKBACK_DAYS)
     distance_to_ma10_pct = _relative_pct(current.close, ma10)
     distance_to_ma20_pct = _relative_pct(current.close, ma20)
-    monthly_above_ma12 = _monthly_above_ma12(rows)
+    monthly_close, monthly_ma12, monthly_above_ma12 = _monthly_metrics(rows)
     weekly_trend_state = _weekly_trend_state(rows)
+    long_term_ma_state = _long_term_ma_state(
+        current.close,
+        _moving_average(rows, 50),
+        ma50_slope,
+    )
     daily_trigger_state = _daily_trigger_state(
         current,
         flag_peak_price,
@@ -91,6 +102,7 @@ def calculate_htf_structure(current: OhlcvRecord, history: list[OhlcvRecord]) ->
     values = {
         "prior_move_pct_20d": prior_move_pct_20d,
         "prior_move_pct_60d": prior_move_pct_60d,
+        "high_52w": high_52w,
         "distance_to_52w_high_pct": distance_to_52w_high_pct,
         "flag_duration_days": flag_duration_days,
         "flag_depth_pct": flag_depth_pct,
@@ -99,20 +111,26 @@ def calculate_htf_structure(current: OhlcvRecord, history: list[OhlcvRecord]) ->
         "volume_contraction_ratio": volume_contraction_ratio,
         "ma10_slope": ma10_slope,
         "ma20_slope": ma20_slope,
+        "ma50_slope": ma50_slope,
         "distance_to_ma10_pct": distance_to_ma10_pct,
         "distance_to_ma20_pct": distance_to_ma20_pct,
+        "monthly_close": monthly_close,
+        "monthly_ma12": monthly_ma12,
         "monthly_above_ma12": monthly_above_ma12,
         "weekly_trend_state": weekly_trend_state,
+        "long_term_ma_state": long_term_ma_state,
         "daily_trigger_state": daily_trigger_state,
     }
     required_days = {
         "prior_move_pct_20d": 20,
         "prior_move_pct_60d": 60,
+        "high_52w": HTF_52W_TRADING_DAYS,
         "distance_to_52w_high_pct": HTF_52W_TRADING_DAYS,
         "range_contraction_ratio": HTF_FLAG_MIN_DAYS,
         "volume_contraction_ratio": HTF_VOLUME_BASELINE_DAYS,
         "ma10_slope": 10 + HTF_MA_SLOPE_LOOKBACK_DAYS,
         "ma20_slope": 20 + HTF_MA_SLOPE_LOOKBACK_DAYS,
+        "ma50_slope": 50 + HTF_MA_SLOPE_LOOKBACK_DAYS,
         "distance_to_ma10_pct": 10,
         "distance_to_ma20_pct": 20,
     }
@@ -137,10 +155,17 @@ def calculate_htf_structure(current: OhlcvRecord, history: list[OhlcvRecord]) ->
                 missing_reason[field] = (
                     f"insufficient_flag_duration:{flag_duration_days or 0}/{HTF_FLAG_MIN_DAYS}"
                 )
-        elif field == "monthly_above_ma12":
+        elif field == "monthly_close":
+            missing_reason[field] = "insufficient_monthly_closes:requires_1"
+        elif field in {"monthly_ma12", "monthly_above_ma12"}:
             missing_reason[field] = f"insufficient_monthly_closes:requires_{HTF_MONTHLY_MA_MONTHS}"
         elif field == "weekly_trend_state":
             missing_reason[field] = f"insufficient_weekly_closes:requires_{HTF_WEEKLY_SLOW_MA_WEEKS}"
+        elif field == "long_term_ma_state":
+            missing_reason[field] = (
+                f"insufficient_valid_trading_days:"
+                f"{len(rows)}/{50 + HTF_MA_SLOPE_LOOKBACK_DAYS}"
+            )
         elif field == "daily_trigger_state":
             missing_reason[field] = "missing_flag_peak"
         elif field in required_days:
@@ -166,6 +191,7 @@ def calculate_htf_structure(current: OhlcvRecord, history: list[OhlcvRecord]) ->
             "min_higher_lows_ratio": HTF_MIN_HIGHER_LOWS_RATIO,
             "max_distance_to_52w_high_pct": HTF_MAX_DISTANCE_TO_52W_HIGH_PCT,
             "ma_slope_lookback_days": HTF_MA_SLOPE_LOOKBACK_DAYS,
+            "monthly_ma_months": HTF_MONTHLY_MA_MONTHS,
             "valid_score_min": HTF_VALID_SCORE_MIN,
             "score_weights": dict(HTF_STRUCTURE_SCORE_WEIGHTS),
             "informational_only": True,
@@ -275,12 +301,13 @@ def _ma_slope(rows: list[OhlcvRecord], window: int, lookback: int) -> float | No
     return _round((current / previous - 1) * 100)
 
 
-def _monthly_above_ma12(rows: list[OhlcvRecord]) -> bool | None:
+def _monthly_metrics(rows: list[OhlcvRecord]) -> tuple[float | None, float | None, bool | None]:
     closes = _period_closes(rows, "month")
+    monthly_close = closes[-1] if closes else None
     if len(closes) < HTF_MONTHLY_MA_MONTHS:
-        return None
+        return monthly_close, None, None
     ma12 = mean(closes[-HTF_MONTHLY_MA_MONTHS:])
-    return closes[-1] > ma12
+    return monthly_close, _round(ma12), monthly_close > ma12
 
 
 def _weekly_trend_state(rows: list[OhlcvRecord]) -> str | None:
@@ -300,6 +327,20 @@ def _weekly_trend_state(rows: list[OhlcvRecord]) -> str | None:
         return "uptrend"
     if closes[-1] < ma10 < ma20 and prior_ma10 is not None and ma10 < prior_ma10:
         return "downtrend"
+    return "neutral"
+
+
+def _long_term_ma_state(
+    close: float | None,
+    ma50: float | None,
+    ma50_slope: float | None,
+) -> str | None:
+    if close is None or ma50 is None or ma50_slope is None:
+        return None
+    if close > ma50 and ma50_slope > 0:
+        return "rising"
+    if close < ma50 and ma50_slope < 0:
+        return "falling"
     return "neutral"
 
 
@@ -422,8 +463,10 @@ def _structure_status(
         "volume_contraction_ratio",
         "ma10_slope",
         "ma20_slope",
+        "ma50_slope",
         "monthly_above_ma12",
         "weekly_trend_state",
+        "long_term_ma_state",
         "daily_trigger_state",
     }
     if any(field in missing_reason for field in critical_fields):

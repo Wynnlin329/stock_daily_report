@@ -17,8 +17,13 @@ def test_valid_prior_run_and_high_tight_contraction() -> None:
     assert result["higher_lows_count"] >= 10
     assert result["range_contraction_ratio"] < 0.8
     assert result["volume_contraction_ratio"] < 0.8
+    assert result["high_52w"] is not None
+    assert result["monthly_close"] is not None
+    assert result["monthly_ma12"] is not None
     assert result["monthly_above_ma12"] is True
     assert result["weekly_trend_state"] == "uptrend"
+    assert result["ma50_slope"] > 0
+    assert result["long_term_ma_state"] == "rising"
     assert result["daily_trigger_state"] == "near_trigger"
     assert result["htf_structure_score"] >= 75
     assert result["htf_structure_status"] == "valid_htf"
@@ -104,12 +109,42 @@ def test_insufficient_history_keeps_auditable_nulls() -> None:
     result = calculate_htf_structure(current, history)
 
     assert result["distance_to_52w_high_pct"] is None
+    assert result["high_52w"] is None
+    assert result["monthly_close"] is not None
+    assert result["monthly_ma12"] is None
     assert result["monthly_above_ma12"] is None
     assert result["weekly_trend_state"] is None
+    assert result["long_term_ma_state"] is None
     assert result["htf_structure_status"] == "insufficient_data"
     assert result["htf_missing_reason"]["distance_to_52w_high_pct"].startswith(
         "insufficient_valid_trading_days"
     )
+    assert (
+        result["htf_missing_reason"]["monthly_ma12"]
+        == "insufficient_monthly_closes:requires_12"
+    )
+
+
+def test_260_sessions_produce_monthly_ma12_and_52_week_high() -> None:
+    days = business_days(260)
+    rows = [
+        record(
+            day,
+            100.0 + index * 0.1,
+            101.0 + index * 0.1,
+            99.0 + index * 0.1,
+            1_000,
+        )
+        for index, day in enumerate(days)
+    ]
+
+    result = calculate_htf_structure(rows[-1], rows[:-1])
+
+    assert result["monthly_close"] == rows[-1].close
+    assert result["monthly_ma12"] is not None
+    assert result["monthly_above_ma12"] is True
+    assert result["high_52w"] == max(row.high for row in rows[-252:])
+    assert result["distance_to_52w_high_pct"] is not None
 
 
 def test_isolated_price_outlier_is_excluded_and_reported() -> None:

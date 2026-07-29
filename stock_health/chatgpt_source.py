@@ -1,12 +1,19 @@
 from __future__ import annotations
 
+import hashlib
 import json
 from collections import Counter, defaultdict
 from datetime import date
 from pathlib import Path
 from typing import Any
 
-from .config import SCHEMA_VERSION, TIMEZONE, github_raw_url
+from .config import (
+    SCHEMA_VERSION,
+    SYMBOL_INDEX_COMPACT_MAX_BYTES,
+    SYMBOL_INDEX_SHARD_SIZE,
+    TIMEZONE,
+    github_raw_url,
+)
 
 ACTIONABLE_SETUPS = {"breakout", "episodic_pivot", "anticipation"}
 TOP_WEEKLY_LIMIT = 50
@@ -45,6 +52,7 @@ SYMBOL_TECHNICAL_FIELDS = [
     "indicator_basis",
     "prior_move_pct_20d",
     "prior_move_pct_60d",
+    "high_52w",
     "distance_to_52w_high_pct",
     "flag_duration_days",
     "flag_depth_pct",
@@ -53,10 +61,14 @@ SYMBOL_TECHNICAL_FIELDS = [
     "volume_contraction_ratio",
     "ma10_slope",
     "ma20_slope",
+    "ma50_slope",
     "distance_to_ma10_pct",
     "distance_to_ma20_pct",
+    "monthly_close",
+    "monthly_ma12",
     "monthly_above_ma12",
     "weekly_trend_state",
+    "long_term_ma_state",
     "daily_trigger_state",
     "htf_structure_score",
     "htf_structure_status",
@@ -248,6 +260,10 @@ def build_symbol_index(report: dict[str, Any], symbol_payloads: dict[str, dict[s
             "technical_indicators_complete": bool(payload.get("data_quality", {}).get("technical_indicators_complete")),
             "enhanced_indicators_complete": bool(payload.get("data_quality", {}).get("enhanced_indicators_complete")),
             "htf_structure_complete": bool(payload.get("data_quality", {}).get("htf_structure_complete")),
+            "monthly_ready": payload.get("monthly_ma12") is not None,
+            "return_6m_ready": payload.get("return_6m") is not None,
+            "rs_6m_ready": payload.get("rs_rank_6m") is not None,
+            "composite_rs_ready": payload.get("composite_rs_rank") is not None,
             "episodic_pivot_complete": bool(
                 payload.get("data_quality", {}).get("episodic_pivot_complete")
             ),
@@ -266,6 +282,10 @@ def build_symbol_index(report: dict[str, Any], symbol_payloads: dict[str, dict[s
     complete_technical_count = sum(1 for item in symbols if item["technical_indicators_complete"])
     complete_enhanced_count = sum(1 for item in symbols if item["enhanced_indicators_complete"])
     complete_htf_count = sum(1 for item in symbols if item["htf_structure_complete"])
+    monthly_ready_count = sum(1 for item in symbols if item["monthly_ready"])
+    return_6m_ready_count = sum(1 for item in symbols if item["return_6m_ready"])
+    rs_6m_ready_count = sum(1 for item in symbols if item["rs_6m_ready"])
+    composite_rs_ready_count = sum(1 for item in symbols if item["composite_rs_ready"])
     complete_ep_count = sum(
         1 for item in symbols if item["episodic_pivot_complete"]
     )
@@ -290,6 +310,11 @@ def build_symbol_index(report: dict[str, Any], symbol_payloads: dict[str, dict[s
         "incomplete_enhanced_indicators_count": len(symbols) - complete_enhanced_count,
         "enhanced_indicator_coverage_pct": round(complete_enhanced_count / len(symbols) * 100, 4) if symbols else 0.0,
         "complete_htf_structure_count": complete_htf_count,
+        "monthly_ready_count": monthly_ready_count,
+        "return_6m_ready_count": return_6m_ready_count,
+        "rs_6m_ready_count": rs_6m_ready_count,
+        "composite_rs_ready_count": composite_rs_ready_count,
+        "htf_ready_count": complete_htf_count,
         "incomplete_htf_structure_count": len(symbols) - complete_htf_count,
         "htf_structure_coverage_pct": round(complete_htf_count / len(symbols) * 100, 4) if symbols else 0.0,
         "complete_episodic_pivot_count": complete_ep_count,
@@ -311,6 +336,165 @@ def build_symbol_index(report: dict[str, Any], symbol_payloads: dict[str, dict[s
         "incomplete_ohlcv_symbols": [item["symbol"] for item in symbols if not item["ohlcv_complete"]],
         "symbols": symbols,
     }
+
+
+def build_symbol_index_compact(
+    report: dict[str, Any],
+    symbol_index: dict[str, Any],
+) -> tuple[dict[str, Any], dict[str, dict[str, Any]]]:
+    compact_symbols = [
+        {
+            "symbol": item.get("symbol"),
+            "market": item.get("market"),
+            "path": item.get("path"),
+        }
+        for item in symbol_index.get("symbols", [])
+    ]
+    full_index_bytes = _json_bytes(symbol_index)
+    base = {
+        "schema_version": SYMBOL_SCHEMA_VERSION,
+        "report_date": report.get("report_date"),
+        "as_of_date": report.get("as_of_date"),
+        "market_data_date": report.get("market_data_date"),
+        "generated_at": report.get("generated_at"),
+        "timezone": TIMEZONE,
+        "symbol_count": len(compact_symbols),
+        "complete_ohlcv_count": symbol_index.get("complete_ohlcv_count", 0),
+        "monthly_ready_count": symbol_index.get("monthly_ready_count", 0),
+        "return_6m_ready_count": symbol_index.get("return_6m_ready_count", 0),
+        "rs_6m_ready_count": symbol_index.get("rs_6m_ready_count", 0),
+        "composite_rs_ready_count": symbol_index.get("composite_rs_ready_count", 0),
+        "htf_ready_count": symbol_index.get("htf_ready_count", 0),
+        "full_index": {
+            "path": "data/chatgpt/symbol-index.json",
+            "blob_sha": _git_blob_sha(full_index_bytes),
+            "byte_size": len(full_index_bytes),
+        },
+    }
+    inline = {**base, "sharded": False, "symbols": compact_symbols}
+    if len(_json_bytes(inline)) <= SYMBOL_INDEX_COMPACT_MAX_BYTES:
+        return inline, {}
+
+    shards: dict[str, dict[str, Any]] = {}
+    shard_refs: list[dict[str, Any]] = []
+    for offset in range(0, len(compact_symbols), SYMBOL_INDEX_SHARD_SIZE):
+        shard_symbols = compact_symbols[offset : offset + SYMBOL_INDEX_SHARD_SIZE]
+        shard_number = offset // SYMBOL_INDEX_SHARD_SIZE + 1
+        path = f"data/chatgpt/symbol-index-shards/part-{shard_number:03d}.json"
+        payload = {
+            "schema_version": SYMBOL_SCHEMA_VERSION,
+            "report_date": report.get("report_date"),
+            "as_of_date": report.get("as_of_date"),
+            "market_data_date": report.get("market_data_date"),
+            "generated_at": report.get("generated_at"),
+            "symbol_count": len(shard_symbols),
+            "symbols": shard_symbols,
+        }
+        shard_bytes = _json_bytes(payload)
+        shards[path] = payload
+        shard_refs.append(
+            {
+                "path": path,
+                "symbol_count": len(shard_symbols),
+                "blob_sha": _git_blob_sha(shard_bytes),
+                "byte_size": len(shard_bytes),
+            }
+        )
+    return {**base, "sharded": True, "shards": shard_refs}, shards
+
+
+def validate_symbol_artifacts(
+    root: Path,
+    symbol_index: dict[str, Any],
+    compact_index: dict[str, Any],
+    shards: dict[str, dict[str, Any]] | None = None,
+) -> dict[str, Any]:
+    errors: list[str] = []
+    symbol_count = int(symbol_index.get("symbol_count") or 0)
+    if compact_index.get("symbol_count") != symbol_count:
+        errors.append("compact_symbol_count_mismatch")
+    full_reference = compact_index.get("full_index") or {}
+    full_path = root / str(
+        full_reference.get("path") or "data/chatgpt/symbol-index.json"
+    )
+    try:
+        full_bytes = full_path.read_bytes()
+    except OSError:
+        errors.append("missing_full_symbol_index")
+    else:
+        if not full_bytes:
+            errors.append("empty_full_symbol_index")
+        if full_reference.get("byte_size") != len(full_bytes):
+            errors.append("full_symbol_index_size_mismatch")
+        if full_reference.get("blob_sha") != _git_blob_sha(full_bytes):
+            errors.append("full_symbol_index_blob_sha_mismatch")
+    compact_entries: list[dict[str, Any]] = []
+    if compact_index.get("sharded"):
+        for reference in compact_index.get("shards", []):
+            path = str(reference.get("path") or "")
+            payload = (shards or {}).get(path)
+            if payload is None:
+                artifact_path = root / path
+                try:
+                    payload = json.loads(artifact_path.read_text(encoding="utf-8"))
+                except (OSError, json.JSONDecodeError):
+                    errors.append(f"invalid_or_missing_shard:{path}")
+                    continue
+            compact_entries.extend(payload.get("symbols", []))
+    else:
+        compact_entries = list(compact_index.get("symbols", []))
+    if len(compact_entries) != symbol_count:
+        errors.append("compact_entry_count_mismatch")
+    for item in compact_entries:
+        path = root / str(item.get("path") or "")
+        if not path.is_file() or path.stat().st_size <= 0:
+            errors.append(f"missing_or_empty_symbol_path:{item.get('symbol')}")
+            continue
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            errors.append(f"invalid_symbol_json:{item.get('symbol')}")
+            continue
+        if payload.get("symbol") != item.get("symbol"):
+            errors.append(f"symbol_payload_mismatch:{item.get('symbol')}")
+        if payload.get("market_data_date") != compact_index.get(
+            "market_data_date"
+        ):
+            errors.append(f"symbol_market_data_date_mismatch:{item.get('symbol')}")
+    expected_dates = {
+        symbol_index.get("report_date"),
+        compact_index.get("report_date"),
+    }
+    if len(expected_dates) != 1:
+        errors.append("index_report_date_mismatch")
+    return {
+        "ready": not errors and symbol_count > 0,
+        "symbol_count": symbol_count,
+        "validated_symbol_paths": len(compact_entries) - sum(
+            1
+            for error in errors
+            if error.startswith(
+                (
+                    "missing_or_empty_symbol_path:",
+                    "invalid_symbol_json:",
+                    "symbol_payload_mismatch:",
+                    "symbol_market_data_date_mismatch:",
+                )
+            )
+        ),
+        "errors": errors,
+    }
+
+
+def _json_bytes(payload: dict[str, Any]) -> bytes:
+    return (
+        json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=False) + "\n"
+    ).encode("utf-8")
+
+
+def _git_blob_sha(content: bytes) -> str:
+    header = f"blob {len(content)}\0".encode("ascii")
+    return hashlib.sha1(header + content).hexdigest()
 
 
 def build_paper_trading_decision_gate(report: dict[str, Any], screening_summary: dict[str, Any]) -> dict[str, Any]:
@@ -596,7 +780,16 @@ def build_schedule_readiness(
     daily_compact: dict[str, Any],
     weekly_compact: dict[str, Any],
     shadow_history_index: dict[str, Any] | None = None,
+    history_index: dict[str, Any] | None = None,
+    compact_symbol_index: dict[str, Any] | None = None,
+    symbol_artifact_validation: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
+    legacy_symbol_validation = (
+        compact_symbol_index is None and symbol_artifact_validation is None
+    )
+    history_index = history_index or {}
+    compact_symbol_index = compact_symbol_index or {}
+    symbol_artifact_validation = symbol_artifact_validation or {}
     scan_readiness = report.get("scan_readiness", {})
     freshness = report.get("data_freshness", {})
     daily_compact_size = _json_size_bytes(daily_compact)
@@ -606,7 +799,17 @@ def build_schedule_readiness(
         "technical_scan_ready": bool(scan_readiness.get("can_run_technical_scan")),
         "qullamaggie_scan_ready": bool(scan_readiness.get("can_run_qullamaggie_scan")),
         "daily_compact_source_ready": bool(daily_compact.get("top_candidates") is not None and daily_compact_size < COMPACT_SIZE_LIMIT_BYTES),
-        "symbol_index_ready": bool(symbol_index.get("symbol_count", 0) > 0),
+        "symbol_index_ready": bool(
+            symbol_index.get("symbol_count", 0) > 0
+            and (
+                legacy_symbol_validation
+                or compact_symbol_index.get("symbol_count")
+                == symbol_index.get("symbol_count")
+                and symbol_artifact_validation.get("ready")
+            )
+        ),
+        "history_126d_ready": bool(history_index.get("has_126d_history")),
+        "history_252d_ready": bool(history_index.get("has_252d_history")),
         "symbol_ohlcv_complete": bool(symbol_index.get("symbol_count", 0) > 0 and symbol_index.get("incomplete_ohlcv_count") == 0),
         "screening_history_5d_ready": bool(screening_history_index.get("has_5d_history")),
         "weekly_compact_source_ready": bool(weekly_compact.get("week_data_status") is not None and weekly_compact_size < COMPACT_SIZE_LIMIT_BYTES),
@@ -676,6 +879,15 @@ def build_schedule_readiness(
         warnings.append("MOPS 催化延續性停用或不足；僅可列為人工複核素材。")
     if symbol_index.get("incomplete_ohlcv_symbols"):
         warnings.append("部分 symbol 技術檔 OHLCV 不完整。")
+    if not checks["history_252d_ready"]:
+        warnings.append(
+            "歷史行情未滿 252 個有效交易日；月線、6M、52W 與 HTF 長期欄位不得宣稱完整。"
+        )
+    if symbol_artifact_validation.get("errors"):
+        warnings.append(
+            "ChatGPT symbol index 或逐股檔驗證失敗："
+            + ", ".join(symbol_artifact_validation["errors"][:10])
+        )
     if not checks["enhanced_technical_indicators_complete"]:
         warnings.append("部分波動或多期間相對強度指標資料不足；新指標僅供研究，不影響正式 v1 分級與排程 gate。")
     if not checks["htf_structure_complete"]:
@@ -695,12 +907,45 @@ def build_schedule_readiness(
         "latest_market_data_date": report.get("latest_market_data_date"),
         "generated_at": report.get("generated_at"),
         "timezone": TIMEZONE,
+        "available_trading_days": history_index.get(
+            "available_trading_days",
+            history_index.get("available_common_trading_days", 0),
+        ),
+        "earliest_market_data_date": history_index.get(
+            "earliest_market_data_date"
+        ),
+        "latest_market_data_date": history_index.get(
+            "latest_market_data_date"
+        )
+        or report.get("latest_market_data_date"),
+        "has_126d_history": bool(history_index.get("has_126d_history")),
+        "has_252d_history": bool(history_index.get("has_252d_history")),
+        "monthly_ready_count": symbol_index.get("monthly_ready_count", 0),
+        "return_6m_ready_count": symbol_index.get("return_6m_ready_count", 0),
+        "rs_6m_ready_count": symbol_index.get("rs_6m_ready_count", 0),
+        "composite_rs_ready_count": symbol_index.get(
+            "composite_rs_ready_count", 0
+        ),
+        "htf_ready_count": symbol_index.get("htf_ready_count", 0),
+        "symbol_count": symbol_index.get("symbol_count", 0),
+        "symbol_index_ready": checks["symbol_index_ready"],
+        "history_bootstrap_status": history_index.get(
+            "history_bootstrap_status", "not_run"
+        ),
+        "history_bootstrap_last_success_at": history_index.get(
+            "history_bootstrap_last_success_at"
+        ),
+        "history_bootstrap_errors": history_index.get(
+            "history_bootstrap_errors", []
+        ),
         "checks": checks,
         "non_blocking_checks": [
             "enhanced_technical_indicators_complete",
             "htf_structure_complete",
             "episodic_pivot_data_complete",
             "grading_v2_shadow_20d_ready",
+            "history_126d_ready",
+            "history_252d_ready",
         ],
         "enhanced_indicator_completeness": {
             "complete_symbols": symbol_index.get("complete_enhanced_indicators_count", 0),
@@ -766,6 +1011,9 @@ def build_schedule_readiness(
             "daily_compact": github_raw_url("data/chatgpt/daily-qullamaggie-source-compact.json"),
             "weekly_compact": github_raw_url("data/chatgpt/weekly-qullamaggie-source-compact.json"),
             "symbol_index": github_raw_url("data/chatgpt/symbol-index.json"),
+            "symbol_index_compact": github_raw_url(
+                "data/chatgpt/symbol-index-compact.json"
+            ),
             "screening_history_index": github_raw_url("data/screening/history-index.json"),
             "grading_policy_v1": github_raw_url(
                 "data/chatgpt/qullamaggie-grading-policy-v1.json"
@@ -965,6 +1213,7 @@ def _source_urls(artifact_urls: dict[str, str]) -> dict[str, str]:
         "chatgpt_weekly_qullamaggie_source",
         "chatgpt_weekly_qullamaggie_compact",
         "chatgpt_symbol_index",
+        "chatgpt_symbol_index_compact",
         "chatgpt_schedule_readiness",
         "grading_policy_v1",
         "grading_policy_v2_shadow",
@@ -1139,6 +1388,7 @@ def _compact_candidate(candidate: dict[str, Any]) -> dict[str, Any]:
         "missing_reason": candidate.get("missing_reason", {}),
         "prior_move_pct_20d": candidate.get("prior_move_pct_20d"),
         "prior_move_pct_60d": candidate.get("prior_move_pct_60d"),
+        "high_52w": candidate.get("high_52w"),
         "distance_to_52w_high_pct": candidate.get("distance_to_52w_high_pct"),
         "flag_duration_days": candidate.get("flag_duration_days"),
         "flag_depth_pct": candidate.get("flag_depth_pct"),
@@ -1147,10 +1397,14 @@ def _compact_candidate(candidate: dict[str, Any]) -> dict[str, Any]:
         "volume_contraction_ratio": candidate.get("volume_contraction_ratio"),
         "ma10_slope": candidate.get("ma10_slope"),
         "ma20_slope": candidate.get("ma20_slope"),
+        "ma50_slope": candidate.get("ma50_slope"),
         "distance_to_ma10_pct": candidate.get("distance_to_ma10_pct"),
         "distance_to_ma20_pct": candidate.get("distance_to_ma20_pct"),
+        "monthly_close": candidate.get("monthly_close"),
+        "monthly_ma12": candidate.get("monthly_ma12"),
         "monthly_above_ma12": candidate.get("monthly_above_ma12"),
         "weekly_trend_state": candidate.get("weekly_trend_state"),
+        "long_term_ma_state": candidate.get("long_term_ma_state"),
         "daily_trigger_state": candidate.get("daily_trigger_state"),
         "htf_structure_score": candidate.get("htf_structure_score"),
         "htf_structure_status": candidate.get("htf_structure_status"),

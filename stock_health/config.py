@@ -9,6 +9,11 @@ HTTP_TIMEOUT_SECONDS = 12
 HTTP_RETRIES = 2
 HTTP_BACKOFF_SECONDS = 1.5
 SCREENING_MAX_CANDIDATES = 50
+HISTORY_TARGET_TRADING_DAYS = 260
+HISTORY_MINIMUM_READY_TRADING_DAYS = 252
+HISTORY_MAX_CALENDAR_DAYS = 420
+SYMBOL_INDEX_COMPACT_MAX_BYTES = 524_288
+SYMBOL_INDEX_SHARD_SIZE = 500
 GITHUB_OWNER = "Wynnlin329"
 GITHUB_REPO = "stock_daily_report"
 GITHUB_RAW_BRANCH = "codex/stock-health-v1"
@@ -156,11 +161,9 @@ def tpex_index_url(target_date: date) -> str:
 
 
 def tpex_daily_url(target_date: date) -> str:
-    roc_year = target_date.year - 1911
-    roc_date = f"{roc_year}/{target_date:%m/%d}"
     return (
-        "https://www.tpex.org.tw/web/stock/aftertrading/daily_close_quotes/"
-        f"stk_quote_result.php?l=zh-tw&d={roc_date}&o=json"
+        "https://www.tpex.org.tw/www/zh-tw/afterTrading/dailyQuotes"
+        f"?date={target_date:%Y/%m/%d}&id=&response=json"
     )
 
 

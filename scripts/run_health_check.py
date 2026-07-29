@@ -9,7 +9,12 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from stock_health.config import SCHEMA_VERSION, TIMEZONE, github_raw_url
+from stock_health.config import (
+    HISTORY_TARGET_TRADING_DAYS,
+    SCHEMA_VERSION,
+    TIMEZONE,
+    github_raw_url,
+)
 from stock_health.coverage import build_coverage
 from stock_health.chatgpt_source import (
     attach_screening_as_of_metadata,
@@ -19,6 +24,7 @@ from stock_health.chatgpt_source import (
     build_schedule_readiness,
     build_screening_history_index,
     build_symbol_index,
+    build_symbol_index_compact,
     build_symbol_technical_payloads,
     build_weekly_qullamaggie_compact,
     build_weekly_qullamaggie_markdown,
@@ -26,6 +32,7 @@ from stock_health.chatgpt_source import (
     load_recent_screening_summaries,
     screening_history_path,
     screening_history_index_path,
+    validate_symbol_artifacts,
 )
 from stock_health.data_fetcher import (
     fetch_tpex_institutional_trading,
@@ -132,13 +139,18 @@ def main() -> int:
     mops_summary["market_data_date"] = f"{market_data_date:%Y-%m-%d}"
     write_mops_event_outputs(root, market_data_date, mops_summary, mops_events.rows)
 
-    history_rows = load_history_rows(root)
+    history_rows = load_history_rows(root, scan_eligible_only=True)
     index_history_rows = load_index_history_rows(root)
     benchmark_history = benchmark_history_from_index_rows(index_history_rows)
     institutional_history_rows = load_institutional_history_rows(root)
     margin_short_history_rows = load_margin_short_history_rows(root)
     mops_event_history_payloads = load_mops_event_history_payloads(root)
-    history_index = rebuild_history_index_from_files(root, generated_at, 60)
+    history_index = rebuild_history_index_from_files(
+        root,
+        generated_at,
+        HISTORY_TARGET_TRADING_DAYS,
+        coverage_output_path=root / "data" / "history-coverage.json",
+    )
     write_json(root / "data" / "history-index.json", history_index)
     has_20d_history = bool(history_index.get("has_20d_history"))
     has_60d_history = bool(history_index.get("has_60d_history"))
@@ -222,6 +234,9 @@ def main() -> int:
         "chatgpt_weekly_qullamaggie_source": github_raw_url("data/chatgpt/weekly-qullamaggie-source.json"),
         "chatgpt_weekly_qullamaggie_compact": github_raw_url("data/chatgpt/weekly-qullamaggie-source-compact.json"),
         "chatgpt_symbol_index": github_raw_url("data/chatgpt/symbol-index.json"),
+        "chatgpt_symbol_index_compact": github_raw_url(
+            "data/chatgpt/symbol-index-compact.json"
+        ),
         "chatgpt_schedule_readiness": github_raw_url("data/chatgpt/schedule-readiness.json"),
         "grading_policy_v1": github_raw_url("data/chatgpt/qullamaggie-grading-policy-v1.json"),
         "grading_policy_v2_shadow": github_raw_url("data/chatgpt/qullamaggie-grading-policy-v2.json"),
@@ -325,6 +340,10 @@ def main() -> int:
         history_index,
     )
     symbol_index = build_symbol_index(report, symbol_payloads)
+    symbol_index_compact, symbol_index_shards = build_symbol_index_compact(
+        report,
+        symbol_index,
+    )
     daily_chatgpt_source_compact = build_daily_qullamaggie_compact(daily_chatgpt_source)
 
     write_json(root / "latest.json", report)
@@ -342,7 +361,19 @@ def main() -> int:
         shadow_history_path(root, f"{market_data_date:%Y-%m-%d}"),
         shadow_report,
     )
-    write_chatgpt_symbol_outputs(root, symbol_payloads, symbol_index)
+    write_chatgpt_symbol_outputs(
+        root,
+        symbol_payloads,
+        symbol_index,
+        symbol_index_compact,
+        symbol_index_shards,
+    )
+    symbol_artifact_validation = validate_symbol_artifacts(
+        root,
+        symbol_index,
+        symbol_index_compact,
+        symbol_index_shards,
+    )
     write_text(root / "reports" / "latest-market-scan.md", market_scan_md)
     write_text(root / "reports" / "chatgpt-daily-qullamaggie-source.md", build_daily_qullamaggie_markdown(daily_chatgpt_source))
     history_json, history_md = history_report_paths(root, report_date)
@@ -365,6 +396,9 @@ def main() -> int:
         daily_chatgpt_source_compact,
         weekly_chatgpt_source_compact,
         shadow_history_index,
+        history_index,
+        symbol_index_compact,
+        symbol_artifact_validation,
     )
     write_json(root / "data" / "chatgpt" / "weekly-qullamaggie-source.json", weekly_chatgpt_source)
     write_json(root / "data" / "chatgpt" / "weekly-qullamaggie-source-compact.json", weekly_chatgpt_source_compact)

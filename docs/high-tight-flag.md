@@ -24,6 +24,7 @@
 - `prior_move_pct_60d`：相同公式，窗口為 60 日。
 - 明顯前段漲幅門檻為 20 日或 60 日任一值至少 50%。
 - `distance_to_52w_high_pct=(current_close/最近252日最高high-1)*100`；高點下方為負值。
+- `high_52w`：最近 252 個有效交易日的最高價；不足時為 `null`。
 - 距 52 週高點超過 15% 不取得 high proximity 分數。
 
 ## 收斂、量縮與均線
@@ -36,7 +37,13 @@
 
 ## 多時間框架
 
-- `monthly_above_ma12`：以每月最後一個有效收盤建立月線；至少 12 個月份後，判斷最新月收盤是否高於 MA12。
+- `monthly_close`：每個曆月最後一個有效交易日收盤所形成序列的最新值。
+- `monthly_ma12`：最近 12 個有效月收盤的簡單平均。
+- `monthly_above_ma12`：至少 12 個有效月份後，判斷最新月收盤是否高於 MA12。
+  不足時保持 `null`，reason code 為 `insufficient_monthly_closes:requires_12`。
+- `ma50_slope`：50 日均線相對固定 lookback 的百分比斜率。
+- `long_term_ma_state`：依收盤相對 MA50 與 `ma50_slope` 分為
+  `rising`、`neutral`、`falling`；僅供結構稽核，不改動正式 v1。
 - `weekly_trend_state`：以每個 ISO week 最後一個有效收盤建立週線。
 - `uptrend`：週收盤高於 MA10、MA10 高於 MA20，且 MA10 高於四週前的 MA10。
 - `downtrend`：上述條件反向；其他為 `neutral`；不足 20 週為 `null`。

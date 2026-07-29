@@ -62,13 +62,16 @@ https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-heal
 ## Symbol Source
 
 ```text
-https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbol-index.json
+https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbol-index-compact.json
 https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/{symbol}.json
 ```
 
-`data/chatgpt/symbol-index.json` 列出所有已產生逐檔資料的 `scan_eligible=true` 普通股。查詢單一股票時，先用 index 確認代號存在，再讀取 `data/chatgpt/symbols/{symbol}.json`。
+`data/chatgpt/symbol-index-compact.json` 是每日優先讀取入口，只列出 symbol、
+market 與逐股 path，並保存完整 index 的 Git blob SHA 與 byte size。完整
+`data/chatgpt/symbol-index.json` 繼續保留給既有 consumer 與稽核。查詢單一股票時，
+先用 compact index 確認代號存在，再讀取 `data/chatgpt/symbols/{symbol}.json`。
 
-v2 影子比較欄位加入後，symbol JSON 與 symbol index 的 schema version 為 `1.4`。
+symbol JSON、完整 symbol index 與 compact index 的 schema version 為 `1.5`。
 
 每個 symbol JSON 至少包含：
 
@@ -104,6 +107,7 @@ v2 影子比較欄位加入後，symbol JSON 與 symbol index 的 schema version
 - `prior_move_pct_20d`
 - `prior_move_pct_60d`
 - `distance_to_52w_high_pct`
+- `high_52w`
 - `flag_duration_days`
 - `flag_depth_pct`
 - `higher_lows_count`
@@ -114,6 +118,10 @@ v2 影子比較欄位加入後，symbol JSON 與 symbol index 的 schema version
 - `distance_to_ma10_pct`
 - `distance_to_ma20_pct`
 - `monthly_above_ma12`
+- `monthly_close`
+- `monthly_ma12`
+- `ma50_slope`
+- `long_term_ma_state`
 - `weekly_trend_state`
 - `daily_trigger_state`
 - `htf_structure_score`

@@ -73,6 +73,25 @@ def test_missing_history_outputs_null_and_reason() -> None:
     assert metrics["missing_reason"]["return_6m"] == "insufficient_valid_trading_days:5/127"
 
 
+def test_92_sessions_keep_six_month_return_null() -> None:
+    history = valid_history(91)
+    current = make_record(date(2025, 5, 1))
+
+    metrics = calculate_enhanced_technical_metrics(
+        current,
+        history,
+        stop_reference=90.0,
+    )
+
+    assert metrics["return_1m"] is not None
+    assert metrics["return_3m"] is not None
+    assert metrics["return_6m"] is None
+    assert (
+        metrics["missing_reason"]["return_6m"]
+        == "insufficient_valid_trading_days:92/127"
+    )
+
+
 def test_suspended_current_row_does_not_reuse_stale_history() -> None:
     current = make_record(date(2025, 2, 1), volume=0)
 
@@ -174,6 +193,7 @@ def test_enhanced_fields_do_not_change_legacy_qullamaggie_score() -> None:
             "indicator_basis",
             "prior_move_pct_20d",
             "prior_move_pct_60d",
+            "high_52w",
             "distance_to_52w_high_pct",
             "flag_duration_days",
             "flag_depth_pct",
@@ -182,10 +202,14 @@ def test_enhanced_fields_do_not_change_legacy_qullamaggie_score() -> None:
             "volume_contraction_ratio",
             "ma10_slope",
             "ma20_slope",
+            "ma50_slope",
             "distance_to_ma10_pct",
             "distance_to_ma20_pct",
+            "monthly_close",
+            "monthly_ma12",
             "monthly_above_ma12",
             "weekly_trend_state",
+            "long_term_ma_state",
             "daily_trigger_state",
             "htf_structure_score",
             "htf_structure_status",

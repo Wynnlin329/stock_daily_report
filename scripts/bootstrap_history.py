@@ -23,21 +23,65 @@ from stock_health.data_fetcher import (
     fetch_twse_listed_ohlcv,
     fetch_twse_margin_short,
     mops_events_payload,
+    records_to_csv_text,
 )
-from stock_health.history_store import ensure_dirs, load_mops_event_history_payloads, mops_event_history_paths, rebuild_history_index_from_files, write_index_outputs, write_json, write_institutional_outputs, write_margin_short_outputs, write_mops_event_outputs, write_ohlcv_outputs
-from stock_health.trading_calendar import ensure_taipei, is_trading_day, iter_recent_calendar_days
+from stock_health.config import (
+    HISTORY_MAX_CALENDAR_DAYS,
+    HISTORY_TARGET_TRADING_DAYS,
+)
+from stock_health.history_store import (
+    build_symbol_history_coverage,
+    ensure_dirs,
+    load_mops_event_history_payloads,
+    load_ohlcv_history_day,
+    mops_event_history_paths,
+    rebuild_history_index_from_files,
+    upsert_ohlcv_records,
+    write_index_outputs,
+    write_institutional_outputs,
+    write_json,
+    write_margin_short_outputs,
+    write_mops_event_outputs,
+    write_ohlcv_history_outputs,
+    write_text,
+)
+from stock_health.trading_calendar import (
+    ensure_taipei,
+    expected_market_data_date,
+    is_trading_day,
+    iter_recent_calendar_days,
+)
 
 LOGGER = logging.getLogger("stock_health.bootstrap_history")
 
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Bootstrap recent Taiwan stock OHLCV history.")
-    parser.add_argument("--trading-days", type=int, default=260)
-    parser.add_argument("--max-calendar-days", type=int, default=420)
-    parser.add_argument("--include-institutional", action="store_true", default=True)
-    parser.add_argument("--include-margin-short", action="store_true", default=True)
+    parser.add_argument(
+        "--trading-days",
+        type=int,
+        default=HISTORY_TARGET_TRADING_DAYS,
+    )
+    parser.add_argument(
+        "--max-calendar-days",
+        type=int,
+        default=HISTORY_MAX_CALENDAR_DAYS,
+    )
+    parser.add_argument(
+        "--include-institutional",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+    )
+    parser.add_argument(
+        "--include-margin-short",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+    )
     parser.add_argument("--mops-calendar-days", type=int, default=90)
     parser.add_argument("--include-mops-backfill", action="store_true", default=False)
+    parser.add_argument("--skip-mops", action="store_true", default=False)
+    parser.add_argument("--skip-index", action="store_true", default=False)
+    parser.add_argument("--require-complete", action="store_true", default=False)
     parser.add_argument("--mops-max-dates-per-run", type=int, default=5)
     parser.add_argument("--sleep-seconds", type=float, default=0.5)
     parser.add_argument("--root", default=".")
@@ -50,8 +94,23 @@ def main() -> int:
     root = Path(args.root).resolve()
     ensure_dirs(root)
     now = ensure_taipei()
-    listed_days: list[str] = []
-    otc_days: list[str] = []
+    latest_complete_market_date = expected_market_data_date(now)
+    initial_index = rebuild_history_index_from_files(
+        root,
+        now.isoformat(timespec="seconds"),
+        args.trading_days,
+        include_symbol_coverage=False,
+    )
+    before_days = int(initial_index.get("available_trading_days") or 0)
+    before_coverage = build_symbol_history_coverage(root, args.trading_days)
+    common_days = set(initial_index.get("common_ohlcv_days") or [])
+    previous_status = _load_bootstrap_status(root)
+    confirmed_non_trading_dates = set(
+        previous_status.get("confirmed_non_trading_dates") or []
+    )
+    attempted_dates: list[str] = []
+    completed_dates: list[str] = []
+    failed_dates: list[dict[str, object]] = []
     listed_institutional_days: list[str] = []
     otc_institutional_days: list[str] = []
     listed_margin_short_days: list[str] = []
@@ -60,25 +119,49 @@ def main() -> int:
     errors: list[str] = []
     consecutive_network_failures = 0
 
-    for target_date in iter_recent_calendar_days(now.date(), args.max_calendar_days):
+    for target_date in iter_recent_calendar_days(
+        latest_complete_market_date,
+        args.max_calendar_days,
+    ):
         if not is_trading_day(target_date):
             continue
-        if len(set(listed_days) & set(otc_days)) >= args.trading_days:
+        if len(common_days) >= args.trading_days:
             break
+        day = f"{target_date:%Y-%m-%d}"
+        if day in common_days or day in confirmed_non_trading_dates:
+            continue
         LOGGER.info("Fetching %s", target_date)
-        listed = fetch_twse_listed_ohlcv(target_date)
-        otc = fetch_tpex_otc_ohlcv(target_date)
-        taiex_index = fetch_twse_taiex_index(target_date)
-        tpex_index = fetch_tpex_index(target_date)
+        attempted_dates.append(day)
+        existing_listed, existing_otc = load_ohlcv_history_day(
+            root,
+            target_date,
+        )
+        listed = (
+            fetch_twse_listed_ohlcv(target_date)
+            if not existing_listed
+            else None
+        )
+        otc = (
+            fetch_tpex_otc_ohlcv(target_date)
+            if not existing_otc
+            else None
+        )
+        listed_rows = upsert_ohlcv_records(
+            existing_listed,
+            listed.rows if listed else [],
+        )
+        otc_rows = upsert_ohlcv_records(
+            existing_otc,
+            otc.rows if otc else [],
+        )
+        taiex_index = (
+            fetch_twse_taiex_index(target_date) if not args.skip_index else None
+        )
+        tpex_index = fetch_tpex_index(target_date) if not args.skip_index else None
         listed_institutional = fetch_twse_institutional_trading(target_date) if args.include_institutional else None
         otc_institutional = fetch_tpex_institutional_trading(target_date) if args.include_institutional else None
         listed_margin_short = fetch_twse_margin_short(target_date) if args.include_margin_short else None
         otc_margin_short = fetch_tpex_margin_short(target_date) if args.include_margin_short else None
-        day = f"{target_date:%Y-%m-%d}"
-        if listed.rows:
-            listed_days.append(day)
-        if otc.rows:
-            otc_days.append(day)
         if listed_institutional and listed_institutional.rows:
             listed_institutional_days.append(day)
         if otc_institutional and otc_institutional.rows:
@@ -87,31 +170,71 @@ def main() -> int:
             listed_margin_short_days.append(day)
         if otc_margin_short and otc_margin_short.rows:
             otc_margin_short_days.append(day)
-        if listed.rows or otc.rows:
-            write_ohlcv_outputs(root, target_date, listed.rows, otc.rows)
+        if listed_rows and otc_rows:
+            write_ohlcv_history_outputs(
+                root,
+                target_date,
+                listed_rows,
+                otc_rows,
+            )
+            common_days.add(day)
+            completed_dates.append(day)
             consecutive_network_failures = 0
         else:
-            day_errors = [f"{day} listed: {err}" for err in listed.errors] + [f"{day} otc: {err}" for err in otc.errors]
-            errors.extend(day_errors or [f"{day}: no OHLCV rows parsed"])
+            day_errors = (
+                [f"{day} listed: {err}" for err in (listed.errors if listed else [])]
+                + [f"{day} otc: {err}" for err in (otc.errors if otc else [])]
+            )
+            status_values = {
+                getattr(listed, "status", None),
+                getattr(otc, "status", None),
+            }
+            if status_values <= {None, "non_trading_day", "empty_but_valid"}:
+                LOGGER.info("Skipping non-trading date %s", day)
+                confirmed_non_trading_dates.add(day)
+            else:
+                errors.extend(day_errors or [f"{day}: no OHLCV rows parsed"])
+                failed_dates.append(
+                    {
+                        "date": day,
+                        "listed_rows": len(listed_rows),
+                        "otc_rows": len(otc_rows),
+                        "errors": day_errors or ["no OHLCV rows parsed"],
+                    }
+                )
             if _looks_like_network_unavailable(day_errors):
                 consecutive_network_failures += 1
+            else:
+                consecutive_network_failures = 0
             if consecutive_network_failures >= 5:
                 errors.append("連續 5 個交易日皆疑似無法連外，停止 bootstrap 以避免無效重試")
                 break
-        if taiex_index.rows or tpex_index.rows:
+        if taiex_index and tpex_index and (taiex_index.rows or tpex_index.rows):
             write_index_outputs(root, target_date, taiex_index.rows, tpex_index.rows)
-        else:
+        elif taiex_index and tpex_index:
             errors.extend([f"{day} taiex index: {err}" for err in taiex_index.errors])
             errors.extend([f"{day} tpex index: {err}" for err in tpex_index.errors])
         if args.include_institutional and listed_institutional and otc_institutional:
             if listed_institutional.rows or otc_institutional.rows:
-                write_institutional_outputs(root, target_date, listed_institutional.rows, otc_institutional.rows)
+                write_institutional_outputs(
+                    root,
+                    target_date,
+                    listed_institutional.rows,
+                    otc_institutional.rows,
+                    update_latest=False,
+                )
             else:
                 errors.extend([f"{day} listed institutional: {err}" for err in listed_institutional.errors])
                 errors.extend([f"{day} otc institutional: {err}" for err in otc_institutional.errors])
         if args.include_margin_short and listed_margin_short and otc_margin_short:
             if listed_margin_short.rows or otc_margin_short.rows:
-                write_margin_short_outputs(root, target_date, listed_margin_short.rows, otc_margin_short.rows)
+                write_margin_short_outputs(
+                    root,
+                    target_date,
+                    listed_margin_short.rows,
+                    otc_margin_short.rows,
+                    update_latest=False,
+                )
             else:
                 errors.extend([f"{day} listed margin_short: {err}" for err in listed_margin_short.errors])
                 errors.extend([f"{day} otc margin_short: {err}" for err in otc_margin_short.errors])
@@ -119,7 +242,7 @@ def main() -> int:
             time.sleep(args.sleep_seconds)
 
     mops_backfill_mode = "manual_backfill" if args.include_mops_backfill else "forward_accumulation"
-    mops_days_to_fetch = [now.date()]
+    mops_days_to_fetch = [] if args.skip_mops else [now.date()]
     if args.include_mops_backfill:
         mops_days_to_fetch = []
         for target_date in iter_recent_calendar_days(now.date(), args.mops_calendar_days):
@@ -166,39 +289,121 @@ def main() -> int:
     if args.include_mops_backfill:
         _refresh_latest_mops_outputs(root)
 
-    common_days = sorted(set(listed_days) & set(otc_days))
-    if common_days:
-        latest = date.fromisoformat(common_days[-1])
-        latest_listed = fetch_twse_listed_ohlcv(latest)
-        latest_otc = fetch_tpex_otc_ohlcv(latest)
-        latest_taiex_index = fetch_twse_taiex_index(latest)
-        latest_tpex_index = fetch_tpex_index(latest)
-        write_ohlcv_outputs(root, latest, latest_listed.rows, latest_otc.rows)
-        write_index_outputs(root, latest, latest_taiex_index.rows, latest_tpex_index.rows)
-        if args.include_institutional:
-            latest_listed_institutional = fetch_twse_institutional_trading(latest)
-            latest_otc_institutional = fetch_tpex_institutional_trading(latest)
-            write_institutional_outputs(root, latest, latest_listed_institutional.rows, latest_otc_institutional.rows)
-        if args.include_margin_short:
-            latest_listed_margin_short = fetch_twse_margin_short(latest)
-            latest_otc_margin_short = fetch_tpex_margin_short(latest)
-            write_margin_short_outputs(root, latest, latest_listed_margin_short.rows, latest_otc_margin_short.rows)
-
     index = rebuild_history_index_from_files(
         root,
         now.isoformat(timespec="seconds"),
         args.trading_days,
         errors,
         mops_backfill_mode,
+        include_symbol_coverage=False,
+    )
+    after_days = int(index.get("available_trading_days") or 0)
+    complete = after_days >= args.trading_days
+    source_limitations: list[str] = []
+    if not complete:
+        source_limitations.append(
+            f"only {after_days}/{args.trading_days} verified common market sessions "
+            f"were available within {args.max_calendar_days} calendar days"
+        )
+    bootstrap_status = {
+        "schema_version": "1.0",
+        "status": "complete" if complete else "incomplete",
+        "started_at": now.isoformat(timespec="seconds"),
+        "completed_at": ensure_taipei().isoformat(timespec="seconds"),
+        "last_success_at": (
+            ensure_taipei().isoformat(timespec="seconds")
+            if complete
+            else previous_status.get("last_success_at")
+        ),
+        "target_trading_days": args.trading_days,
+        "before_available_trading_days": before_days,
+        "before_earliest_market_data_date": initial_index.get(
+            "earliest_market_data_date"
+        ),
+        "before_latest_market_data_date": initial_index.get(
+            "latest_market_data_date"
+        ),
+        "before_missing_dates": initial_index.get("missing_dates", []),
+        "before_symbol_coverage": {
+            key: value
+            for key, value in before_coverage.items()
+            if key != "symbols"
+        },
+        "after_available_trading_days": after_days,
+        "after_earliest_market_data_date": index.get(
+            "earliest_market_data_date"
+        ),
+        "after_latest_market_data_date": index.get("latest_market_data_date"),
+        "attempted_dates": attempted_dates,
+        "completed_dates": completed_dates,
+        "failed_dates": failed_dates,
+        "missing_or_failed_dates": [
+            item["date"] for item in failed_dates
+        ],
+        "confirmed_non_trading_dates": sorted(confirmed_non_trading_dates),
+        "errors": errors,
+        "source_limitations": source_limitations,
+    }
+    write_json(
+        root / "data" / "history-bootstrap-status.json",
+        bootstrap_status,
+    )
+    index = rebuild_history_index_from_files(
+        root,
+        ensure_taipei().isoformat(timespec="seconds"),
+        args.trading_days,
+        errors,
+        mops_backfill_mode,
+        coverage_output_path=root / "data" / "history-coverage.json",
     )
     write_json(root / "data" / "history-index.json", index)
+    _refresh_latest_ohlcv_outputs(root, index)
     LOGGER.info("Available trading days: %s", index["available_trading_days"])
+    if args.require_complete and not complete:
+        LOGGER.error(
+            "History remains incomplete: %s/%s verified trading days",
+            after_days,
+            args.trading_days,
+        )
+        return 2
     return 0
 
 
 def _looks_like_network_unavailable(errors: list[str]) -> bool:
     text = "\n".join(errors).lower()
     return any(marker in text for marker in ["urlerror", "timed out", "name or service", "temporary failure", "network is unreachable"])
+
+
+def _load_bootstrap_status(root: Path) -> dict[str, object]:
+    path = root / "data" / "history-bootstrap-status.json"
+    if not path.exists():
+        return {}
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return {}
+    return payload if isinstance(payload, dict) else {}
+
+
+def _refresh_latest_ohlcv_outputs(
+    root: Path,
+    history_index: dict[str, object],
+) -> None:
+    end_date = history_index.get("end_date")
+    if not end_date:
+        return
+    latest = date.fromisoformat(str(end_date))
+    listed_rows, otc_rows = load_ohlcv_history_day(root, latest)
+    if not listed_rows or not otc_rows:
+        return
+    write_text(
+        root / "data" / "latest-listed-ohlcv.csv",
+        records_to_csv_text(listed_rows),
+    )
+    write_text(
+        root / "data" / "latest-otc-ohlcv.csv",
+        records_to_csv_text(otc_rows),
+    )
 
 
 def _has_complete_mops_history(root: Path, target_date: date) -> bool:

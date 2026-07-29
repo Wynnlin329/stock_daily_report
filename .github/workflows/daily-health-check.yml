@@ -27,8 +27,22 @@ jobs:
       - name: Run tests
         run: python -m pytest -q
 
+      - name: Validate and incrementally bootstrap market history
+        run: |
+          python scripts/bootstrap_history.py \
+            --trading-days 260 \
+            --max-calendar-days 420 \
+            --no-include-institutional \
+            --no-include-margin-short \
+            --skip-index \
+            --skip-mops \
+            --require-complete
+
       - name: Generate health check
         run: python scripts/run_health_check.py
+
+      - name: Validate generated artifacts
+        run: python scripts/validate_generated_artifacts.py --minimum-history-days 252
 
       - name: Commit generated artifacts
         run: |

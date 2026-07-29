@@ -242,13 +242,38 @@ def fetch_twse_listed_ohlcv(target_date: date, client: HttpClient | None = None)
     )
 
     if not fields or not rows:
+        no_data = _payload_has_no_data(payload)
         return FetchResult(
             data_date=_extract_payload_date(payload),
-            errors=[_table_error("TWSE", payload, ["證券代號", "開盤價", "最高價", "最低價", "收盤價"])],
+            errors=[]
+            if no_data
+            else [
+                _table_error(
+                    "TWSE",
+                    payload,
+                    ["證券代號", "開盤價", "最高價", "最低價", "收盤價"],
+                )
+            ],
+            status=STATUS_NON_TRADING_DAY if no_data else STATUS_PARSER_ERROR,
         )
 
+    data_date = _extract_payload_date(payload)
+    requested_date = target_date.isoformat()
+    if data_date != requested_date:
+        return FetchResult(
+            data_date=data_date,
+            errors=[
+                f"TWSE OHLCV data date {data_date or 'unknown'} did not match "
+                f"requested date {requested_date}"
+            ],
+            status=STATUS_SOURCE_UNAVAILABLE,
+        )
     records = [_normalize_twse_row(target_date, fields, row) for row in rows]
-    return FetchResult(rows=[record for record in records if record.symbol], data_date=_extract_payload_date(payload) or f"{target_date:%Y-%m-%d}")
+    return FetchResult(
+        rows=[record for record in records if record.symbol],
+        data_date=data_date,
+        status=STATUS_SUCCESS,
+    )
 
 
 def _extract_payload_date(payload: dict[str, Any]) -> str | None:
@@ -305,13 +330,38 @@ def fetch_tpex_otc_ohlcv(target_date: date, client: HttpClient | None = None) ->
         legacy_data_keys=["aaData", "data"],
     )
     if not fields or not rows:
+        no_data = _payload_has_no_data(payload)
         return FetchResult(
             data_date=_extract_payload_date(payload),
-            errors=[_table_error("TPEx", payload, ["代號", "開盤", "最高", "最低", "收盤"])],
+            errors=[]
+            if no_data
+            else [
+                _table_error(
+                    "TPEx",
+                    payload,
+                    ["代號", "開盤", "最高", "最低", "收盤"],
+                )
+            ],
+            status=STATUS_NON_TRADING_DAY if no_data else STATUS_PARSER_ERROR,
         )
 
+    data_date = _extract_payload_date(payload)
+    requested_date = target_date.isoformat()
+    if data_date != requested_date:
+        return FetchResult(
+            data_date=data_date,
+            errors=[
+                f"TPEx OHLCV data date {data_date or 'unknown'} did not match "
+                f"requested date {requested_date}"
+            ],
+            status=STATUS_SOURCE_UNAVAILABLE,
+        )
     records = [_normalize_tpex_row(target_date, fields, row) for row in rows]
-    return FetchResult(rows=[record for record in records if record.symbol], data_date=_extract_payload_date(payload) or f"{target_date:%Y-%m-%d}")
+    return FetchResult(
+        rows=[record for record in records if record.symbol],
+        data_date=data_date,
+        status=STATUS_SUCCESS,
+    )
 
 
 def _normalize_tpex_row(target_date: date, fields: list[str], row: list[Any]) -> OhlcvRecord:
@@ -974,7 +1024,14 @@ def _empty_payload_status(payload: dict[str, Any]) -> str:
 
 def _payload_has_no_data(payload: dict[str, Any]) -> bool:
     text = json.dumps(payload, ensure_ascii=False)
-    return any(marker in text for marker in ["沒有符合條件", "查無資料", "無資料", "no data"])
+    if any(marker in text for marker in ["沒有符合條件", "查無資料", "無資料", "no data"]):
+        return True
+    tables = payload.get("tables")
+    return bool(
+        isinstance(tables, list)
+        and tables
+        and all(not table.get("data") for table in tables if isinstance(table, dict))
+    )
 
 
 def _mops_header_index(table: list[list[dict[str, str]]]) -> int | None:

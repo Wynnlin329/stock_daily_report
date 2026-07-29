@@ -321,6 +321,24 @@ def test_history_index_flags_252_day_htf_window() -> None:
     assert index["has_252d_history"] is True
 
 
+def test_history_index_does_not_reuse_complete_status_for_smaller_target() -> None:
+    trading_days = [f"day-{index:03d}" for index in range(127)]
+    index = build_history_index(
+        "2026-07-29T18:15:00+08:00",
+        260,
+        trading_days,
+        trading_days,
+        [],
+        bootstrap_status={
+            "status": "complete",
+            "target_trading_days": 127,
+            "last_success_at": "2026-07-29T16:33:25+08:00",
+        },
+    )
+
+    assert index["history_bootstrap_status"] == "incomplete"
+
+
 def test_history_index_chip_and_mops_flags() -> None:
     trading_days = [f"2026-04-{i:02d}" for i in range(1, 31)] + [f"2026-05-{i:02d}" for i in range(1, 31)]
     mops_days = [f"2026-03-{i:02d}" for i in range(1, 32)] + [f"2026-04-{i:02d}" for i in range(1, 31)] + [f"2026-05-{i:02d}" for i in range(1, 30)]
@@ -786,6 +804,29 @@ def test_tpex_parser_with_tables_response() -> None:
     assert result.data_date == "2026-06-15"
     assert result.rows[0].symbol == "8069"
     assert result.rows[0].turnover == 1286086332
+
+
+def test_tpex_ohlcv_rejects_response_for_a_different_date() -> None:
+    payload = {
+        "date": "20260729",
+        "tables": [
+            {
+                "title": "上櫃股票行情",
+                "fields": ["代號", "名稱", "收盤", "漲跌", "開盤", "最高", "最低"],
+                "data": [["8069", "元太", "200.50", "+4.50", "200.00", "202.00", "196.50"]],
+            }
+        ],
+    }
+
+    result = fetch_tpex_otc_ohlcv(
+        date(2025, 7, 29),
+        FakeClient([HttpResponse("mock", 200, json.dumps(payload).encode(), 1)]),
+    )
+
+    assert result.rows == []
+    assert result.data_date == "2026-07-29"
+    assert result.status == "source_unavailable"
+    assert "did not match requested date" in result.errors[0]
 
 
 def test_twse_taiex_index_parser_with_mock_response() -> None:

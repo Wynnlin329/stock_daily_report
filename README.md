@@ -72,6 +72,7 @@ data/chatgpt/schedule-readiness.json
 data/chatgpt/daily-qullamaggie-source-compact.json
 data/chatgpt/weekly-qullamaggie-source-compact.json
 data/chatgpt/symbol-index.json
+data/chatgpt/symbol-index-compact.json
 data/chatgpt/symbols/{symbol}.json
 data/chatgpt/qullamaggie-grading-policy-v1.json
 data/chatgpt/qullamaggie-grading-policy-v2.json
@@ -88,7 +89,13 @@ reports/latest-market-scan.md
 
 `daily-health-check.yml` 每週一至週五台灣時間 23:55 執行。GitHub Actions cron 使用 UTC，因此設定為 `55 15 * * 1-5`。流程會先執行 pytest，測試通過後才產生正式資料並提交限定產物。
 
-`bootstrap-history.yml` 僅支援手動執行，input `trading_days` 預設 260，足以計算 126 日報酬與 252 日高點窗口。
+`bootstrap-history.yml` 支援手動完整回補，input `trading_days` 預設 260。每日
+`daily-health-check.yml` 也會先檢查共同 OHLCV 交易日；不足 260 日時執行冪等增量回補，
+若最終仍未達 252 日則 workflow 失敗且不提交 artifacts。相同股票與日期以穩定鍵
+upsert，回傳日期不等於請求日期或任一市場缺少資料時不會寫入，也不會以 0 補值。
+TPEx 原始日檔包含大量 ETF、權證及其他商品，因此完整回補的網路與 repository 體積
+成本較高；原始 CSV 仍完整保存，但衍生指標載入只保留 `scan_eligible=true` 普通股。
+專案沒有把週一至週五直接當成已驗證交易日，只有兩市場同日資料都存在才計入覆蓋率。
 
 ## latest.json schema
 
@@ -130,7 +137,7 @@ error, response_time_ms
 
 ## latest-screening-summary.json schema
 
-`data/latest-screening-summary.json` 是 pipeline 除錯、稽核與原始掃描結果追溯用輸出，不是 ChatGPT 每日排程的主要輸入。正式 ChatGPT 排程應優先讀取 `data/chatgpt/schedule-readiness.json`、`data/chatgpt/daily-qullamaggie-source-compact.json`、`data/chatgpt/weekly-qullamaggie-source-compact.json`、`data/chatgpt/symbol-index.json` 與 `data/chatgpt/symbols/{symbol}.json`。
+`data/latest-screening-summary.json` 是 pipeline 除錯、稽核與原始掃描結果追溯用輸出，不是 ChatGPT 每日排程的主要輸入。正式 ChatGPT 排程應優先讀取 `data/chatgpt/schedule-readiness.json`、`data/chatgpt/daily-qullamaggie-source-compact.json`、`data/chatgpt/weekly-qullamaggie-source-compact.json`、`data/chatgpt/symbol-index-compact.json` 與 `data/chatgpt/symbols/{symbol}.json`。
 
 `latest-screening-summary.json` 包含資料品質、歷史資料狀態、市場統計、成交量/成交金額/漲幅排行、初步篩選清單、coverage、缺失項目與限制。由於 `rankings`、法人、資券、MOPS 與 Qullamaggie 候選共用穩定 schema，未套用於該區塊的輔助欄位會保留 `null`。不得因 `rankings` 中的法人、資券或 MOPS 欄位為 `null`，直接判斷資料源失效或降低候選股評價。
 
@@ -202,11 +209,12 @@ stop_to_adr_ratio, stop_to_atr_ratio,
 return_1m, return_3m, return_6m,
 rs_rank_1m, rs_rank_3m, rs_rank_6m, composite_rs_rank,
 missing_reason, indicator_basis,
-prior_move_pct_20d, prior_move_pct_60d, distance_to_52w_high_pct,
+prior_move_pct_20d, prior_move_pct_60d, high_52w, distance_to_52w_high_pct,
 flag_duration_days, flag_depth_pct, higher_lows_count,
 range_contraction_ratio, volume_contraction_ratio,
 ma10_slope, ma20_slope, distance_to_ma10_pct, distance_to_ma20_pct,
-monthly_above_ma12, weekly_trend_state, daily_trigger_state,
+monthly_close, monthly_ma12, monthly_above_ma12,
+ma50_slope, long_term_ma_state, weekly_trend_state, daily_trigger_state,
 htf_structure_score, htf_structure_status, htf_rejection_reasons,
 htf_missing_reason, htf_structure_basis,
 gap_pct, open_vs_prior_close_pct, daily_volume_ratio,
@@ -260,7 +268,14 @@ valid_htf, developing, too_loose, too_deep,
 extended, failed_breakout, insufficient_data
 ```
 
-`monthly_above_ma12`、`weekly_trend_state` 與 `daily_trigger_state` 分別保存月、週、日結構；`htf_structure_score` 由集中於 `stock_health/config.py` 的固定權重計算。所有拒絕條件會寫入 `htf_rejection_reasons`，缺值原因寫入 `htf_missing_reason`。HTF 欄位會供 v2 影子評分使用，但不參與正式 v1 grading policy，也不改變正式 A／A-／B／C。
+`monthly_close` 取每個曆月最後一個有效交易日收盤，`monthly_ma12` 使用最近
+12 個有效月收盤的簡單平均；不足 12 個月時兩個月線判斷欄位維持 `null`，並寫入
+`insufficient_monthly_closes:requires_12`。`monthly_above_ma12`、
+`weekly_trend_state` 與 `daily_trigger_state` 分別保存月、週、日結構；
+`high_52w` 與 `distance_to_52w_high_pct` 只在至少 252 個有效交易日後產生。
+`htf_structure_score` 由集中於 `stock_health/config.py` 的固定權重計算。所有拒絕條件會寫入
+`htf_rejection_reasons`，缺值原因寫入 `htf_missing_reason`。HTF 欄位會供 v2
+影子評分使用，但不參與正式 v1 grading policy，也不改變正式 A／A-／B／C。
 
 ### Episodic Pivot 獨立評分
 
@@ -495,7 +510,7 @@ https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-heal
 https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/weekly-qullamaggie-source-compact.json
 https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/daily-qullamaggie-source.json
 https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/weekly-qullamaggie-source.json
-https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbol-index.json
+https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbol-index-compact.json
 https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/qullamaggie-grading-policy-v1.json
 https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/qullamaggie-grading-policy-v2.json
 https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/position-management-policy-v1.json
@@ -520,7 +535,13 @@ ChatGPT 排程必須先讀取 `data/chatgpt/schedule-readiness.json`，再依 ga
 
 若需要動能候選清單，ChatGPT 應優先讀取 `data/chatgpt/daily-qullamaggie-source-compact.json` 的 `top_candidates` 與各 setup 分組，不應重新爬外部網站。compact 內的候選欄位已針對 ChatGPT 排程整理，`latest-screening-summary.json.rankings` 中大量 `null` 不得用來判斷候選股資料不完整。`top_candidates` 與各 setup 分組都只可作為研究與人工複核清單。
 
-若需要查詢單一普通股技術欄位，ChatGPT 應先讀取 `data/chatgpt/symbol-index.json`，再依股票代號讀取 `data/chatgpt/symbols/{symbol}.json`。逐檔檔案只為 `scan_eligible=true` 的普通股產生，至少包含 OHLCV、MA10/20/50、20 日均量與量比、pivot、風險參考、setup 與 risk notes。
+若需要查詢單一普通股技術欄位，ChatGPT 應先讀取小型
+`data/chatgpt/symbol-index-compact.json`，再依股票代號讀取
+`data/chatgpt/symbols/{symbol}.json`。完整 `symbol-index.json` 保留給既有 consumer
+與稽核，但不應作為每日 Connector 的第一個大型讀取。compact index 只保存 symbol、
+market、path 與完整索引的 Git blob SHA／byte size；超過限制時會改用分片索引。
+逐檔檔案只為 `scan_eligible=true` 的普通股產生，至少包含 OHLCV、MA10/20/50、
+20 日均量與量比、pivot、風險參考、setup 與 risk notes。
 
 Symbol JSON 與 symbol index 的 schema version 為 `1.5`；新增 EP 獨立評分欄位但不刪除既有必要欄位。
 
