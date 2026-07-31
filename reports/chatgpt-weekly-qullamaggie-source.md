@@ -1,52 +1,40 @@
-# ChatGPT Weekly Qullamaggie Source: 2026-07-30
+# ChatGPT Weekly Qullamaggie Source: 2026-07-31
 
 本資料包僅供 ChatGPT 排程週度複盤與觀察名單研究，不構成交易建議。
 
 ## 本週資料日期
-- dates: ['2026-07-24', '2026-07-27', '2026-07-28', '2026-07-29', '2026-07-30']
+- dates: ['2026-07-27', '2026-07-28', '2026-07-29', '2026-07-30', '2026-07-31']
 
 ## 缺失日期
 - missing_dates: []
 
 ## 本週 Setup 統計
-- counts: {'breakout': 0, 'episodic_pivot': 6, 'anticipation': 76, 'extended_watch': 69, 'failed_breakout': 34, 'insufficient_data': 250}
+- counts: {'breakout': 0, 'episodic_pivot': 15, 'anticipation': 71, 'extended_watch': 73, 'failed_breakout': 29, 'insufficient_data': 250}
 
 ## 重複出現候選
-- 2892 第一金 setup=extended_watch score=80
-- 2801 彰銀 setup=anticipation score=70
-- 2812 台中銀 setup=anticipation score=60
+- 2812 台中銀 setup=anticipation score=50
+- 2834 臺企銀 setup=failed_breakout score=70
+- 2801 彰銀 setup=failed_breakout score=75
+- 2884 玉山金 setup=extended_watch score=70
+- 8464 億豐 setup=anticipation score=60
 - 2207 和泰車 setup=extended_watch score=70
-- 2880 華南金 setup=extended_watch score=75
-- 2884 玉山金 setup=extended_watch score=75
-- 2834 臺企銀 setup=anticipation score=70
-- 8464 億豐 setup=extended_watch score=70
 - 2615 萬海 setup=anticipation score=45
-- 2006 東和鋼鐵 setup=anticipation score=65
-- 2845 遠東銀 setup=anticipation score=65
-- 2027 大成鋼 setup=anticipation score=40
-- 3018 隆銘綠能 setup=extended_watch score=40
-- 6863 永道-KY setup=failed_breakout score=35
+- 2892 第一金 setup=extended_watch score=75
+- 2880 華南金 setup=extended_watch score=75
+- 2206 三陽工業 setup=anticipation score=60
 - 2412 中華電 setup=anticipation score=50
-- 5876 上海商銀 setup=anticipation score=50
+- 2006 東和鋼鐵 setup=extended_watch score=80
+- 6863 永道-KY setup=extended_watch score=45
+- 2845 遠東銀 setup=failed_breakout score=65
+- 2027 大成鋼 setup=anticipation score=40
+- 5876 上海商銀 setup=anticipation score=45
+- 6804 明係 setup=failed_breakout score=35
+- 3018 隆銘綠能 setup=extended_watch score=40
 - 5880 合庫金 setup=extended_watch score=75
-- 5871 中租-KY setup=anticipation score=50
-- 2633 台灣高鐵 setup=anticipation score=60
-- 4442 竣邦-KY setup=extended_watch score=40
+- 2646 星宇航空 setup=anticipation score=50
 
 ## 本週 Breakout / Failed Breakout
 - 無
-- 6166 凌華 setup=failed_breakout score=60
-- 2615 萬海 setup=failed_breakout score=60
-- 6508 惠光 setup=failed_breakout score=55
-- 5312 寶島科 setup=failed_breakout score=55
-- 6245 立端 setup=failed_breakout score=50
-- 8039 台虹 setup=failed_breakout score=45
-- 6414 樺漢 setup=failed_breakout score=45
-- 4566 時碩工業 setup=failed_breakout score=45
-- 4995 晶達 setup=failed_breakout score=45
-- 4534 慶騰 setup=failed_breakout score=40
-- 3577 泓格 setup=failed_breakout score=40
-- 3088 艾訊 setup=failed_breakout score=40
 - 5388 中磊 setup=failed_breakout score=55
 - 5014 建錩 setup=failed_breakout score=50
 - 6243 迅杰 setup=failed_breakout score=40
@@ -55,28 +43,40 @@
 - 1203 味王 setup=failed_breakout score=55
 - 4406 新昕纖 setup=failed_breakout score=40
 - 8111 立碁 setup=failed_breakout score=35
+- 6863 永道-KY setup=failed_breakout score=25
+- 2015 豐興 setup=failed_breakout score=70
+- 2880 華南金 setup=failed_breakout score=65
+- 2812 台中銀 setup=failed_breakout score=60
+- 2704 國賓 setup=failed_breakout score=55
+- 4406 新昕纖 setup=failed_breakout score=40
+- 6804 明係 setup=failed_breakout score=35
+- 4430 耀億 setup=failed_breakout score=30
+- 2540 愛山林 setup=failed_breakout score=65
+- 6733 博晟生醫 setup=failed_breakout score=50
+- 1203 味王 setup=failed_breakout score=50
+- 5514 三豐 setup=failed_breakout score=40
 
 ## 下週 Watchlist Candidates
-- 2892 第一金 setup=extended_watch score=80
-- 2801 彰銀 setup=anticipation score=70
-- 2812 台中銀 setup=anticipation score=60
+- 2812 台中銀 setup=anticipation score=50
+- 2834 臺企銀 setup=failed_breakout score=70
+- 2801 彰銀 setup=failed_breakout score=75
+- 2884 玉山金 setup=extended_watch score=70
+- 8464 億豐 setup=anticipation score=60
 - 2207 和泰車 setup=extended_watch score=70
-- 2880 華南金 setup=extended_watch score=75
-- 2884 玉山金 setup=extended_watch score=75
-- 2834 臺企銀 setup=anticipation score=70
-- 8464 億豐 setup=extended_watch score=70
 - 2615 萬海 setup=anticipation score=45
-- 2006 東和鋼鐵 setup=anticipation score=65
-- 2845 遠東銀 setup=anticipation score=65
-- 2027 大成鋼 setup=anticipation score=40
-- 3018 隆銘綠能 setup=extended_watch score=40
-- 6863 永道-KY setup=failed_breakout score=35
+- 2892 第一金 setup=extended_watch score=75
+- 2880 華南金 setup=extended_watch score=75
+- 2206 三陽工業 setup=anticipation score=60
 - 2412 中華電 setup=anticipation score=50
-- 5876 上海商銀 setup=anticipation score=50
+- 2006 東和鋼鐵 setup=extended_watch score=80
+- 6863 永道-KY setup=extended_watch score=45
+- 2845 遠東銀 setup=failed_breakout score=65
+- 2027 大成鋼 setup=anticipation score=40
+- 5876 上海商銀 setup=anticipation score=45
+- 6804 明係 setup=failed_breakout score=35
+- 3018 隆銘綠能 setup=extended_watch score=40
 - 5880 合庫金 setup=extended_watch score=75
-- 5871 中租-KY setup=anticipation score=50
-- 2633 台灣高鐵 setup=anticipation score=60
-- 4442 竣邦-KY setup=extended_watch score=40
+- 2646 星宇航空 setup=anticipation score=50
 
 ## Weekly Review Gate
 - gate: {'can_generate_weekly_review': True, 'reason': []}
