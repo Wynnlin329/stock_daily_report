@@ -1,24 +1,24 @@
 {
   "schema_version": "1.0",
-  "report_date": "2026-08-04",
-  "as_of_date": "2026-08-03",
-  "market_data_date": "2026-08-03",
-  "latest_market_data_date": "2026-08-03",
-  "generated_at": "2026-08-04T01:48:11+08:00",
+  "report_date": "2026-08-05",
+  "as_of_date": "2026-08-04",
+  "market_data_date": "2026-08-04",
+  "latest_market_data_date": "2026-08-04",
+  "generated_at": "2026-08-05T01:43:06+08:00",
   "timezone": "Asia/Taipei",
-  "available_trading_days": 264,
+  "available_trading_days": 265,
   "earliest_market_data_date": "2025-06-26",
   "has_126d_history": true,
   "has_252d_history": true,
-  "monthly_ready_count": 1850,
-  "return_6m_ready_count": 1879,
-  "rs_6m_ready_count": 1879,
-  "composite_rs_ready_count": 1879,
-  "htf_ready_count": 1624,
-  "symbol_count": 1920,
+  "monthly_ready_count": 1854,
+  "return_6m_ready_count": 1885,
+  "rs_6m_ready_count": 1885,
+  "composite_rs_ready_count": 1885,
+  "htf_ready_count": 1635,
+  "symbol_count": 1923,
   "symbol_index_ready": true,
   "history_bootstrap_status": "complete",
-  "history_bootstrap_last_success_at": "2026-08-04T01:47:20+08:00",
+  "history_bootstrap_last_success_at": "2026-08-05T01:42:14+08:00",
   "history_bootstrap_errors": [],
   "checks": {
     "latest_market_data_current": true,
@@ -46,26 +46,26 @@
     "history_252d_ready"
   ],
   "enhanced_indicator_completeness": {
-    "complete_symbols": 1845,
-    "incomplete_symbols": 75,
-    "coverage_pct": 96.0938,
+    "complete_symbols": 1846,
+    "incomplete_symbols": 77,
+    "coverage_pct": 95.9958,
     "affects_grading_policy_v1": false
   },
   "htf_structure_completeness": {
-    "complete_symbols": 1624,
-    "incomplete_symbols": 296,
-    "coverage_pct": 84.5833,
+    "complete_symbols": 1635,
+    "incomplete_symbols": 288,
+    "coverage_pct": 85.0234,
     "affects_grading_policy_v1": false
   },
   "episodic_pivot_completeness": {
-    "complete_symbols": 1870,
-    "incomplete_symbols": 50,
-    "coverage_pct": 97.3958,
+    "complete_symbols": 0,
+    "incomplete_symbols": 1923,
+    "coverage_pct": 0.0,
     "independent_scoring": true,
     "breakout_score_reused": false
   },
   "grading_v2_shadow_completeness": {
-    "available_valid_days": 6,
+    "available_valid_days": 7,
     "required_trading_days": 20,
     "has_20d_shadow_history": false,
     "affects_grading_policy_v1": false,
@@ -73,8 +73,8 @@
     "tradeplan_policy": "v1"
   },
   "compact_sizes": {
-    "daily_qullamaggie_source_compact_bytes": 251338,
-    "weekly_qullamaggie_source_compact_bytes": 324797,
+    "daily_qullamaggie_source_compact_bytes": 237433,
+    "weekly_qullamaggie_source_compact_bytes": 351076,
     "limit_bytes": 1048576
   },
   "schedule_switch": {
@@ -86,6 +86,7 @@
   },
   "blocking_reasons": [],
   "warnings": [
+    "MOPS 催化延續性停用或不足；僅可列為人工複核素材。",
     "部分波動或多期間相對強度指標資料不足；新指標僅供研究，不影響正式 v1 分級與排程 gate。",
     "部分 High Tight Flag 結構資料不足；HTF 欄位僅供 v2 policy 研究，不影響正式 v1 分級與排程 gate。",
     "部分 Episodic Pivot 必要歷史或 MOPS 日期驗證不足；對應標的 ep_status=insufficient_data，不得自行補足事件方向或財報驚喜。",
