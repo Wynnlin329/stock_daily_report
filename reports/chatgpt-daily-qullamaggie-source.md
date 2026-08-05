@@ -1,43 +1,43 @@
-# ChatGPT Daily Qullamaggie Source: 2026-08-05
+# ChatGPT Daily Qullamaggie Source: 2026-08-06
 
 本資料包僅供 ChatGPT 排程研究與人工複核，不構成交易建議。
 
 ## 資料日期與 Freshness
-- data_freshness: {'report_date': '2026-08-05', 'as_of_date': '2026-08-04', 'market_data_date': '2026-08-04', 'expected_market_data_date': '2026-08-04', 'latest_market_data_date': '2026-08-04', 'is_latest_trading_data_current': True, 'reason': 'Latest trading data is current'}
+- data_freshness: {'report_date': '2026-08-06', 'as_of_date': '2026-08-05', 'market_data_date': '2026-08-05', 'expected_market_data_date': '2026-08-05', 'latest_market_data_date': '2026-08-05', 'is_latest_trading_data_current': True, 'reason': 'Latest trading data is current'}
 
 ## Scan Readiness
-- scan_readiness: {'can_run_technical_scan': True, 'can_run_qullamaggie_scan': True, 'can_generate_new_paper_trade_candidate': True, 'can_use_institutional_confirmation': True, 'can_use_margin_short_risk': True, 'can_use_mops_catalyst': False, 'reasons': []}
+- scan_readiness: {'can_run_technical_scan': True, 'can_run_qullamaggie_scan': True, 'can_generate_new_paper_trade_candidate': True, 'can_use_institutional_confirmation': True, 'can_use_margin_short_risk': True, 'can_use_mops_catalyst': True, 'reasons': []}
 
 ## Qullamaggie Market Regime
-- market_regime: {'status': 'risk_off', 'score': 0, 'reasons': ['benchmark regime=risk_off'], 'risk_notes': [], 'metrics': {'listed': {'close': 43360.66, 'ma20': 43785.2645, 'ma50': 44667.5566, 'return_20d_pct': -6.8642}, 'otc': {'close': 375.03, 'ma20': 384.359, 'ma50': 413.5956, 'return_20d_pct': -14.7271}}}
+- market_regime: {'status': 'neutral', 'score': 8, 'reasons': ['benchmark regime=neutral'], 'risk_notes': [], 'metrics': {'listed': {'close': 44611.6, 'ma20': 43741.889, 'ma50': 44714.4292, 'return_20d_pct': -1.9075}, 'otc': {'close': 383.75, 'ma20': 382.573, 'ma50': 412.5708, 'return_20d_pct': -8.5155}}}
 
 ## Setup Counts
-- setup_counts: {'breakout': 0, 'episodic_pivot': 0, 'anticipation': 18, 'extended_watch': 16, 'failed_breakout': 5, 'insufficient_data': 50}
+- setup_counts: {'breakout': 0, 'episodic_pivot': 3, 'anticipation': 19, 'extended_watch': 31, 'failed_breakout': 9, 'insufficient_data': 50}
 
 ## Top Candidates
-- 4123 晟德 setup=anticipation score=60
-- 2618 長榮航 setup=anticipation score=55
-- 2801 彰銀 setup=anticipation score=55
-- 9939 宏全 setup=anticipation score=55
-- 2884 玉山金 setup=anticipation score=55
-- 3005 神基 setup=anticipation score=55
-- 2615 萬海 setup=anticipation score=55
-- 2027 大成鋼 setup=anticipation score=55
-- 2915 潤泰全 setup=anticipation score=50
-- 2892 第一金 setup=anticipation score=50
-- 5880 合庫金 setup=anticipation score=50
-- 2637 慧洋-KY setup=anticipation score=50
-- 8464 億豐 setup=anticipation score=50
-- 1476 儒鴻 setup=anticipation score=50
-- 2880 華南金 setup=anticipation score=45
-- 2347 聯強 setup=anticipation score=45
-- 2889 國票金 setup=anticipation score=35
-- 2633 台灣高鐵 setup=anticipation score=35
-- 2425 承啟 setup=extended_watch score=75
-- 2006 東和鋼鐵 setup=extended_watch score=70
+- 3605 宏致 setup=episodic_pivot score=100
+- 2049 上銀 setup=episodic_pivot score=100
+- 3176 基亞 setup=episodic_pivot score=100
+- 8050 廣積 setup=anticipation score=73
+- 4123 晟德 setup=anticipation score=73
+- 9939 宏全 setup=anticipation score=73
+- 6811 宏碁資訊 setup=anticipation score=63
+- 2618 長榮航 setup=anticipation score=63
+- 2892 第一金 setup=anticipation score=63
+- 3005 神基 setup=anticipation score=63
+- 2637 慧洋-KY setup=anticipation score=63
+- 1477 聚陽 setup=anticipation score=63
+- 2377 微星 setup=anticipation score=58
+- 2880 華南金 setup=anticipation score=58
+- 2884 玉山金 setup=anticipation score=58
+- 5880 合庫金 setup=anticipation score=58
+- 8464 億豐 setup=anticipation score=58
+- 2027 大成鋼 setup=anticipation score=58
+- 2615 萬海 setup=anticipation score=58
+- 5388 中磊 setup=anticipation score=53
 
 ## Paper Trading Decision Gate
-- gate: {'can_create_new_simulated_buy_candidate': True, 'reason': ['MOPS 不可用或歷史不足，僅停用事件延續性判斷'], 'allowed_actions': ['可產生資料狀態報告', '可產生候選股研究清單', '可更新觀察名單'], 'blocked_actions': []}
+- gate: {'can_create_new_simulated_buy_candidate': True, 'reason': [], 'allowed_actions': ['可產生資料狀態報告', '可產生候選股研究清單', '可更新觀察名單', '可做 MOPS 事件人工複核'], 'blocked_actions': []}
 
 ## Disabled Sections
 - 無
