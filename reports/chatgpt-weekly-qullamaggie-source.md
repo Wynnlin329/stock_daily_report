@@ -1,50 +1,41 @@
-# ChatGPT Weekly Qullamaggie Source: 2026-08-12
+# ChatGPT Weekly Qullamaggie Source: 2026-08-13
 
 本資料包僅供 ChatGPT 排程週度複盤與觀察名單研究，不構成交易建議。
 
 ## 本週資料日期
-- dates: ['2026-08-05', '2026-08-07', '2026-08-10', '2026-08-11', '2026-08-12']
+- dates: ['2026-08-07', '2026-08-10', '2026-08-11', '2026-08-12', '2026-08-13']
 
 ## 缺失日期
 - missing_dates: []
 
 ## 本週 Setup 統計
-- counts: {'breakout': 2, 'episodic_pivot': 63, 'anticipation': 76, 'extended_watch': 231, 'failed_breakout': 63, 'insufficient_data': 250}
+- counts: {'breakout': 2, 'episodic_pivot': 82, 'anticipation': 76, 'extended_watch': 250, 'failed_breakout': 73, 'insufficient_data': 250}
 
 ## 重複出現候選
+- 6547 高端疫苗 setup=anticipation score=68
+- 2637 慧洋-KY setup=anticipation score=58
+- 2377 微星 setup=failed_breakout score=63
 - 3005 神基 setup=anticipation score=63
-- 2637 慧洋-KY setup=anticipation score=63
-- 2377 微星 setup=episodic_pivot score=100
-- 2880 華南金 setup=anticipation score=58
-- 8464 億豐 setup=anticipation score=63
-- 2615 萬海 setup=anticipation score=68
-- 6547 高端疫苗 setup=anticipation score=63
+- 2615 萬海 setup=anticipation score=63
+- 2605 新興 setup=anticipation score=63
+- 6279 胡連 setup=anticipation score=58
 - 7711 永擎 setup=episodic_pivot score=100
-- 3605 宏致 setup=extended_watch score=68
-- 5388 中磊 setup=anticipation score=58
-- 3022 威強電 setup=failed_breakout score=53
+- 5351 鈺創 setup=extended_watch score=68
+- 8464 億豐 setup=anticipation score=63
+- 2880 華南金 setup=anticipation score=58
 - 1736 喬山 setup=failed_breakout score=63
-- 2605 新興 setup=anticipation score=58
-- 6279 胡連 setup=anticipation score=63
 - 3293 鈊象 setup=anticipation score=53
 - 2033 佳大 setup=episodic_pivot score=100
+- 3605 宏致 setup=extended_watch score=73
 - 8436 大江 setup=anticipation score=68
-- 5351 鈺創 setup=extended_watch score=63
-- 9939 宏全 setup=anticipation score=73
-- 2884 玉山金 setup=anticipation score=63
+- 4735 豪展 setup=failed_breakout score=48
+- 1904 正隆 setup=failed_breakout score=68
+- 7805 威聯通 setup=failed_breakout score=38
+- 2465 麗臺 setup=episodic_pivot score=100
 
 ## 本週 Breakout / Failed Breakout
 - 2002 中鋼 setup=breakout score=73
 - 2014 中鴻 setup=breakout score=68
-- 2425 承啟 setup=failed_breakout score=68
-- 6578 達邦蛋白 setup=failed_breakout score=68
-- 6516 勤崴國際 setup=failed_breakout score=68
-- 6603 富強鑫 setup=failed_breakout score=58
-- 7704 明遠精密 setup=failed_breakout score=58
-- 6538 倉和 setup=failed_breakout score=53
-- 3231 緯創 setup=failed_breakout score=53
-- 2301 光寶科 setup=failed_breakout score=53
-- 6527 明達醫 setup=failed_breakout score=53
 - 9962 有益 setup=failed_breakout score=78
 - 4153 鈺緯 setup=failed_breakout score=68
 - 8436 大江 setup=failed_breakout score=63
@@ -56,28 +47,37 @@
 - 3693 營邦 setup=failed_breakout score=48
 - 7704 明遠精密 setup=failed_breakout score=43
 - 2395 研華 setup=failed_breakout score=73
+- 2615 萬海 setup=failed_breakout score=68
+- 4566 時碩工業 setup=failed_breakout score=68
+- 2359 所羅門 setup=failed_breakout score=63
+- 6782 視陽 setup=failed_breakout score=58
+- 6533 晶心科 setup=failed_breakout score=58
+- 4535 至興 setup=failed_breakout score=58
+- 6952 大武山 setup=failed_breakout score=53
+- 6913 鴻呈 setup=failed_breakout score=43
+- 6441 廣錠 setup=failed_breakout score=43
 
 ## 下週 Watchlist Candidates
+- 6547 高端疫苗 setup=anticipation score=68
+- 2637 慧洋-KY setup=anticipation score=58
+- 2377 微星 setup=failed_breakout score=63
 - 3005 神基 setup=anticipation score=63
-- 2637 慧洋-KY setup=anticipation score=63
-- 2377 微星 setup=episodic_pivot score=100
-- 2880 華南金 setup=anticipation score=58
-- 8464 億豐 setup=anticipation score=63
-- 2615 萬海 setup=anticipation score=68
-- 6547 高端疫苗 setup=anticipation score=63
+- 2615 萬海 setup=anticipation score=63
+- 2605 新興 setup=anticipation score=63
+- 6279 胡連 setup=anticipation score=58
 - 7711 永擎 setup=episodic_pivot score=100
-- 3605 宏致 setup=extended_watch score=68
-- 5388 中磊 setup=anticipation score=58
-- 3022 威強電 setup=failed_breakout score=53
+- 5351 鈺創 setup=extended_watch score=68
+- 8464 億豐 setup=anticipation score=63
+- 2880 華南金 setup=anticipation score=58
 - 1736 喬山 setup=failed_breakout score=63
-- 2605 新興 setup=anticipation score=58
-- 6279 胡連 setup=anticipation score=63
 - 3293 鈊象 setup=anticipation score=53
 - 2033 佳大 setup=episodic_pivot score=100
+- 3605 宏致 setup=extended_watch score=73
 - 8436 大江 setup=anticipation score=68
-- 5351 鈺創 setup=extended_watch score=63
-- 9939 宏全 setup=anticipation score=73
-- 2884 玉山金 setup=anticipation score=63
+- 4735 豪展 setup=failed_breakout score=48
+- 1904 正隆 setup=failed_breakout score=68
+- 7805 威聯通 setup=failed_breakout score=38
+- 2465 麗臺 setup=episodic_pivot score=100
 
 ## Weekly Review Gate
 - gate: {'can_generate_weekly_review': True, 'reason': []}
