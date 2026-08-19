@@ -1,31 +1,35 @@
 {
   "schema_version": "1.0",
-  "report_date": "2026-08-19",
-  "as_of_date": "2026-08-18",
-  "market_data_date": "2026-08-18",
-  "generated_at": "2026-08-19T00:25:41+08:00",
+  "report_date": "2026-08-20",
+  "as_of_date": "2026-08-19",
+  "market_data_date": "2026-08-19",
+  "generated_at": "2026-08-20T00:26:12+08:00",
   "timezone": "Asia/Taipei",
-  "listed_rows": 15530,
-  "otc_rows": 916,
-  "data_date": "2026-08-18",
+  "listed_rows": 0,
+  "otc_rows": 892,
+  "data_date": "2026-08-19",
   "is_current": true,
   "status": "success",
   "sources": {
     "twse": {
-      "rows": 15530,
-      "data_date": "2026-08-18",
-      "is_current": true,
-      "status": "success",
-      "errors": []
+      "rows": 0,
+      "data_date": null,
+      "is_current": false,
+      "status": "source_unavailable",
+      "errors": [
+        "TimeoutError: The read operation timed out"
+      ]
     },
     "tpex": {
-      "rows": 916,
-      "data_date": "2026-08-18",
+      "rows": 892,
+      "data_date": "2026-08-19",
       "is_current": true,
       "status": "success",
       "errors": []
     }
   },
-  "errors": [],
+  "errors": [
+    "TimeoutError: The read operation timed out"
+  ],
   "limitations": []
 }

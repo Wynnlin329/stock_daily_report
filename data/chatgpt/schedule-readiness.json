@@ -1,29 +1,29 @@
 {
   "schema_version": "1.0",
-  "report_date": "2026-08-19",
-  "as_of_date": "2026-08-18",
-  "market_data_date": "2026-08-18",
+  "report_date": "2026-08-20",
+  "as_of_date": "2026-08-19",
+  "market_data_date": "2026-08-19",
   "latest_market_data_date": "2026-08-18",
-  "generated_at": "2026-08-19T00:25:41+08:00",
+  "generated_at": "2026-08-20T00:26:12+08:00",
   "timezone": "Asia/Taipei",
   "available_trading_days": 274,
   "earliest_market_data_date": "2025-06-26",
   "has_126d_history": true,
   "has_252d_history": true,
-  "monthly_ready_count": 1851,
-  "return_6m_ready_count": 1889,
-  "rs_6m_ready_count": 1889,
-  "composite_rs_ready_count": 1889,
-  "htf_ready_count": 1552,
-  "symbol_count": 1926,
+  "monthly_ready_count": 821,
+  "return_6m_ready_count": 845,
+  "rs_6m_ready_count": 845,
+  "composite_rs_ready_count": 845,
+  "htf_ready_count": 684,
+  "symbol_count": 860,
   "symbol_index_ready": true,
   "history_bootstrap_status": "complete",
-  "history_bootstrap_last_success_at": "2026-08-19T00:24:47+08:00",
+  "history_bootstrap_last_success_at": "2026-08-20T00:25:18+08:00",
   "history_bootstrap_errors": [],
   "checks": {
     "latest_market_data_current": true,
-    "technical_scan_ready": true,
-    "qullamaggie_scan_ready": true,
+    "technical_scan_ready": false,
+    "qullamaggie_scan_ready": false,
     "daily_compact_source_ready": true,
     "symbol_index_ready": true,
     "history_126d_ready": true,
@@ -46,26 +46,26 @@
     "history_252d_ready"
   ],
   "enhanced_indicator_completeness": {
-    "complete_symbols": 1801,
-    "incomplete_symbols": 125,
-    "coverage_pct": 93.5099,
+    "complete_symbols": 815,
+    "incomplete_symbols": 45,
+    "coverage_pct": 94.7674,
     "affects_grading_policy_v1": false
   },
   "htf_structure_completeness": {
-    "complete_symbols": 1552,
-    "incomplete_symbols": 374,
-    "coverage_pct": 80.5815,
+    "complete_symbols": 684,
+    "incomplete_symbols": 176,
+    "coverage_pct": 79.5349,
     "affects_grading_policy_v1": false
   },
   "episodic_pivot_completeness": {
-    "complete_symbols": 1876,
-    "incomplete_symbols": 50,
-    "coverage_pct": 97.4039,
+    "complete_symbols": 815,
+    "incomplete_symbols": 45,
+    "coverage_pct": 94.7674,
     "independent_scoring": true,
     "breakout_score_reused": false
   },
   "grading_v2_shadow_completeness": {
-    "available_valid_days": 16,
+    "available_valid_days": 17,
     "required_trading_days": 20,
     "has_20d_shadow_history": false,
     "affects_grading_policy_v1": false,
@@ -73,18 +73,21 @@
     "tradeplan_policy": "v1"
   },
   "compact_sizes": {
-    "daily_qullamaggie_source_compact_bytes": 427547,
+    "daily_qullamaggie_source_compact_bytes": 128174,
     "weekly_qullamaggie_source_compact_bytes": 359646,
     "limit_bytes": 1048576
   },
   "schedule_switch": {
-    "can_switch_daily_scan_schedule": true,
-    "can_switch_watchlist_schedule": true,
+    "can_switch_daily_scan_schedule": false,
+    "can_switch_watchlist_schedule": false,
     "can_switch_position_management_schedule": true,
     "can_switch_weekly_review_schedule": true,
-    "can_switch_all_schedules": true
+    "can_switch_all_schedules": false
   },
-  "blocking_reasons": [],
+  "blocking_reasons": [
+    "technical_scan_ready",
+    "qullamaggie_scan_ready"
+  ],
   "warnings": [
     "部分波動或多期間相對強度指標資料不足；新指標僅供研究，不影響正式 v1 分級與排程 gate。",
     "部分 High Tight Flag 結構資料不足；HTF 欄位僅供 v2 policy 研究，不影響正式 v1 分級與排程 gate。",

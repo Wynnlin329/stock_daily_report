@@ -1,46 +1,45 @@
-# ChatGPT Daily Qullamaggie Source: 2026-08-19
+# ChatGPT Daily Qullamaggie Source: 2026-08-20
 
 本資料包僅供 ChatGPT 排程研究與人工複核，不構成交易建議。
 
 ## 資料日期與 Freshness
-- data_freshness: {'report_date': '2026-08-19', 'as_of_date': '2026-08-18', 'market_data_date': '2026-08-18', 'expected_market_data_date': '2026-08-18', 'latest_market_data_date': '2026-08-18', 'is_latest_trading_data_current': True, 'reason': 'Latest trading data is current'}
+- data_freshness: {'report_date': '2026-08-20', 'as_of_date': '2026-08-19', 'market_data_date': '2026-08-19', 'expected_market_data_date': '2026-08-19', 'latest_market_data_date': '2026-08-19', 'is_latest_trading_data_current': True, 'reason': 'Latest trading data is current'}
 
 ## Scan Readiness
-- scan_readiness: {'can_run_technical_scan': True, 'can_run_qullamaggie_scan': True, 'can_generate_new_paper_trade_candidate': True, 'can_use_institutional_confirmation': True, 'can_use_margin_short_risk': True, 'can_use_mops_catalyst': True, 'reasons': []}
+- scan_readiness: {'can_run_technical_scan': False, 'can_run_qullamaggie_scan': False, 'can_generate_new_paper_trade_candidate': False, 'can_use_institutional_confirmation': True, 'can_use_margin_short_risk': True, 'can_use_mops_catalyst': True, 'reasons': ['listed_ohlcv unavailable', 'market_environment unavailable']}
 
 ## Qullamaggie Market Regime
-- market_regime: {'status': 'neutral', 'score': 8, 'reasons': ['benchmark regime=neutral'], 'risk_notes': [], 'metrics': {'listed': {'close': 45308.68, 'ma20': 44002.2325, 'ma50': 44808.3702, 'return_20d_pct': 6.735}, 'otc': {'close': 390.83, 'ma20': 378.655, 'ma50': 405.3014, 'return_20d_pct': 6.0511}}}
+- market_regime: {'status': 'neutral', 'score': 8, 'reasons': ['benchmark regime=neutral'], 'risk_notes': [], 'metrics': {'listed': {'close': 44719.35, 'ma20': 44026.5565, 'ma50': 44801.3384, 'return_20d_pct': 1.0998}, 'otc': {'close': 384.79, 'ma20': 378.7965, 'ma50': 404.3758, 'return_20d_pct': 0.7409}}}
 
 ## Setup Counts
-- setup_counts: {'breakout': 0, 'episodic_pivot': 4, 'anticipation': 8, 'extended_watch': 44, 'failed_breakout': 18, 'insufficient_data': 50}
+- setup_counts: {'breakout': 0, 'episodic_pivot': 5, 'anticipation': 1, 'extended_watch': 11, 'failed_breakout': 3, 'insufficient_data': 50}
 
 ## Top Candidates
-- 2605 新興 setup=episodic_pivot score=100
-- 4416 三圓 setup=episodic_pivot score=100
+- 3490 單井 setup=episodic_pivot score=100
+- 4430 耀億 setup=episodic_pivot score=100
+- 4747 強生 setup=episodic_pivot score=100
+- 8937 合騏* setup=episodic_pivot score=100
 - 3508 位速 setup=episodic_pivot score=100
-- 7842 天能綠電 setup=episodic_pivot score=100
-- 2915 潤泰全 setup=anticipation score=78
-- 2867 三商壽 setup=anticipation score=73
-- 2887 台新新光金 setup=anticipation score=68
-- 2637 慧洋-KY setup=anticipation score=68
-- 9945 潤泰新 setup=anticipation score=63
-- 2884 玉山金 setup=anticipation score=63
-- 8436 大江 setup=anticipation score=63
-- 2851 中再保 setup=anticipation score=53
-- 2542 興富發 setup=extended_watch score=83
-- 2615 萬海 setup=extended_watch score=78
-- 2603 長榮 setup=extended_watch score=78
-- 2609 陽明 setup=extended_watch score=78
-- 3081 聯亞 setup=extended_watch score=73
-- 2359 所羅門 setup=extended_watch score=73
-- 5276 達輝-KY setup=extended_watch score=73
-- 2611 志信 setup=extended_watch score=73
+- 6547 高端疫苗 setup=anticipation score=53
+- 7792 安葆 setup=extended_watch score=68
+- 5703 亞都 setup=extended_watch score=68
+- 3498 陽程 setup=extended_watch score=63
+- 4416 三圓 setup=extended_watch score=58
+- 6597 立誠 setup=extended_watch score=58
+- 6218 豪勉 setup=extended_watch score=53
+- 2641 正德 setup=extended_watch score=53
+- 4304 勝昱 setup=extended_watch score=53
+- 6859 伯特光 setup=extended_watch score=48
+- 1780 立弘 setup=extended_watch score=48
+- 7842 天能綠電 setup=extended_watch score=38
 
 ## Paper Trading Decision Gate
-- gate: {'can_create_new_simulated_buy_candidate': True, 'reason': [], 'allowed_actions': ['可產生資料狀態報告', '可產生候選股研究清單', '可更新觀察名單', '可做 MOPS 事件人工複核'], 'blocked_actions': []}
+- gate: {'can_create_new_simulated_buy_candidate': False, 'reason': ['listed_ohlcv unavailable', 'market_environment unavailable', '上市 OHLCV 不完整'], 'allowed_actions': ['可產生資料狀態報告', '可產生候選股研究清單', '可做 MOPS 事件人工複核'], 'blocked_actions': ['不得產生新的模擬候選', '不得新增、移除或取消 Watchlist / Pending / 候選項目', '不得建立新的 TradePlan']}
 
 ## Disabled Sections
-- 無
+- 不得產生新的模擬候選
+- 不得新增、移除或取消 Watchlist / Pending / 候選項目
+- 不得建立新的 TradePlan
 
 ## Source URLs
 - latest_json: https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/latest.json
