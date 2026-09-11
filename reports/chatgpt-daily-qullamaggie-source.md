@@ -1,40 +1,40 @@
-# ChatGPT Daily Qullamaggie Source: 2026-09-11
+# ChatGPT Daily Qullamaggie Source: 2026-09-12
 
 本資料包僅供 ChatGPT 排程研究與人工複核，不構成交易建議。
 
 ## 資料日期與 Freshness
-- data_freshness: {'report_date': '2026-09-11', 'as_of_date': '2026-09-10', 'market_data_date': '2026-09-10', 'expected_market_data_date': '2026-09-10', 'latest_market_data_date': '2026-09-10', 'is_latest_trading_data_current': True, 'reason': 'Latest trading data is current'}
+- data_freshness: {'report_date': '2026-09-12', 'as_of_date': '2026-09-11', 'market_data_date': '2026-09-11', 'expected_market_data_date': '2026-09-11', 'latest_market_data_date': '2026-09-11', 'is_latest_trading_data_current': True, 'reason': 'Latest trading data is current'}
 
 ## Scan Readiness
 - scan_readiness: {'can_run_technical_scan': True, 'can_run_qullamaggie_scan': True, 'can_generate_new_paper_trade_candidate': True, 'can_use_institutional_confirmation': True, 'can_use_margin_short_risk': True, 'can_use_mops_catalyst': True, 'reasons': []}
 
 ## Qullamaggie Market Regime
-- market_regime: {'status': 'neutral', 'score': 8, 'reasons': ['benchmark regime=neutral'], 'risk_notes': [], 'metrics': {'listed': {'close': 46940.49, 'ma20': 46006.6005, 'ma50': 45067.28, 'return_20d_pct': 1.9969}, 'otc': {'close': 405.24, 'ma20': 398.6755, 'ma50': 395.5196, 'return_20d_pct': -0.2167}}}
+- market_regime: {'status': 'neutral', 'score': 8, 'reasons': ['benchmark regime=neutral'], 'risk_notes': [], 'metrics': {'listed': {'close': 46184.85, 'ma20': 46025.292499999996, 'ma50': 45050.597200000004, 'return_20d_pct': 0.816}, 'otc': {'close': 395.52, 'ma20': 398.404, 'ma50': 394.8054, 'return_20d_pct': -1.3543}}}
 
 ## Setup Counts
-- setup_counts: {'breakout': 0, 'episodic_pivot': 6, 'anticipation': 18, 'extended_watch': 29, 'failed_breakout': 13, 'insufficient_data': 50}
+- setup_counts: {'breakout': 1, 'episodic_pivot': 0, 'anticipation': 10, 'extended_watch': 36, 'failed_breakout': 9, 'insufficient_data': 50}
 
 ## Top Candidates
-- 3016 嘉晶 setup=episodic_pivot score=100
-- 2338 光罩 setup=episodic_pivot score=100
-- 5386 青雲 setup=episodic_pivot score=100
-- 6949 沛爾生醫*-創 setup=episodic_pivot score=100
-- 6894 衛司特 setup=episodic_pivot score=100
-- 3437 榮創 setup=episodic_pivot score=100
-- 5876 上海商銀 setup=anticipation score=73
-- 2887 台新新光金 setup=anticipation score=68
-- 2880 華南金 setup=anticipation score=68
-- 2801 彰銀 setup=anticipation score=68
-- 5880 合庫金 setup=anticipation score=68
+- 2412 中華電 setup=breakout score=73
+- 2887 台新新光金 setup=anticipation score=73
+- 2845 遠東銀 setup=anticipation score=73
+- 2354 鴻準 setup=anticipation score=68
+- 5876 上海商銀 setup=anticipation score=68
 - 2889 國票金 setup=anticipation score=68
-- 2330 台積電 setup=anticipation score=68
-- 2357 華碩 setup=anticipation score=63
-- 2892 第一金 setup=anticipation score=63
-- 2606 裕民 setup=anticipation score=63
-- 2354 鴻準 setup=anticipation score=63
-- 3029 零壹 setup=anticipation score=63
-- 2617 台航 setup=anticipation score=58
-- 2834 臺企銀 setup=anticipation score=58
+- 2834 臺企銀 setup=anticipation score=68
+- 6214 精誠 setup=anticipation score=63
+- 4967 十銓 setup=anticipation score=58
+- 1102 亞泥 setup=anticipation score=58
+- 2330 台積電 setup=anticipation score=48
+- 2880 華南金 setup=extended_watch score=83
+- 2892 第一金 setup=extended_watch score=83
+- 2801 彰銀 setup=extended_watch score=83
+- 1560 中砂 setup=extended_watch score=83
+- 6416 瑞祺電通 setup=extended_watch score=78
+- 2884 玉山金 setup=extended_watch score=78
+- 3029 零壹 setup=extended_watch score=78
+- 3229 晟鈦 setup=extended_watch score=73
+- 5880 合庫金 setup=extended_watch score=73
 
 ## Paper Trading Decision Gate
 - gate: {'can_create_new_simulated_buy_candidate': True, 'reason': [], 'allowed_actions': ['可產生資料狀態報告', '可產生候選股研究清單', '可更新觀察名單', '可做 MOPS 事件人工複核'], 'blocked_actions': []}
