@@ -1,54 +1,42 @@
-# ChatGPT Weekly Qullamaggie Source: 2026-09-18
+# ChatGPT Weekly Qullamaggie Source: 2026-09-21
 
 本資料包僅供 ChatGPT 排程週度複盤與觀察名單研究，不構成交易建議。
 
 ## 本週資料日期
-- dates: ['2026-09-14', '2026-09-15', '2026-09-16', '2026-09-17', '2026-09-18']
+- dates: ['2026-09-15', '2026-09-16', '2026-09-17', '2026-09-18', '2026-09-21']
 
 ## 缺失日期
 - missing_dates: []
 
 ## 本週 Setup 統計
-- counts: {'breakout': 4, 'episodic_pivot': 29, 'anticipation': 75, 'extended_watch': 207, 'failed_breakout': 65, 'insufficient_data': 250}
+- counts: {'breakout': 3, 'episodic_pivot': 31, 'anticipation': 96, 'extended_watch': 212, 'failed_breakout': 72, 'insufficient_data': 250}
 
 ## 重複出現候選
-- 2412 中華電 setup=breakout score=80
+- 2412 中華電 setup=anticipation score=70
+- 2892 第一金 setup=anticipation score=70
+- 5880 合庫金 setup=anticipation score=70
+- 4961 天鈺 setup=anticipation score=65
+- 6214 精誠 setup=anticipation score=75
+- 6491 晶碩 setup=failed_breakout score=80
+- 2889 國票金 setup=anticipation score=60
+- 5876 上海商銀 setup=anticipation score=70
+- 2834 臺企銀 setup=anticipation score=60
+- 3045 台灣大 setup=anticipation score=70
+- 6945 圓祥生技 setup=extended_watch score=70
+- 2887 台新新光金 setup=anticipation score=70
 - 2845 遠東銀 setup=anticipation score=55
-- 6214 精誠 setup=anticipation score=80
 - 2354 鴻準 setup=anticipation score=65
-- 2892 第一金 setup=anticipation score=65
-- 5876 上海商銀 setup=anticipation score=65
-- 2889 國票金 setup=anticipation score=70
-- 5880 合庫金 setup=anticipation score=80
-- 3045 台灣大 setup=failed_breakout score=75
-- 2305 全友 setup=extended_watch score=75
-- 2834 臺企銀 setup=anticipation score=55
-- 2887 台新新光金 setup=anticipation score=85
-- 2801 彰銀 setup=extended_watch score=83
-- 2880 華南金 setup=extended_watch score=78
-- 6021 美好證 setup=extended_watch score=75
-- 6199 天品 setup=extended_watch score=75
-- 6957 裕慶-KY setup=extended_watch score=58
-- 6221 晉泰 setup=extended_watch score=70
-- 6148 驊宏資 setup=extended_watch score=80
-- 2468 華經 setup=episodic_pivot score=100
+- 6218 豪勉 setup=extended_watch score=70
+- 2880 華南金 setup=anticipation score=70
+- 6148 驊宏資 setup=failed_breakout score=75
+- 3434 哲固 setup=extended_watch score=70
+- 2468 華經 setup=failed_breakout score=75
+- 6021 美好證 setup=failed_breakout score=75
 
 ## 本週 Breakout / Failed Breakout
-- 2412 中華電 setup=breakout score=73
 - 2412 中華電 setup=breakout score=83
 - 2412 中華電 setup=breakout score=78
 - 2412 中華電 setup=breakout score=80
-- 8227 巨有科技 setup=failed_breakout score=68
-- 3029 零壹 setup=failed_breakout score=68
-- 3229 晟鈦 setup=failed_breakout score=63
-- 8931 大汽電 setup=failed_breakout score=63
-- 4995 晶達 setup=failed_breakout score=58
-- 4148 全宇生技-KY setup=failed_breakout score=58
-- 3441 聯一光 setup=failed_breakout score=53
-- 2596 綠意 setup=failed_breakout score=53
-- 3623 富晶通 setup=failed_breakout score=53
-- 5209 新鼎 setup=failed_breakout score=48
-- 3354 律勝 setup=failed_breakout score=33
 - 5201 凱衛 setup=failed_breakout score=63
 - 6021 美好證 setup=failed_breakout score=63
 - 3441 聯一光 setup=failed_breakout score=58
@@ -58,28 +46,39 @@
 - 5529 鉅陞 setup=failed_breakout score=58
 - 6811 宏碁資訊 setup=failed_breakout score=58
 - 6690 安碁資訊 setup=failed_breakout score=58
+- 6112 邁達特 setup=failed_breakout score=53
+- 6689 伊雲谷 setup=failed_breakout score=53
+- 7765 中華資安 setup=failed_breakout score=48
+- 6865 偉康科技 setup=failed_breakout score=43
+- 2254 巨鎧精密-創 setup=failed_breakout score=63
+- 6957 裕慶-KY setup=failed_breakout score=63
+- 5355 佳總 setup=failed_breakout score=63
+- 3029 零壹 setup=failed_breakout score=58
+- 6140 訊達 setup=failed_breakout score=58
+- 6221 晉泰 setup=failed_breakout score=53
+- 3467 台灣精材 setup=failed_breakout score=53
 
 ## 下週 Watchlist Candidates
-- 2412 中華電 setup=breakout score=80
+- 2412 中華電 setup=anticipation score=70
+- 2892 第一金 setup=anticipation score=70
+- 5880 合庫金 setup=anticipation score=70
+- 4961 天鈺 setup=anticipation score=65
+- 6214 精誠 setup=anticipation score=75
+- 6491 晶碩 setup=failed_breakout score=80
+- 2889 國票金 setup=anticipation score=60
+- 5876 上海商銀 setup=anticipation score=70
+- 2834 臺企銀 setup=anticipation score=60
+- 3045 台灣大 setup=anticipation score=70
+- 6945 圓祥生技 setup=extended_watch score=70
+- 2887 台新新光金 setup=anticipation score=70
 - 2845 遠東銀 setup=anticipation score=55
-- 6214 精誠 setup=anticipation score=80
 - 2354 鴻準 setup=anticipation score=65
-- 2892 第一金 setup=anticipation score=65
-- 5876 上海商銀 setup=anticipation score=65
-- 2889 國票金 setup=anticipation score=70
-- 5880 合庫金 setup=anticipation score=80
-- 3045 台灣大 setup=failed_breakout score=75
-- 2305 全友 setup=extended_watch score=75
-- 2834 臺企銀 setup=anticipation score=55
-- 2887 台新新光金 setup=anticipation score=85
-- 2801 彰銀 setup=extended_watch score=83
-- 2880 華南金 setup=extended_watch score=78
-- 6021 美好證 setup=extended_watch score=75
-- 6199 天品 setup=extended_watch score=75
-- 6957 裕慶-KY setup=extended_watch score=58
-- 6221 晉泰 setup=extended_watch score=70
-- 6148 驊宏資 setup=extended_watch score=80
-- 2468 華經 setup=episodic_pivot score=100
+- 6218 豪勉 setup=extended_watch score=70
+- 2880 華南金 setup=anticipation score=70
+- 6148 驊宏資 setup=failed_breakout score=75
+- 3434 哲固 setup=extended_watch score=70
+- 2468 華經 setup=failed_breakout score=75
+- 6021 美好證 setup=failed_breakout score=75
 
 ## Weekly Review Gate
 - gate: {'can_generate_weekly_review': True, 'reason': []}

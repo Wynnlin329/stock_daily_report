@@ -1,40 +1,40 @@
-# ChatGPT Daily Qullamaggie Source: 2026-09-19
+# ChatGPT Daily Qullamaggie Source: 2026-09-22
 
 本資料包僅供 ChatGPT 排程研究與人工複核，不構成交易建議。
 
 ## 資料日期與 Freshness
-- data_freshness: {'report_date': '2026-09-19', 'as_of_date': '2026-09-18', 'market_data_date': '2026-09-18', 'expected_market_data_date': '2026-09-18', 'latest_market_data_date': '2026-09-18', 'is_latest_trading_data_current': True, 'reason': 'Latest trading data is current'}
+- data_freshness: {'report_date': '2026-09-22', 'as_of_date': '2026-09-21', 'market_data_date': '2026-09-21', 'expected_market_data_date': '2026-09-21', 'latest_market_data_date': '2026-09-21', 'is_latest_trading_data_current': True, 'reason': 'Latest trading data is current'}
 
 ## Scan Readiness
 - scan_readiness: {'can_run_technical_scan': True, 'can_run_qullamaggie_scan': True, 'can_generate_new_paper_trade_candidate': True, 'can_use_institutional_confirmation': True, 'can_use_margin_short_risk': True, 'can_use_mops_catalyst': True, 'reasons': []}
 
 ## Qullamaggie Market Regime
-- market_regime: {'status': 'risk_on', 'score': 15, 'reasons': ['benchmark regime=risk_on'], 'risk_notes': [], 'metrics': {'listed': {'close': 47180.75, 'ma20': 46257.709, 'ma50': 45038.5366, 'return_20d_pct': 4.3261}, 'otc': {'close': 412.68, 'ma20': 400.5185, 'ma50': 391.3636, 'return_20d_pct': 6.5613}}}
+- market_regime: {'status': 'risk_on', 'score': 15, 'reasons': ['benchmark regime=risk_on'], 'risk_notes': [], 'metrics': {'listed': {'close': 47718.84, 'ma20': 46405.534999999996, 'ma50': 45085.8212, 'return_20d_pct': 6.6049}, 'otc': {'close': 412.57, 'ma20': 401.842, 'ma50': 391.1152, 'return_20d_pct': 6.8557}}}
 
 ## Setup Counts
-- setup_counts: {'breakout': 1, 'episodic_pivot': 17, 'anticipation': 23, 'extended_watch': 50, 'failed_breakout': 18, 'insufficient_data': 50}
+- setup_counts: {'breakout': 0, 'episodic_pivot': 3, 'anticipation': 26, 'extended_watch': 50, 'failed_breakout': 18, 'insufficient_data': 50}
 
 ## Top Candidates
-- 2412 中華電 setup=breakout score=80
-- 3324 雙鴻 setup=episodic_pivot score=100
-- 2468 華經 setup=episodic_pivot score=100
-- 3264 欣銓 setup=episodic_pivot score=100
-- 4763 材料*-KY setup=episodic_pivot score=100
-- 6526 達發 setup=episodic_pivot score=100
-- 6667 信紘科 setup=episodic_pivot score=100
-- 7769 鴻勁 setup=episodic_pivot score=100
-- 6691 洋基工程 setup=episodic_pivot score=100
-- 2449 京元電子 setup=episodic_pivot score=100
-- 3661 世芯-KY setup=episodic_pivot score=100
-- 6715 嘉基 setup=episodic_pivot score=100
-- 6885 全福生技 setup=episodic_pivot score=100
-- 4416 三圓 setup=episodic_pivot score=100
-- 2923 鼎固-KY setup=episodic_pivot score=100
-- 7827 漢康-KY創 setup=episodic_pivot score=100
-- 3296 勝德 setup=episodic_pivot score=100
-- 3031 佰鴻 setup=episodic_pivot score=100
-- 2887 台新新光金 setup=anticipation score=85
-- 6214 精誠 setup=anticipation score=80
+- 6875 國邑* setup=episodic_pivot score=100
+- 1721 國慶科技 setup=episodic_pivot score=100
+- 3027 盛達 setup=episodic_pivot score=100
+- 2395 研華 setup=anticipation score=75
+- 6214 精誠 setup=anticipation score=75
+- 7792 安葆 setup=anticipation score=75
+- 3005 神基 setup=anticipation score=75
+- 6245 立端 setup=anticipation score=75
+- 2330 台積電 setup=anticipation score=75
+- 3044 健鼎 setup=anticipation score=75
+- 2887 台新新光金 setup=anticipation score=70
+- 2880 華南金 setup=anticipation score=70
+- 2892 第一金 setup=anticipation score=70
+- 2006 東和鋼鐵 setup=anticipation score=70
+- 5876 上海商銀 setup=anticipation score=70
+- 2605 新興 setup=anticipation score=70
+- 5880 合庫金 setup=anticipation score=70
+- 6937 天虹 setup=anticipation score=70
+- 3045 台灣大 setup=anticipation score=70
+- 2412 中華電 setup=anticipation score=70
 
 ## Paper Trading Decision Gate
 - gate: {'can_create_new_simulated_buy_candidate': True, 'reason': [], 'allowed_actions': ['可產生資料狀態報告', '可產生候選股研究清單', '可更新觀察名單', '可做 MOPS 事件人工複核'], 'blocked_actions': []}
