@@ -1,130 +1,130 @@
-# 全市場掃描摘要：2026/10/02（星期五）
+# 全市場掃描摘要：2026/10/05（星期一）
 
 本摘要僅供研究與人工複核，不構成買賣建議。
 
-- 執行時間：2026-10-03T04:19:48+08:00
+- 執行時間：2026-10-06T06:20:03+08:00
 - 是否足以執行全市場掃描：True
 - 整體信心等級：high
-- 可用歷史交易日：304
+- 可用歷史交易日：305
 
 ## 普通股 Universe 過濾摘要
 
-- total_rows：13308
-- scan_eligible_rows：1932
-- excluded_rows：11376
-- excluded_by_type：{'bond_etf': 130, 'dr': 10, 'etf': 8832, 'leveraged_inverse': 37, 'other': 55, 'preferred_stock': 2, 'warrant': 2310}
+- total_rows：13441
+- scan_eligible_rows：1936
+- excluded_rows：11505
+- excluded_by_type：{'bond_etf': 129, 'dr': 10, 'etf': 8937, 'leveraged_inverse': 37, 'other': 52, 'preferred_stock': 2, 'warrant': 2338}
 
 ## 市場概況
 
-- total_symbols：13308
-- advancers：4309
-- decliners：2891
-- unchanged：615
-- average_change_pct：3.828
+- total_symbols：13441
+- advancers：4432
+- decliners：3380
+- unchanged：702
+- average_change_pct：3.2555
 
 ## 成交金額排行
 
-- 2327 國巨*（listed）：close=626.0 change_pct=3.9867 volume=106667349 turnover=66854916325
-- 2330 台積電（listed）：close=2500.0 change_pct=-0.3984 volume=15792206 turnover=39508159297
-- 4958 臻鼎-KY（listed）：close=561.0 change_pct=10.0 volume=69348102 turnover=37849971825
-- 2409 友達（listed）：close=40.45 change_pct=5.6136 volume=701554317 turnover=28027963732
-- 8046 南電（listed）：close=1460.0 change_pct=2.8169 volume=16705151 turnover=23979600915
-- 3037 欣興（listed）：close=1305.0 change_pct=7.4074 volume=18635778 turnover=23509159965
-- 2454 聯發科（listed）：close=4950.0 change_pct=-0.6024 volume=4503961 turnover=22207114990
-- 6274 台燿（otc）：close=1620.0 change_pct=5.5375 volume=12357017 turnover=19992007315
-- 3189 景碩（listed）：close=1050.0 change_pct=3.9604 volume=18823011 turnover=19554694715
-- 2492 華新科（listed）：close=361.5 change_pct=9.8784 volume=55788034 turnover=19545370663
+- 2330 台積電（listed）：close=2575.0 change_pct=3.0 volume=26800187 turnover=68799148330
+- 2303 聯電（listed）：close=152.5 change_pct=-5.5728 volume=328772084 turnover=51160542375
+- 2327 國巨*（listed）：close=626.0 change_pct=0.0 volume=67379604 turnover=43058996053
+- 2409 友達（listed）：close=39.05 change_pct=-3.4611 volume=965082115 turnover=39398949082
+- 2454 聯發科（listed）：close=5165.0 change_pct=4.3434 volume=7580538 turnover=38606572956
+- 3037 欣興（listed）：close=1325.0 change_pct=1.5326 volume=27109050 turnover=36937724775
+- 2492 華新科（listed）：close=368.5 change_pct=1.9364 volume=95779681 turnover=36247880780
+- 2308 台達電（listed）：close=2005.0 change_pct=6.366 volume=17838513 turnover=35323157340
+- 4958 臻鼎-KY（listed）：close=576.0 change_pct=2.6738 volume=56786688 turnover=32967295514
+- 3189 景碩（listed）：close=1095.0 change_pct=4.2857 volume=30076585 turnover=32795151665
 
 ## 成交量排行
 
-- 2409 友達（listed）：close=40.45 change_pct=5.6136 volume=701554317 turnover=28027963732
-- 3481 群創（listed）：close=52.8 change_pct=0.956 volume=211783047 turnover=11158517308
-- 6770 力積電（listed）：close=76.5 change_pct=2.6846 volume=178851877 turnover=13657765471
-- 6182 合晶（otc）：close=135.0 change_pct=3.8462 volume=142244786 turnover=19252353256
-- 2327 國巨*（listed）：close=626.0 change_pct=3.9867 volume=106667349 turnover=66854916325
-- 2303 聯電（listed）：close=161.5 change_pct=0.0 volume=100339050 turnover=16066163882
-- 8150 南茂（listed）：close=127.0 change_pct=9.9567 volume=99203568 turnover=12162294053
-- 6116 彩晶（listed）：close=16.05 change_pct=2.5559 volume=80015461 turnover=1284625343
-- 2344 華邦電（listed）：close=179.0 change_pct=-0.5556 volume=74491648 turnover=13376065897
-- 4958 臻鼎-KY（listed）：close=561.0 change_pct=10.0 volume=69348102 turnover=37849971825
+- 2409 友達（listed）：close=39.05 change_pct=-3.4611 volume=965082115 turnover=39398949082
+- 3481 群創（listed）：close=52.3 change_pct=-0.947 volume=360995094 turnover=19549048816
+- 2303 聯電（listed）：close=152.5 change_pct=-5.5728 volume=328772084 turnover=51160542375
+- 6116 彩晶（listed）：close=15.9 change_pct=-0.9346 volume=126208893 turnover=2083647979
+- 6770 力積電（listed）：close=75.8 change_pct=-0.915 volume=125964867 turnover=9622465943
+- 8150 南茂（listed）：close=124.0 change_pct=-2.3622 volume=98413877 turnover=12464230675
+- 2492 華新科（listed）：close=368.5 change_pct=1.9364 volume=95779681 turnover=36247880780
+- 6182 合晶（otc）：close=131.5 change_pct=-2.5926 volume=92311158 turnover=12438085301
+- 2344 華邦電（listed）：close=181.0 change_pct=1.1173 volume=90976614 turnover=16225709097
+- 1303 南亞（listed）：close=286.0 change_pct=10.0 volume=90932358 turnover=25292249616
 
 ## 漲幅排行
 
-- 1459 聯發（listed）：close=18.7 change_pct=10.0 volume=1105002 turnover=20285085
-- 2321 東訊（listed）：close=25.85 change_pct=10.0 volume=39872 turnover=1029694
-- 2444 兆勁（listed）：close=16.5 change_pct=10.0 volume=5722454 turnover=92189431
-- 4764 雙鍵（listed）：close=203.5 change_pct=10.0 volume=1493882 turnover=297758420
-- 4958 臻鼎-KY（listed）：close=561.0 change_pct=10.0 volume=69348102 turnover=37849971825
-- 3564 其陽（otc）：close=56.1 change_pct=10.0 volume=1975553 turnover=109470770
-- 6174 安碁（otc）：close=55.0 change_pct=10.0 volume=1576195 turnover=86625325
-- 8111 立碁（otc）：close=85.8 change_pct=10.0 volume=23659567 turnover=1968946662
-- 8289 泰藝（otc）：close=56.1 change_pct=10.0 volume=1925352 turnover=106546806
-- 3236 千如（otc）：close=53.4 change_pct=9.9897 volume=9988999 turnover=525838669
+- 1303 南亞（listed）：close=286.0 change_pct=10.0 volume=90932358 turnover=25292249616
+- 2483 百容（listed）：close=40.7 change_pct=10.0 volume=3931690 turnover=155442445
+- 3498 陽程（otc）：close=236.5 change_pct=10.0 volume=4847096 turnover=1099551562
+- 4174 浩鼎（otc）：close=46.2 change_pct=10.0 volume=1932063 turnover=85896432
+- 6174 安碁（otc）：close=60.5 change_pct=10.0 volume=1341802 turnover=81178995
+- 3564 其陽（otc）：close=61.7 change_pct=9.9822 volume=891986 turnover=55035507
+- 2367 燿華（listed）：close=49.65 change_pct=9.9668 volume=31483475 turnover=1510359309
+- 6187 萬潤（otc）：close=1490.0 change_pct=9.9631 volume=4888741 turnover=7092340545
+- 2059 川湖（listed）：close=13355.0 change_pct=9.9629 volume=560379 turnover=7320650105
+- 3114 好德（otc）：close=43.6 change_pct=9.9622 volume=1935420 turnover=83455083
 
 ## 初步篩選
 
 ### limit_up
-- 1459 聯發（listed）：close=18.7 change_pct=10.0 volume=1105002 turnover=20285085
-- 1709 和益（listed）：close=58.5 change_pct=9.9624 volume=33307380 turnover=1895705373
-- 1727 中華化（listed）：close=123.0 change_pct=9.8214 volume=35901281 turnover=4312844837
-- 1735 日勝化（listed）：close=22.15 change_pct=9.9256 volume=356656 turnover=7814851
-- 2033 佳大（listed）：close=51.2 change_pct=9.9893 volume=1044136 turnover=53459739
-- 2321 東訊（listed）：close=25.85 change_pct=10.0 volume=39872 turnover=1029694
-- 2444 兆勁（listed）：close=16.5 change_pct=10.0 volume=5722454 turnover=92189431
-- 2466 冠西電（listed）：close=141.0 change_pct=9.7276 volume=2480183 turnover=340691776
-- 2492 華新科（listed）：close=361.5 change_pct=9.8784 volume=55788034 turnover=19545370663
-- 3311 閎暉（listed）：close=49.65 change_pct=9.9668 volume=2466947 turnover=121045458
+- 1303 南亞（listed）：close=286.0 change_pct=10.0 volume=90932358 turnover=25292249616
+- 1459 聯發（listed）：close=20.55 change_pct=9.893 volume=1209062 turnover=24836336
+- 1709 和益（listed）：close=64.3 change_pct=9.9145 volume=19250830 turnover=1235486887
+- 1714 和桐（listed）：close=18.5 change_pct=9.7923 volume=49600892 turnover=906076772
+- 1735 日勝化（listed）：close=24.35 change_pct=9.9323 volume=899047 turnover=21675366
+- 2059 川湖（listed）：close=13355.0 change_pct=9.9629 volume=560379 turnover=7320650105
+- 2313 華通（listed）：close=248.5 change_pct=9.9558 volume=51436246 turnover=12518539148
+- 2340 台亞（listed）：close=50.3 change_pct=9.9454 volume=21474354 turnover=1065391303
+- 2367 燿華（listed）：close=49.65 change_pct=9.9668 volume=31483475 turnover=1510359309
+- 2368 金像電（listed）：close=1215.0 change_pct=9.9548 volume=7237447 turnover=8687803105
 
 ### volume_spike
-- 1234 黑松（listed）：close=32.65 change_pct=-0.7599 volume=171068 turnover=5588710
-- 1305 華夏（listed）：close=12.55 change_pct=3.2922 volume=2763729 turnover=34463764
-- 1309 台達化（listed）：close=14.3 change_pct=4.3796 volume=3937987 turnover=56044414
-- 1310 台苯（listed）：close=9.61 change_pct=6.541 volume=7764239 turnover=73663726
-- 1313 聯成（listed）：close=12.65 change_pct=2.0161 volume=7886270 turnover=100301427
-- 1324 地球（listed）：close=9.91 change_pct=-1.393 volume=83813 turnover=833056
-- 1326 台化（listed）：close=71.7 change_pct=5.9084 volume=56653992 turnover=4047455805
-- 1416 廣豐（listed）：close=11.85 change_pct=1.7167 volume=604236 turnover=7084314
-- 1459 聯發（listed）：close=18.7 change_pct=10.0 volume=1105002 turnover=20285085
-- 1467 南緯（listed）：close=8.62 change_pct=8.5642 volume=1799273 turnover=15585974
+- 1227 佳格（listed）：close=27.75 change_pct=-0.7156 volume=1406884 turnover=39154981
+- 1231 聯華食（listed）：close=78.5 change_pct=-1.0088 volume=697762 turnover=54948601
+- 1307 三芳（listed）：close=30.85 change_pct=-1.4377 volume=1106412 turnover=34130742
+- 1315 達新（listed）：close=68.7 change_pct=0.1458 volume=84771 turnover=5832191
+- 1324 地球（listed）：close=9.91 change_pct=0.0 volume=60618 turnover=601251
+- 1459 聯發（listed）：close=20.55 change_pct=9.893 volume=1209062 turnover=24836336
+- 1467 南緯（listed）：close=8.22 change_pct=-4.6404 volume=595167 turnover=4986018
+- 1468 昶和（listed）：close=13.15 change_pct=-0.3788 volume=428000 turnover=5625150
+- 1473 台南（listed）：close=19.1 change_pct=-0.2611 volume=141586 turnover=2709312
+- 1474 弘裕（listed）：close=9.98 change_pct=0.0 volume=379117 turnover=3734996
 
 ### breakout_candidates
 - 無
 
 ### institutional_buy_candidates
-- 6770 力積電（listed）：close=76.5 change_pct=2.6846 volume=178851877 turnover=13657765471
-- 2409 友達（listed）：close=40.45 change_pct=5.6136 volume=701554317 turnover=28027963732
-- 1303 南亞（listed）：close=260.0 change_pct=2.3622 volume=42323575 turnover=10920584174
-- 1301 台塑（listed）：close=68.3 change_pct=2.2455 volume=33115055 turnover=2276491222
-- 2002 中鋼（listed）：close=19.0 change_pct=0.2639 volume=21124095 turnover=401069829
-- 6505 台塑化（listed）：close=100.0 change_pct=6.1571 volume=35503078 turnover=3549020392
-- 4958 臻鼎-KY（listed）：close=561.0 change_pct=10.0 volume=69348102 turnover=37849971825
-- 3105 穩懋（otc）：close=591.0 change_pct=9.8513 volume=28497984 turnover=16684253544
-- 2340 台亞（listed）：close=45.75 change_pct=4.333 volume=41777299 turnover=1909172972
-- 8150 南茂（listed）：close=127.0 change_pct=9.9567 volume=99203568 turnover=12162294053
+- 2344 華邦電（listed）：close=181.0 change_pct=1.1173 volume=90976614 turnover=16225709097
+- 1303 南亞（listed）：close=286.0 change_pct=10.0 volume=90932358 turnover=25292249616
+- 1301 台塑（listed）：close=68.5 change_pct=0.2928 volume=24980170 turnover=1718028068
+- 3231 緯創（listed）：close=189.5 change_pct=1.6086 volume=48432219 turnover=9182332196
+- 4958 臻鼎-KY（listed）：close=576.0 change_pct=2.6738 volume=56786688 turnover=32967295514
+- 3105 穩懋（otc）：close=615.0 change_pct=4.0609 volume=48127911 turnover=29694939981
+- 2340 台亞（listed）：close=50.3 change_pct=9.9454 volume=21474354 turnover=1065391303
+- 2408 南亞科（listed）：close=530.0 change_pct=0.7605 volume=42326713 turnover=22229040725
+- 1605 華新（listed）：close=38.4 change_pct=-0.9032 volume=23323207 turnover=907260146
+- 1718 中纖（listed）：close=11.15 change_pct=3.7209 volume=42928384 turnover=480179743
 
 ### margin_short_attention
-- 2409 友達（listed）：close=40.45 change_pct=5.6136 volume=701554317 turnover=28027963732
-- 8150 南茂（listed）：close=127.0 change_pct=9.9567 volume=99203568 turnover=12162294053
-- 2492 華新科（listed）：close=361.5 change_pct=9.8784 volume=55788034 turnover=19545370663
-- 3707 漢磊（otc）：close=85.2 change_pct=9.9355 volume=35855880 turnover=2984859714
-- 3105 穩懋（otc）：close=591.0 change_pct=9.8513 volume=28497984 turnover=16684253544
-- 3236 千如（otc）：close=53.4 change_pct=9.9897 volume=9988999 turnover=525838669
-- 6770 力積電（listed）：close=76.5 change_pct=2.6846 volume=178851877 turnover=13657765471
-- 2376 技嘉（listed）：close=373.5 change_pct=1.3569 volume=9164965 turnover=3455884197
-- 1709 和益（listed）：close=58.5 change_pct=9.9624 volume=33307380 turnover=1895705373
-- 4722 國精化（listed）：close=230.0 change_pct=9.7852 volume=4598483 turnover=1021851570
+- 8111 立碁（otc）：close=94.3 change_pct=9.9068 volume=37743237 turnover=3422641511
+- 1303 南亞（listed）：close=286.0 change_pct=10.0 volume=90932358 turnover=25292249616
+- 2426 鼎元（listed）：close=114.0 change_pct=9.6154 volume=27454253 turnover=3091489342
+- 3701 大眾控（listed）：close=60.9 change_pct=9.9278 volume=4322771 turnover=263256622
+- 1709 和益（listed）：close=64.3 change_pct=9.9145 volume=19250830 turnover=1235486887
+- 6116 彩晶（listed）：close=15.9 change_pct=-0.9346 volume=126208893 turnover=2083647979
+- 6213 聯茂（listed）：close=751.0 change_pct=9.9561 volume=20063879 turnover=14590023265
+- 1714 和桐（listed）：close=18.5 change_pct=9.7923 volume=49600892 turnover=906076772
+- 2340 台亞（listed）：close=50.3 change_pct=9.9454 volume=21474354 turnover=1065391303
+- 8261 富鼎（listed）：close=205.0 change_pct=9.9196 volume=15767944 turnover=3161090066
 
 ### mops_event_candidates
-- 3711 日月光投控（listed）：close=713.0 change_pct=0.4225 volume=12603412 turnover=8985469213
-- 2889 國票金（listed）：close=16.1 change_pct=-0.3096 volume=5874536 turnover=94775039
-- 1103 嘉泥（listed）：close=13.2 change_pct=0.0 volume=150592 turnover=1981380
-- 6188 廣明（otc）：close=62.4 change_pct=0.4831 volume=484668 turnover=30204924
-- 8938 明安（otc）：close=52.2 change_pct=0.0 volume=59445 turnover=3102985
-- 2887 台新新光金（listed）：close=40.55 change_pct=-1.697 volume=56891872 turnover=2310835158
-- 3489 森寶（otc）：close=23.2 change_pct=-2.521 volume=155467 turnover=3625321
-- 4916 事欣科（listed）：close=104.5 change_pct=1.4563 volume=2636368 turnover=274343906
-- 6887 寶綠特-KY（listed）：close=38.9 change_pct=2.5033 volume=18080 turnover=691820
-- 6949 沛爾生醫*-創（listed）：close=44.5 change_pct=-9.919 volume=14023533 turnover=634983505
+- 3711 日月光投控（listed）：close=742.0 change_pct=4.0673 volume=17970212 turnover=13353811094
+- 2889 國票金（listed）：close=16.0 change_pct=-0.6211 volume=11287069 turnover=180645306
+- 4416 三圓（otc）：close=12.75 change_pct=-0.3906 volume=480038 turnover=6113360
+- 2601 益航（listed）：close=6.45 change_pct=0.0 volume=8488264 turnover=54496294
+- 3701 大眾控（listed）：close=60.9 change_pct=9.9278 volume=4322771 turnover=263256622
+- 4530 天意能創（otc）：close=24.6 change_pct=2.5 volume=10604 turnover=252795
+- 6284 佳邦（otc）：close=80.2 change_pct=0.5013 volume=3432302 turnover=280713659
+- 3489 森寶（otc）：close=22.95 change_pct=-1.0776 volume=88377 turnover=2034383
+- 6887 寶綠特-KY（listed）：close=37.55 change_pct=-3.4704 volume=76415 turnover=2860389
+- 6949 沛爾生醫*-創（listed）：close=47.6 change_pct=6.9663 volume=3960715 turnover=182865218
 
 ### revenue_financial_candidates
 - 無
@@ -141,77 +141,71 @@
 - 無
 
 ### episodic_pivot
-- 3490 單井（otc）：close=50.7 change_pct=4.0 volume=18648176 turnover=916946904
-- 1727 中華化（listed）：close=123.0 change_pct=9.8214 volume=35901281 turnover=4312844837
-- 3518 柏騰（listed）：close=44.35 change_pct=9.9133 volume=10157623 turnover=432703787
-- 8150 南茂（listed）：close=127.0 change_pct=9.9567 volume=99203568 turnover=12162294053
-- 9933 中鼎（listed）：close=45.8 change_pct=9.964 volume=21275998 turnover=966503332
-- 3707 漢磊（otc）：close=85.2 change_pct=9.9355 volume=35855880 turnover=2984859714
-- 4958 臻鼎-KY（listed）：close=561.0 change_pct=10.0 volume=69348102 turnover=37849971825
-- 6239 力成（listed）：close=308.0 change_pct=5.2991 volume=30835497 turnover=9409026133
-- 4722 國精化（listed）：close=230.0 change_pct=9.7852 volume=4598483 turnover=1021851570
-- 3701 大眾控（listed）：close=55.4 change_pct=9.9206 volume=10135816 turnover=540021987
+- 3518 柏騰（listed）：close=48.75 change_pct=9.9211 volume=8802224 turnover=426201529
+- 3362 先進光（otc）：close=191.0 change_pct=8.8319 volume=7905467 turnover=1474874790
+- 5355 佳總（otc）：close=7.87 change_pct=6.3514 volume=370996 turnover=2892850
+- 3284 太普高（otc）：close=21.6 change_pct=7.4627 volume=839813 turnover=17938299
 
 ### anticipation
-- 2371 大同（listed）：close=31.1 change_pct=1.9672 volume=18900562 turnover=580268177
-- 2455 全新（listed）：close=580.0 change_pct=6.2271 volume=4299731 turnover=2441116526
-- 1303 南亞（listed）：close=260.0 change_pct=2.3622 volume=42323575 turnover=10920584174
-- 3044 健鼎（listed）：close=542.0 change_pct=2.4575 volume=1693324 turnover=912851349
-- 2412 中華電（listed）：close=146.0 change_pct=0.3436 volume=10009961 turnover=1458318100
-- 2330 台積電（listed）：close=2500.0 change_pct=-0.3984 volume=15792206 turnover=39508159297
-- 4904 遠傳（listed）：close=106.0 change_pct=0.9524 volume=4014485 turnover=423897933
-- 5876 上海商銀（listed）：close=48.95 change_pct=1.1364 volume=3664456 turnover=178294193
-- 3714 富采（listed）：close=70.8 change_pct=2.907 volume=23714073 turnover=1686762034
-- 1301 台塑（listed）：close=68.3 change_pct=2.2455 volume=33115055 turnover=2276491222
+- 6278 台表科（listed）：close=220.0 change_pct=1.3825 volume=12352429 turnover=2701010494
+- 3491 昇達科（otc）：close=1630.0 change_pct=9.7643 volume=2357556 turnover=3752701095
+- 2357 華碩（listed）：close=995.0 change_pct=3.4304 volume=2807714 turnover=2776109183
+- 2395 研華（listed）：close=740.0 change_pct=3.352 volume=2579224 turnover=1909181486
+- 6716 應廣（otc）：close=133.0 change_pct=9.9174 volume=1130704 turnover=147324522
+- 2103 台橡（listed）：close=28.6 change_pct=1.5986 volume=3703862 turnover=105272316
+- 2371 大同（listed）：close=30.15 change_pct=-3.0547 volume=18642408 turnover=572413979
+- 2313 華通（listed）：close=248.5 change_pct=9.9558 volume=51436246 turnover=12518539148
+- 3045 台灣大（listed）：close=122.5 change_pct=0.4098 volume=7130067 turnover=873475993
+- 4904 遠傳（listed）：close=105.5 change_pct=-0.4717 volume=6052583 turnover=635361451
 
 ### extended_watch
-- 8111 立碁（otc）：close=85.8 change_pct=10.0 volume=23659567 turnover=1968946662
-- 6505 台塑化（listed）：close=100.0 change_pct=6.1571 volume=35503078 turnover=3549020392
-- 6122 擎邦（otc）：close=63.9 change_pct=2.5682 volume=2170866 turnover=136103092
-- 6196 帆宣（listed）：close=618.0 change_pct=2.6578 volume=1802450 turnover=1100336276
-- 4927 泰鼎-KY（listed）：close=48.15 change_pct=9.9315 volume=17406916 turnover=827984011
-- 8021 尖點（listed）：close=553.0 change_pct=9.9404 volume=9216082 turnover=4976075593
-- 3016 嘉晶（listed）：close=180.5 change_pct=7.4405 volume=8692203 turnover=1538049318
-- 8046 南電（listed）：close=1460.0 change_pct=2.8169 volume=16705151 turnover=23979600915
-- 6491 晶碩（listed）：close=424.0 change_pct=0.5931 volume=487235 turnover=206031062
-- 3167 大量（listed）：close=981.0 change_pct=0.6154 volume=6748712 turnover=6555491800
+- 3543 州巧（listed）：close=54.0 change_pct=5.8824 volume=5254467 turnover=282228155
+- 6187 萬潤（otc）：close=1490.0 change_pct=9.9631 volume=4888741 turnover=7092340545
+- 5434 崇越（listed）：close=620.0 change_pct=6.3465 volume=1553309 turnover=950822033
+- 6691 洋基工程（listed）：close=794.0 change_pct=7.1525 volume=2022038 turnover=1574582150
+- 2455 全新（listed）：close=606.0 change_pct=4.4828 volume=2369279 turnover=1411804426
+- 3374 精材（otc）：close=498.5 change_pct=6.631 volume=3601808 turnover=1770438320
+- 2426 鼎元（listed）：close=114.0 change_pct=9.6154 volume=27454253 turnover=3091489342
+- 3147 大綜（otc）：close=275.0 change_pct=3.9698 volume=1487464 turnover=393774486
+- 3711 日月光投控（listed）：close=742.0 change_pct=4.0673 volume=17970212 turnover=13353811094
+- 8111 立碁（otc）：close=94.3 change_pct=9.9068 volume=37743237 turnover=3422641511
 
 ### failed_breakout
-- 3441 聯一光（otc）：close=211.0 change_pct=4.1975 volume=28129324 turnover=6058964475
-- 6423 億而得（otc）：close=95.5 change_pct=1.1653 volume=469466 turnover=46982696
-- 6226 光鼎（listed）：close=46.4 change_pct=-3.3333 volume=39930818 turnover=1884069211
-- 3147 大綜（otc）：close=264.5 change_pct=-1.1215 volume=2172348 turnover=572723764
-- 4903 聯光通（otc）：close=45.3 change_pct=2.1421 volume=10524817 turnover=479675649
-- 5016 松和（otc）：close=28.6 change_pct=1.7794 volume=1319470 turnover=37894793
-- 5292 華懋（listed）：close=240.0 change_pct=1.2658 volume=251935 turnover=60360342
-- 2614 東森（listed）：close=19.25 change_pct=0.0 volume=2756942 turnover=53428703
-- 3094 聯傑（listed）：close=70.3 change_pct=3.8405 volume=35223446 turnover=2470460144
-- 6603 富強鑫（otc）：close=29.25 change_pct=-1.8456 volume=10861460 turnover=329115903
+- 9933 中鼎（listed）：close=46.35 change_pct=1.2009 volume=23071356 turnover=1091807297
+- 8021 尖點（listed）：close=560.0 change_pct=1.2658 volume=12199882 turnover=6831517730
+- 3037 欣興（listed）：close=1325.0 change_pct=1.5326 volume=27109050 turnover=36937724775
+- 6209 今國光（listed）：close=87.9 change_pct=4.7676 volume=18483958 turnover=1615231500
+- 3105 穩懋（otc）：close=615.0 change_pct=4.0609 volume=48127911 turnover=29694939981
+- 3017 奇鋐（listed）：close=3585.0 change_pct=4.2151 volume=4606753 turnover=16355725100
+- 4912 聯德控股-KY（listed）：close=109.5 change_pct=3.3019 volume=1620147 turnover=181572882
+- 3455 由田（otc）：close=283.5 change_pct=1.25 volume=8870462 turnover=2534882635
+- 6227 茂綸（otc）：close=142.5 change_pct=1.4235 volume=2947479 turnover=431376822
+- 6168 宏齊（listed）：close=47.1 change_pct=2.3913 volume=31808643 turnover=1532050494
 
 ### insufficient_data
-- 5351 鈺創（otc）：close=116.0 change_pct=5.9361 volume=16680725 turnover=1909595077
-- 1815 富喬（otc）：close=121.0 change_pct=4.3103 volume=43203369 turnover=5185527994
-- 1605 華新（listed）：close=38.75 change_pct=0.5188 volume=29963296 turnover=1168230992
-- 1326 台化（listed）：close=71.7 change_pct=5.9084 volume=56653992 turnover=4047455805
-- 5469 瀚宇博（listed）：close=75.9 change_pct=1.7426 volume=1637219 turnover=123261723
-- 2357 華碩（listed）：close=962.0 change_pct=-0.3109 volume=1166554 turnover=1122151331
-- 3006 晶豪科（listed）：close=285.5 change_pct=1.6014 volume=9101409 turnover=2608184123
-- 2603 長榮（listed）：close=240.0 change_pct=0.8403 volume=5621086 turnover=1346964237
-- 3231 緯創（listed）：close=186.5 change_pct=-2.0997 volume=36439616 turnover=6811804448
-- 3711 日月光投控（listed）：close=713.0 change_pct=0.4225 volume=12603412 turnover=8985469213
+- 2330 台積電（listed）：close=2575.0 change_pct=3.0 volume=26800187 turnover=68799148330
+- 2301 光寶科（listed）：close=298.0 change_pct=5.8615 volume=29984591 turnover=8883116290
+- 8039 台虹（listed）：close=303.5 change_pct=2.5338 volume=49438408 turnover=14702099689
+- 3490 單井（otc）：close=46.15 change_pct=-8.9744 volume=8282809 turnover=394881605
+- 1815 富喬（otc）：close=128.5 change_pct=6.1983 volume=73507950 turnover=9287960440
+- 2408 南亞科（listed）：close=530.0 change_pct=0.7605 volume=42326713 turnover=22229040725
+- 3231 緯創（listed）：close=189.5 change_pct=1.6086 volume=48432219 turnover=9182332196
+- 1605 華新（listed）：close=38.4 change_pct=-0.9032 volume=23323207 turnover=907260146
+- 2317 鴻海（listed）：close=254.0 change_pct=1.1952 volume=52629375 turnover=13397868878
+- 8070 長華*（listed）：close=51.7 change_pct=1.9724 volume=4704235 turnover=244892119
 
 ### top_candidates
 
-- 3490 單井（otc）：close=50.7 change_pct=4.0 volume=18648176 turnover=916946904
-- 1727 中華化（listed）：close=123.0 change_pct=9.8214 volume=35901281 turnover=4312844837
-- 3518 柏騰（listed）：close=44.35 change_pct=9.9133 volume=10157623 turnover=432703787
-- 8150 南茂（listed）：close=127.0 change_pct=9.9567 volume=99203568 turnover=12162294053
-- 9933 中鼎（listed）：close=45.8 change_pct=9.964 volume=21275998 turnover=966503332
-- 3707 漢磊（otc）：close=85.2 change_pct=9.9355 volume=35855880 turnover=2984859714
-- 4958 臻鼎-KY（listed）：close=561.0 change_pct=10.0 volume=69348102 turnover=37849971825
-- 6239 力成（listed）：close=308.0 change_pct=5.2991 volume=30835497 turnover=9409026133
-- 4722 國精化（listed）：close=230.0 change_pct=9.7852 volume=4598483 turnover=1021851570
-- 3701 大眾控（listed）：close=55.4 change_pct=9.9206 volume=10135816 turnover=540021987
+- 3518 柏騰（listed）：close=48.75 change_pct=9.9211 volume=8802224 turnover=426201529
+- 3362 先進光（otc）：close=191.0 change_pct=8.8319 volume=7905467 turnover=1474874790
+- 5355 佳總（otc）：close=7.87 change_pct=6.3514 volume=370996 turnover=2892850
+- 3284 太普高（otc）：close=21.6 change_pct=7.4627 volume=839813 turnover=17938299
+- 6278 台表科（listed）：close=220.0 change_pct=1.3825 volume=12352429 turnover=2701010494
+- 3491 昇達科（otc）：close=1630.0 change_pct=9.7643 volume=2357556 turnover=3752701095
+- 2357 華碩（listed）：close=995.0 change_pct=3.4304 volume=2807714 turnover=2776109183
+- 2395 研華（listed）：close=740.0 change_pct=3.352 volume=2579224 turnover=1909181486
+- 6716 應廣（otc）：close=133.0 change_pct=9.9174 volume=1130704 turnover=147324522
+- 2103 台橡（listed）：close=28.6 change_pct=1.5986 volume=3703862 turnover=105272316
 
 ## 缺少的資料段落
 
