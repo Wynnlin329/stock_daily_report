@@ -5,10 +5,10 @@
   "market": "otc",
   "security_type": "common_stock",
   "scan_eligible": true,
-  "report_date": "2026-10-08",
-  "as_of_date": "2026-10-07",
-  "market_data_date": "2026-10-07",
-  "generated_at": "2026-10-08T04:59:45+08:00",
+  "report_date": "2026-10-09",
+  "as_of_date": "2026-10-08",
+  "market_data_date": "2026-10-08",
+  "generated_at": "2026-10-09T05:01:29+08:00",
   "timezone": "Asia/Taipei",
   "source_url": "https://raw.githubusercontent.com/Wynnlin329/stock_daily_report/codex/stock-health-v1/data/chatgpt/symbols/6147.json",
   "data_quality": {
@@ -16,7 +16,7 @@
     "technical_indicators_complete": true,
     "enhanced_indicators_complete": true,
     "enhanced_indicator_missing_reason": {},
-    "htf_structure_complete": true,
+    "htf_structure_complete": false,
     "episodic_pivot_complete": true,
     "episodic_pivot_missing_reason": {
       "catalyst_surprise_score": "directional_event_surprise_not_available",
@@ -27,37 +27,40 @@
       "opening_range_high": "reliable_intraday_data_not_available",
       "opening_range_low": "reliable_intraday_data_not_available"
     },
-    "htf_structure_missing_reason": {},
-    "source_market_file": "data/market/2026/10/2026-10-07-otc-ohlcv.csv"
+    "htf_structure_missing_reason": {
+      "range_contraction_ratio": "insufficient_flag_duration:2/10",
+      "volume_contraction_ratio": "insufficient_flag_duration:2/10"
+    },
+    "source_market_file": "data/market/2026/10/2026-10-08-otc-ohlcv.csv"
   },
-  "date": "2026-10-07",
-  "open": 216.5,
-  "high": 238.0,
-  "low": 215.5,
-  "close": 231.5,
-  "volume": 79939368,
-  "turnover": 18448200390,
-  "ma10": 217.75,
-  "ma20": 209.625,
-  "ma50": 180.72,
-  "avg_volume_20d": 43535193.2,
-  "avg_turnover_20d": 9057643197.4,
-  "volume_ratio_20d": 1.8362,
-  "pivot_price": 233.0,
+  "date": "2026-10-08",
+  "open": 230.0,
+  "high": 236.5,
+  "low": 222.0,
+  "close": 226.0,
+  "volume": 48534420,
+  "turnover": 11152876637,
+  "ma10": 218.45,
+  "ma20": 211.6,
+  "ma50": 182.08,
+  "avg_volume_20d": 45141710.4,
+  "avg_turnover_20d": 9524022729.15,
+  "volume_ratio_20d": 1.0752,
+  "pivot_price": 238.0,
   "stop_reference": 194.5,
-  "adr20_pct": 5.7882,
-  "atr14": 11.8214,
-  "atr14_pct": 5.1064,
-  "stop_risk_pct": 15.9827,
-  "stop_to_adr_ratio": 2.7613,
-  "stop_to_atr_ratio": 3.1299,
-  "return_1m": 26.8493,
-  "return_3m": 7.4246,
-  "return_6m": 1.7582,
-  "rs_rank_1m": 94.6002,
-  "rs_rank_3m": 83.8979,
-  "rs_rank_6m": 59.6224,
-  "composite_rs_rank": 82.1099,
+  "adr20_pct": 5.7337,
+  "atr14": 12.1429,
+  "atr14_pct": 5.373,
+  "stop_risk_pct": 13.9381,
+  "stop_to_adr_ratio": 2.4309,
+  "stop_to_atr_ratio": 2.5941,
+  "return_1m": 18.3246,
+  "return_3m": 4.1475,
+  "return_6m": -0.6593,
+  "rs_rank_1m": 90.6868,
+  "rs_rank_3m": 79.2167,
+  "rs_rank_6m": 52.2859,
+  "composite_rs_rank": 77.072,
   "missing_reason": {},
   "indicator_basis": {
     "adr_window": 20,
@@ -78,34 +81,36 @@
     },
     "valid_trading_day": "positive complete OHLC and volume>0"
   },
-  "prior_move_pct_20d": 40.3614,
-  "prior_move_pct_60d": 105.2863,
+  "prior_move_pct_20d": 39.1813,
+  "prior_move_pct_60d": 109.6916,
   "high_52w": 278.0,
-  "distance_to_52w_high_pct": -16.7266,
-  "flag_duration_days": 10,
-  "flag_depth_pct": 10.7296,
-  "higher_lows_count": 4,
-  "range_contraction_ratio": 1.307,
-  "volume_contraction_ratio": 0.9006,
-  "ma10_slope": 1.9906,
-  "ma20_slope": 4.5902,
-  "ma50_slope": 2.7986,
-  "distance_to_ma10_pct": 6.3146,
-  "distance_to_ma20_pct": 10.4353,
-  "monthly_close": 231.5,
-  "monthly_ma12": 154.9083,
+  "distance_to_52w_high_pct": -18.705,
+  "flag_duration_days": 2,
+  "flag_depth_pct": 9.4538,
+  "higher_lows_count": 1,
+  "range_contraction_ratio": null,
+  "volume_contraction_ratio": null,
+  "ma10_slope": 1.1109,
+  "ma20_slope": 4.4809,
+  "ma50_slope": 2.8526,
+  "distance_to_ma10_pct": 3.4562,
+  "distance_to_ma20_pct": 6.8053,
+  "monthly_close": 226.0,
+  "monthly_ma12": 154.45,
   "monthly_above_ma12": true,
   "weekly_trend_state": "neutral",
   "long_term_ma_state": "rising",
-  "daily_trigger_state": "failed_breakout",
+  "daily_trigger_state": "inside_flag",
   "htf_structure_score": 65,
-  "htf_structure_status": "failed_breakout",
+  "htf_structure_status": "insufficient_data",
   "htf_rejection_reasons": [
-    "range_not_contracting",
-    "volume_not_contracting",
+    "flag_duration_too_short",
     "weekly_trend_neutral"
   ],
-  "htf_missing_reason": {},
+  "htf_missing_reason": {
+    "range_contraction_ratio": "insufficient_flag_duration:2/10",
+    "volume_contraction_ratio": "insufficient_flag_duration:2/10"
+  },
   "htf_structure_basis": {
     "flag_duration_range": [
       10,
@@ -137,26 +142,28 @@
     "excluded_isolated_price_outlier_dates": [],
     "isolated_price_outlier_threshold_pct": 40
   },
-  "gap_pct": 0.0,
-  "open_vs_prior_close_pct": 0.0,
-  "daily_volume_ratio": 1.8362,
-  "ep_close_location_pct": 71.1111,
+  "gap_pct": -0.6479,
+  "open_vs_prior_close_pct": -0.6479,
+  "daily_volume_ratio": 1.0752,
+  "ep_close_location_pct": 27.5862,
   "catalyst_type": null,
   "catalyst_date": null,
   "catalyst_source": null,
   "catalyst_surprise_score": null,
   "revenue_growth_yoy": null,
   "eps_growth_yoy": null,
-  "prior_3m_extension_pct": 2.3641,
-  "prior_6m_extension_pct": -4.8352,
+  "prior_3m_extension_pct": 7.4246,
+  "prior_6m_extension_pct": 1.7582,
   "volume_first_15m_ratio": null,
   "volume_first_30m_ratio": null,
   "opening_range_high": null,
   "opening_range_low": null,
-  "ep_quality_score": 35,
+  "ep_quality_score": 10,
   "ep_status": "rejected",
   "ep_rejection_reasons": [
     "no_verified_mops_catalyst_in_allowed_window",
+    "no_material_gap_or_repricing",
+    "weak_close_after_repricing",
     "daily_volume_ratio_below_threshold"
   ],
   "ep_missing_reason": {
@@ -170,7 +177,7 @@
   },
   "ep_score_breakdown": {
     "verified_catalyst": 0,
-    "repricing": 25,
+    "repricing": 0,
     "abnormal_volume": 0,
     "catalyst_timing": 0,
     "extension_quality": 10
@@ -180,12 +187,12 @@
   "catalyst_event_verified": false,
   "catalyst_direction": null,
   "catalyst_direction_interpreted": false,
-  "mops_data_date": "2026-10-07",
+  "mops_data_date": "2026-10-08",
   "mops_date_validation": "matched",
   "mops_data_date_matches_analysis_date": true,
   "ep_basis": {
-    "analysis_date": "2026-10-07",
-    "prior_close": 216.5,
+    "analysis_date": "2026-10-08",
+    "prior_close": 231.5,
     "average_volume_window_days": 20,
     "catalyst_lookback_calendar_days": 3,
     "latest_same_day_catalyst_time": "13:30",
@@ -194,124 +201,71 @@
     "event_direction_inferred": false,
     "real_trading": false
   },
-  "setup_type": "failed_breakout",
+  "setup_type": "insufficient_data",
   "extended_risk": false,
   "risk_notes": [
     "僅供研究與人工複核，不構成買賣建議",
-    "資券變化可能代表籌碼分歧，不可單獨視為買賣訊號",
     "距離風險參考位置超過門檻"
   ],
-  "grade_v1": "C",
-  "score_v1": 57,
-  "grade_v2_shadow": "C",
-  "score_v2_shadow": 75.43,
+  "grade_v1": "Ungraded",
+  "score_v1": null,
+  "grade_v2_shadow": "Ungraded",
+  "score_v2_shadow": null,
   "grade_difference": "same",
   "v2_rejection_reasons": [
-    "grade_cap:failed_or_invalid_htf_cap_c",
-    "grade_cap:stop_risk_above_absolute_cap_c"
+    "必要欄位缺少或型別無效，依 v2 缺值政策維持 Ungraded。"
   ],
   "grading_v1": {
     "policy_id": "qullamaggie-grading-policy",
     "policy_version": "1.0.0",
-    "grade_score_v1": 57,
-    "component_scores": {
-      "trend": 20,
-      "relative_strength": 12,
-      "setup_structure": 0,
-      "trigger_position": 15,
-      "stop_quality": 0,
-      "liquidity": 5,
-      "volume_confirmation": 5
-    },
-    "preliminary_grade": "C",
-    "final_grade": "C",
-    "setup_type": "failed_breakout",
-    "entry_reference": 233.0,
-    "pivot_distance_pct": 0.64,
-    "stop_risk_pct": 16.52,
-    "avg_turnover_20d_est": 10078397225.8,
+    "grade_score_v1": null,
+    "component_scores": {},
+    "preliminary_grade": null,
+    "final_grade": "Ungraded",
+    "setup_type": "insufficient_data",
+    "entry_reference": null,
+    "pivot_distance_pct": null,
+    "stop_risk_pct": null,
+    "avg_turnover_20d_est": null,
     "hard_gate_results": [
       {
-        "id": "scan_eligible_false",
-        "triggered": false
-      },
-      {
-        "id": "required_data_missing_or_invalid",
-        "triggered": false
-      },
-      {
-        "id": "ohlcv_incomplete",
-        "triggered": false
-      },
-      {
         "id": "setup_insufficient_or_unknown",
-        "triggered": false
-      },
-      {
-        "id": "derived_data_invalid",
-        "triggered": false
+        "triggered": true
       }
     ],
-    "applied_caps": [
-      "failed_breakout_cap_c",
-      "stop_risk_over_12_cap_c",
-      "stop_risk_above_10_cap_b",
-      "stop_risk_above_8_cap_a_minus"
-    ],
-    "major_defects": [
-      "stop_risk_over_12",
-      "failed_breakout"
-    ],
+    "applied_caps": [],
+    "major_defects": [],
     "minor_defects": [],
     "reasons": [
-      "raw_score=57 對應 preliminary_grade=C。",
-      "套用必要條件與 grade caps 後 final_grade=C。"
+      "Setup 資料不足或類型未知，依 policy 保持 Ungraded。"
     ],
     "upgrade_requirements": [],
     "missing_fields": [],
     "data_errors": [],
     "market_regime": "risk_on",
-    "market_gate": "watch",
-    "action_status": "watch_or_reject",
-    "block_reason": null
+    "market_gate": "not_applicable",
+    "action_status": "not_applicable",
+    "block_reason": "quality_grade_unavailable"
   },
   "grading_v2_shadow": {
     "policy_id": "qullamaggie-grading-policy-v2",
     "policy_version": "2.0.0-shadow.1",
     "policy_status": "shadow",
-    "grade_v2_shadow": "C",
-    "score_v2_shadow": 75.43,
-    "preliminary_grade_v2_shadow": "A-",
-    "component_scores": {
-      "timeframe_trend": 7.5,
-      "multi_period_rs": 15.68,
-      "prior_move": 10.0,
-      "htf_structure": 9.75,
-      "pivot_position": 10.0,
-      "stop_quality": 9.5,
-      "volume_behavior": 3.0,
-      "liquidity": 5.0,
-      "extension_risk": 5.0
-    },
-    "pivot_distance_pct": -0.64,
-    "missing_fields": [],
-    "data_errors": [],
-    "applied_caps": [
-      {
-        "id": "failed_or_invalid_htf_cap_c",
-        "maximum_grade": "C"
-      },
-      {
-        "id": "stop_risk_above_absolute_cap_c",
-        "maximum_grade": "C"
-      }
+    "grade_v2_shadow": "Ungraded",
+    "score_v2_shadow": null,
+    "preliminary_grade_v2_shadow": null,
+    "component_scores": {},
+    "pivot_distance_pct": null,
+    "missing_fields": [
+      "volume_contraction_ratio"
     ],
+    "data_errors": [],
+    "applied_caps": [],
     "hard_risk_checks": [],
     "v2_rejection_reasons": [
-      "grade_cap:failed_or_invalid_htf_cap_c",
-      "grade_cap:stop_risk_above_absolute_cap_c"
+      "必要欄位缺少或型別無效，依 v2 缺值政策維持 Ungraded。"
     ],
     "market_regime": "risk_on",
-    "market_gate_shadow": "watch"
+    "market_gate_shadow": "not_applicable"
   }
 }
