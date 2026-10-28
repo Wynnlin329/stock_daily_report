@@ -1,8 +1,8 @@
-# 報告日期：2026/10/28（星期三）
+# 報告日期：2026/10/29（星期四）
 
-- 執行時間：2026-10-28T04:23:45+08:00
+- 執行時間：2026-10-29T04:47:14+08:00
 - 交易日判定：True
-- 最新市場資料日期：2026-10-27
+- 最新市場資料日期：2026-10-28
 - 是否足以執行全市場掃描：True
 - 整體信心等級：high
 
@@ -10,10 +10,10 @@
 
 | 來源 | 角色 | 可連線 | HTTP | 資料日期 | 明確日期 | 當期 | 排程可用 | 錯誤 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| TWSE | 主資料源 | True | 200 | 2026-10-27 | True | True | True |  |
-| TPEx | 主資料源 | True | 200 | 2026-10-27 | True | True | True |  |
+| TWSE | 主資料源 | True | 200 | 2026-10-28 | True | True | True |  |
+| TPEx | 主資料源 | True | 200 | 2026-10-28 | True | True | True |  |
 | data.gov.tw | 主資料源 | True | 200 |  | False | False | False | 未取得明確資料日期；不可判定為當日資料可用 |
-| MOPS | 主資料源 | True | 200 | 2026-10-27 | True | True | True |  |
+| MOPS | 主資料源 | True | 200 | 2026-10-28 | True | True | True |  |
 | Goodinfo | 候補資料源 | False | 403 |  | False | False | False | HTTP 403: Forbidden |
 | Yahoo 奇摩股市 | 催化新聞源 | True | 200 |  | False | False | False | 未取得明確資料日期；不可判定為當日資料可用 |
 | 鉅亨網 Cnyes | 催化新聞源 | True | 200 |  | False | False | False | 未取得明確資料日期；不可判定為當日資料可用 |
@@ -61,15 +61,15 @@
 
 - market_environment：True（TWSE has explicit current market date）
 - listed_ohlcv：True（1386 listed rows parsed）
-- otc_ohlcv：True（13186 OTC rows parsed）
+- otc_ohlcv：True（13127 OTC rows parsed）
 - volume_ranking：True（Computed from official OHLCV）
 - turnover_ranking：True（Computed from official OHLCV）
 - price_change_screening：True（Computed from official OHLCV）
 - limit_up_screening：True（Estimated from daily change percent）
 - volume_spike_screening：True（20-day volume history available）
-- institutional_trading：True（19000 institutional rows parsed from official sources）
+- institutional_trading：True（20810 institutional rows parsed from official sources）
 - margin_short：True（1984 margin/short rows parsed from official sources）
-- material_information：True（MOPS material information query verified with 261 events）
+- material_information：True（MOPS material information query verified with 273 events）
 - revenue_financials：False（First version does not parse revenue or financial statements yet）
 - news_topics：True（At least one catalyst news source reachable）
 - technical_review：False（TradingView/WantGoo/CMoney are manual review sources, not automated signals）
