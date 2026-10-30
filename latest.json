@@ -1,29 +1,29 @@
 {
   "schema_version": "1.0",
-  "report_date": "2026-10-30",
-  "as_of_date": "2026-10-29",
-  "market_data_date": "2026-10-29",
-  "generated_at": "2026-10-30T04:49:16+08:00",
+  "report_date": "2026-10-31",
+  "as_of_date": "2026-10-30",
+  "market_data_date": "2026-10-30",
+  "generated_at": "2026-10-31T04:21:46+08:00",
   "timezone": "Asia/Taipei",
-  "market_is_trading_day": true,
+  "market_is_trading_day": false,
   "market_data_is_trading_day": true,
-  "latest_market_data_date": "2026-10-29",
+  "latest_market_data_date": "2026-10-30",
   "data_freshness": {
-    "report_date": "2026-10-30",
-    "as_of_date": "2026-10-29",
-    "market_data_date": "2026-10-29",
-    "expected_market_data_date": "2026-10-29",
-    "latest_market_data_date": "2026-10-29",
+    "report_date": "2026-10-31",
+    "as_of_date": "2026-10-30",
+    "market_data_date": "2026-10-30",
+    "expected_market_data_date": "2026-10-30",
+    "latest_market_data_date": "2026-10-30",
     "is_latest_trading_data_current": true,
     "reason": "Latest trading data is current"
   },
   "sources": {
     "twse": {
       "name": "TWSE",
-      "checked_at": "2026-10-30T04:49:16+08:00",
+      "checked_at": "2026-10-31T04:21:46+08:00",
       "reachable": true,
       "http_status": 200,
-      "data_date": "2026-10-29",
+      "data_date": "2026-10-30",
       "is_current": true,
       "date_explicit": true,
       "machine_readable": true,
@@ -31,16 +31,16 @@
       "dynamic_loading_suspected": false,
       "schedule_ready": true,
       "role": "主資料源",
-      "evidence": "上市 OHLCV parsed 1388 rows from official endpoint",
+      "evidence": "上市 OHLCV parsed 1389 rows from official endpoint",
       "error": "",
-      "response_time_ms": 2086
+      "response_time_ms": 1170
     },
     "tpex": {
       "name": "TPEx",
-      "checked_at": "2026-10-30T04:49:16+08:00",
+      "checked_at": "2026-10-31T04:21:46+08:00",
       "reachable": true,
       "http_status": 200,
-      "data_date": "2026-10-29",
+      "data_date": "2026-10-30",
       "is_current": true,
       "date_explicit": true,
       "machine_readable": true,
@@ -48,13 +48,13 @@
       "dynamic_loading_suspected": false,
       "schedule_ready": true,
       "role": "主資料源",
-      "evidence": "上櫃 OHLCV parsed 13242 rows from official endpoint",
+      "evidence": "上櫃 OHLCV parsed 13360 rows from official endpoint",
       "error": "",
-      "response_time_ms": 5596
+      "response_time_ms": 4538
     },
     "data_gov_tw": {
       "name": "data.gov.tw",
-      "checked_at": "2026-10-30T04:49:16+08:00",
+      "checked_at": "2026-10-31T04:21:46+08:00",
       "reachable": true,
       "http_status": 200,
       "data_date": null,
@@ -67,14 +67,14 @@
       "role": "主資料源",
       "evidence": "GET https://data.gov.tw/ succeeded, but no explicit data date was parsed",
       "error": "未取得明確資料日期；不可判定為當日資料可用",
-      "response_time_ms": 2865
+      "response_time_ms": 2889
     },
     "mops": {
       "name": "MOPS",
-      "checked_at": "2026-10-30T04:49:16+08:00",
+      "checked_at": "2026-10-31T04:21:46+08:00",
       "reachable": true,
       "http_status": 200,
-      "data_date": "2026-10-29",
+      "data_date": "2026-10-30",
       "is_current": true,
       "date_explicit": true,
       "machine_readable": true,
@@ -82,13 +82,13 @@
       "dynamic_loading_suspected": false,
       "schedule_ready": true,
       "role": "主資料源",
-      "evidence": "MOPS 重大訊息查詢成功，資料日期 2026-10-29，事件 282 則",
+      "evidence": "MOPS 重大訊息查詢成功，資料日期 2026-10-30，事件 288 則",
       "error": "",
-      "response_time_ms": 889
+      "response_time_ms": 638
     },
     "goodinfo": {
       "name": "Goodinfo",
-      "checked_at": "2026-10-30T04:49:16+08:00",
+      "checked_at": "2026-10-31T04:21:46+08:00",
       "reachable": false,
       "http_status": 403,
       "data_date": null,
@@ -101,11 +101,11 @@
       "role": "候補資料源",
       "evidence": "GET https://goodinfo.tw/tw/index.asp failed with status=403",
       "error": "HTTP 403: Forbidden",
-      "response_time_ms": 109
+      "response_time_ms": 161
     },
     "yahoo_tw_stock": {
       "name": "Yahoo 奇摩股市",
-      "checked_at": "2026-10-30T04:49:16+08:00",
+      "checked_at": "2026-10-31T04:21:46+08:00",
       "reachable": true,
       "http_status": 200,
       "data_date": null,
@@ -118,11 +118,11 @@
       "role": "催化新聞源",
       "evidence": "GET https://tw.stock.yahoo.com/ succeeded, but no explicit data date was parsed",
       "error": "未取得明確資料日期；不可判定為當日資料可用",
-      "response_time_ms": 1827
+      "response_time_ms": 1096
     },
     "cnyes": {
       "name": "鉅亨網 Cnyes",
-      "checked_at": "2026-10-30T04:49:16+08:00",
+      "checked_at": "2026-10-31T04:21:46+08:00",
       "reachable": true,
       "http_status": 200,
       "data_date": null,
@@ -135,11 +135,11 @@
       "role": "催化新聞源",
       "evidence": "GET https://www.cnyes.com/twstock/ succeeded, but no explicit data date was parsed",
       "error": "未取得明確資料日期；不可判定為當日資料可用",
-      "response_time_ms": 534
+      "response_time_ms": 572
     },
     "moneydj": {
       "name": "MoneyDJ",
-      "checked_at": "2026-10-30T04:49:16+08:00",
+      "checked_at": "2026-10-31T04:21:46+08:00",
       "reachable": true,
       "http_status": 200,
       "data_date": null,
@@ -152,11 +152,11 @@
       "role": "催化新聞源",
       "evidence": "GET https://www.moneydj.com/ succeeded, but no explicit data date was parsed",
       "error": "未取得明確資料日期；不可判定為當日資料可用",
-      "response_time_ms": 905
+      "response_time_ms": 808
     },
     "tradingview": {
       "name": "TradingView",
-      "checked_at": "2026-10-30T04:49:16+08:00",
+      "checked_at": "2026-10-31T04:21:46+08:00",
       "reachable": true,
       "http_status": 200,
       "data_date": null,
@@ -169,11 +169,11 @@
       "role": "人工複核源",
       "evidence": "GET https://tw.tradingview.com/markets/stocks-taiwan/ succeeded, but no explicit data date was parsed",
       "error": "未取得明確資料日期；不可判定為當日資料可用",
-      "response_time_ms": 467
+      "response_time_ms": 387
     },
     "wantgoo": {
       "name": "WantGoo",
-      "checked_at": "2026-10-30T04:49:16+08:00",
+      "checked_at": "2026-10-31T04:21:46+08:00",
       "reachable": false,
       "http_status": 403,
       "data_date": null,
@@ -186,11 +186,11 @@
       "role": "人工複核源",
       "evidence": "GET https://www.wantgoo.com/ failed with status=403",
       "error": "HTTP 403: Forbidden",
-      "response_time_ms": 110
+      "response_time_ms": 114
     },
     "cmoney": {
       "name": "CMoney",
-      "checked_at": "2026-10-30T04:49:16+08:00",
+      "checked_at": "2026-10-31T04:21:46+08:00",
       "reachable": true,
       "http_status": 200,
       "data_date": null,
@@ -203,11 +203,11 @@
       "role": "人工複核源",
       "evidence": "GET https://www.cmoney.tw/ succeeded, but no explicit data date was parsed",
       "error": "未取得明確資料日期；不可判定為當日資料可用",
-      "response_time_ms": 1762
+      "response_time_ms": 1257
     },
     "statementdog": {
       "name": "財報狗 StatementDog",
-      "checked_at": "2026-10-30T04:49:16+08:00",
+      "checked_at": "2026-10-31T04:21:46+08:00",
       "reachable": true,
       "http_status": 200,
       "data_date": null,
@@ -220,7 +220,7 @@
       "role": "人工複核源",
       "evidence": "GET https://statementdog.com/ succeeded, but no explicit data date was parsed",
       "error": "未取得明確資料日期；不可判定為當日資料可用",
-      "response_time_ms": 865
+      "response_time_ms": 738
     }
   },
   "coverage": {
@@ -232,12 +232,12 @@
     "listed_ohlcv": {
       "available": true,
       "source": "TWSE",
-      "notes": "1388 listed rows parsed"
+      "notes": "1389 listed rows parsed"
     },
     "otc_ohlcv": {
       "available": true,
       "source": "TPEx",
-      "notes": "13242 OTC rows parsed"
+      "notes": "13360 OTC rows parsed"
     },
     "volume_ranking": {
       "available": true,
@@ -267,7 +267,7 @@
     "institutional_trading": {
       "available": true,
       "source": "TWSE/TPEx",
-      "notes": "19553 institutional rows parsed from official sources"
+      "notes": "19349 institutional rows parsed from official sources"
     },
     "margin_short": {
       "available": true,
@@ -277,7 +277,7 @@
     "material_information": {
       "available": true,
       "source": "MOPS",
-      "notes": "MOPS material information query verified with 282 events"
+      "notes": "MOPS material information query verified with 288 events"
     },
     "revenue_financials": {
       "available": false,
@@ -342,7 +342,9 @@
   },
   "missing_sections": [],
   "overall_confidence": "high",
-  "errors": [],
+  "errors": [
+    "週末非交易日；未使用官方交易日曆判定國定假日或特殊休市日"
+  ],
   "grading_policy": {
     "official": {
       "policy_id": "qullamaggie-grading-policy",
@@ -369,20 +371,20 @@
       "promotion_requires_explicit_policy_change": true
     },
     "summary": {
-      "total_symbols": 1931,
-      "comparable_symbols": 21,
-      "ungraded_v2_symbols": 551,
-      "grade_changed_symbols": 1420,
+      "total_symbols": 1940,
+      "comparable_symbols": 15,
+      "ungraded_v2_symbols": 1004,
+      "grade_changed_symbols": 971,
       "grade_v1_counts": {
         "B": 9,
-        "C": 70,
-        "Ungraded": 1852
+        "C": 54,
+        "Ungraded": 1877
       },
       "grade_v2_shadow_counts": {
         "A-": 4,
-        "B": 55,
-        "C": 1321,
-        "Ungraded": 551
+        "B": 44,
+        "C": 888,
+        "Ungraded": 1004
       }
     }
   }
