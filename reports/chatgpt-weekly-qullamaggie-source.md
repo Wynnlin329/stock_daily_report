@@ -1,82 +1,82 @@
-# ChatGPT Weekly Qullamaggie Source: 2026-11-04
+# ChatGPT Weekly Qullamaggie Source: 2026-11-05
 
 本資料包僅供 ChatGPT 排程週度複盤與觀察名單研究，不構成交易建議。
 
 ## 本週資料日期
-- dates: ['2026-10-29', '2026-10-30', '2026-11-02', '2026-11-03', '2026-11-04']
+- dates: ['2026-10-30', '2026-11-02', '2026-11-03', '2026-11-04', '2026-11-05']
 
 ## 缺失日期
 - missing_dates: []
 
 ## 本週 Setup 統計
-- counts: {'breakout': 0, 'episodic_pivot': 24, 'anticipation': 122, 'extended_watch': 96, 'failed_breakout': 63, 'insufficient_data': 250}
+- counts: {'breakout': 0, 'episodic_pivot': 20, 'anticipation': 102, 'extended_watch': 84, 'failed_breakout': 74, 'insufficient_data': 250}
 
 ## 重複出現候選
-- 2880 華南金 setup=anticipation score=50
-- 3045 台灣大 setup=anticipation score=60
+- 2880 華南金 setup=anticipation score=60
+- 2254 巨鎧精密-創 setup=anticipation score=60
+- 3045 台灣大 setup=anticipation score=50
+- 1102 亞泥 setup=anticipation score=45
 - 5880 合庫金 setup=anticipation score=40
-- 4904 遠傳 setup=anticipation score=55
-- 2002 中鋼 setup=anticipation score=35
-- 2618 長榮航 setup=anticipation score=55
-- 2254 巨鎧精密-創 setup=anticipation score=55
-- 1102 亞泥 setup=anticipation score=40
-- 2412 中華電 setup=anticipation score=55
-- 2603 長榮 setup=anticipation score=60
-- 3005 神基 setup=anticipation score=45
+- 2618 長榮航 setup=failed_breakout score=75
+- 4904 遠傳 setup=anticipation score=50
+- 2002 中鋼 setup=anticipation score=30
 - 6199 天品 setup=extended_watch score=65
-- 8272 全景軟體 setup=extended_watch score=45
-- 8099 大世科 setup=extended_watch score=60
-- 2801 彰銀 setup=anticipation score=45
-- 6214 精誠 setup=anticipation score=55
+- 2412 中華電 setup=failed_breakout score=55
+- 8099 大世科 setup=extended_watch score=55
 - 2884 玉山金 setup=anticipation score=50
-- 1101 台泥 setup=anticipation score=40
-- 9904 寶成 setup=anticipation score=45
-- 2892 第一金 setup=anticipation score=45
+- 3005 神基 setup=anticipation score=45
+- 9904 寶成 setup=anticipation score=60
+- 2603 長榮 setup=anticipation score=60
+- 6697 東捷資訊 setup=failed_breakout score=45
+- 8272 全景軟體 setup=extended_watch score=45
+- 6590 普鴻 setup=extended_watch score=55
+- 1416 廣豐 setup=failed_breakout score=50
+- 8432 東生華 setup=failed_breakout score=50
 
 ## 本週 Breakout / Failed Breakout
 - 無
-- 4961 天鈺 setup=failed_breakout score=73
-- 2466 冠西電 setup=failed_breakout score=68
-- 4577 達航科技 setup=failed_breakout score=68
-- 4960 誠美材 setup=failed_breakout score=63
-- 4977 眾達-KY setup=failed_breakout score=63
-- 3545 敦泰 setup=failed_breakout score=63
-- 1569 濱川 setup=failed_breakout score=58
-- 2355 敬鵬 setup=failed_breakout score=58
-- 4714 永捷 setup=failed_breakout score=58
-- 6756 威鋒電子 setup=failed_breakout score=53
-- 6415 矽力*-KY setup=failed_breakout score=53
-- 6456 GIS-KY setup=failed_breakout score=48
-- 7704 明遠精密 setup=failed_breakout score=48
-- 8162 微矽電子-創 setup=failed_breakout score=48
-- 6418 詠昇 setup=failed_breakout score=43
-- 3379 彬台 setup=failed_breakout score=43
-- 3047 訊舟 setup=failed_breakout score=43
-- 4563 百德 setup=failed_breakout score=38
 - 2379 瑞昱 setup=failed_breakout score=73
 - 2321 東訊 setup=failed_breakout score=63
+- 3691 碩禾 setup=failed_breakout score=58
+- 6233 旺玖 setup=failed_breakout score=58
+- 8240 華宏 setup=failed_breakout score=53
+- 6590 普鴻 setup=failed_breakout score=53
+- 3164 景岳 setup=failed_breakout score=53
+- 8089 康全電訊 setup=failed_breakout score=48
+- 6240 松崗 setup=failed_breakout score=38
+- 4706 大恭 setup=failed_breakout score=38
+- 3147 大綜 setup=failed_breakout score=68
+- 2379 瑞昱 setup=failed_breakout score=63
+- 4116 明基醫 setup=failed_breakout score=63
+- 2033 佳大 setup=failed_breakout score=58
+- 2488 漢平 setup=failed_breakout score=58
+- 3321 同泰 setup=failed_breakout score=53
+- 1201 味全 setup=failed_breakout score=53
+- 1786 科妍 setup=failed_breakout score=53
+- 7704 明遠精密 setup=failed_breakout score=48
+- 3332 幸康 setup=failed_breakout score=33
 
 ## 下週 Watchlist Candidates
-- 2880 華南金 setup=anticipation score=50
-- 3045 台灣大 setup=anticipation score=60
+- 2880 華南金 setup=anticipation score=60
+- 2254 巨鎧精密-創 setup=anticipation score=60
+- 3045 台灣大 setup=anticipation score=50
+- 1102 亞泥 setup=anticipation score=45
 - 5880 合庫金 setup=anticipation score=40
-- 4904 遠傳 setup=anticipation score=55
-- 2002 中鋼 setup=anticipation score=35
-- 2618 長榮航 setup=anticipation score=55
-- 2254 巨鎧精密-創 setup=anticipation score=55
-- 1102 亞泥 setup=anticipation score=40
-- 2412 中華電 setup=anticipation score=55
-- 2603 長榮 setup=anticipation score=60
-- 3005 神基 setup=anticipation score=45
+- 2618 長榮航 setup=failed_breakout score=75
+- 4904 遠傳 setup=anticipation score=50
+- 2002 中鋼 setup=anticipation score=30
 - 6199 天品 setup=extended_watch score=65
-- 8272 全景軟體 setup=extended_watch score=45
-- 8099 大世科 setup=extended_watch score=60
-- 2801 彰銀 setup=anticipation score=45
-- 6214 精誠 setup=anticipation score=55
+- 2412 中華電 setup=failed_breakout score=55
+- 8099 大世科 setup=extended_watch score=55
 - 2884 玉山金 setup=anticipation score=50
-- 1101 台泥 setup=anticipation score=40
-- 9904 寶成 setup=anticipation score=45
-- 2892 第一金 setup=anticipation score=45
+- 3005 神基 setup=anticipation score=45
+- 9904 寶成 setup=anticipation score=60
+- 2603 長榮 setup=anticipation score=60
+- 6697 東捷資訊 setup=failed_breakout score=45
+- 8272 全景軟體 setup=extended_watch score=45
+- 6590 普鴻 setup=extended_watch score=55
+- 1416 廣豐 setup=failed_breakout score=50
+- 8432 東生華 setup=failed_breakout score=50
 
 ## Weekly Review Gate
 - gate: {'can_generate_weekly_review': True, 'reason': []}
