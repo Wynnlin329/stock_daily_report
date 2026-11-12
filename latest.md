@@ -1,19 +1,19 @@
-# 報告日期：2026/11/12（星期四）
+# 報告日期：2026/11/13（星期五）
 
-- 執行時間：2026-11-12T06:28:57+08:00
+- 執行時間：2026-11-13T06:02:37+08:00
 - 交易日判定：True
-- 最新市場資料日期：2026-11-11
-- 是否足以執行全市場掃描：True
-- 整體信心等級：high
+- 最新市場資料日期：2026-11-12
+- 是否足以執行全市場掃描：False
+- 整體信心等級：medium
 
 ## 資料來源健康狀態
 
 | 來源 | 角色 | 可連線 | HTTP | 資料日期 | 明確日期 | 當期 | 排程可用 | 錯誤 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| TWSE | 主資料源 | True | 200 | 2026-11-11 | True | True | True |  |
-| TPEx | 主資料源 | True | 200 | 2026-11-11 | True | True | True |  |
+| TWSE | 主資料源 | True | 200 | 2026-11-12 | True | True | True |  |
+| TPEx | 主資料源 | True | 200 | 2026-11-12 | True | True | True |  |
 | data.gov.tw | 主資料源 | True | 200 |  | False | False | False | 未取得明確資料日期；不可判定為當日資料可用 |
-| MOPS | 主資料源 | True | 200 | 2026-11-11 | True | True | True |  |
+| MOPS | 主資料源 | True | 200 |  | False | False | False | URLError: <urlopen error [Errno 104] Connection reset by peer>; URLError: <urlopen error [Errno 104] Connection reset by peer> |
 | Goodinfo | 候補資料源 | False | 403 |  | False | False | False | HTTP 403: Forbidden |
 | Yahoo 奇摩股市 | 催化新聞源 | True | 200 |  | False | False | False | 未取得明確資料日期；不可判定為當日資料可用 |
 | 鉅亨網 Cnyes | 催化新聞源 | True | 200 |  | False | False | False | 未取得明確資料日期；不可判定為當日資料可用 |
@@ -27,7 +27,6 @@
 
 - TWSE
 - TPEx
-- MOPS
 
 ## 今日候補資料源
 
@@ -48,6 +47,7 @@
 ## 失敗來源與錯誤
 
 - data.gov.tw：未取得明確資料日期；不可判定為當日資料可用
+- MOPS：URLError: <urlopen error [Errno 104] Connection reset by peer>; URLError: <urlopen error [Errno 104] Connection reset by peer>
 - Goodinfo：HTTP 403: Forbidden
 - Yahoo 奇摩股市：未取得明確資料日期；不可判定為當日資料可用
 - 鉅亨網 Cnyes：未取得明確資料日期；不可判定為當日資料可用
@@ -60,24 +60,26 @@
 ## 掃描模組覆蓋狀況
 
 - market_environment：True（TWSE has explicit current market date）
-- listed_ohlcv：True（1390 listed rows parsed）
-- otc_ohlcv：True（13752 OTC rows parsed）
+- listed_ohlcv：True（1389 listed rows parsed）
+- otc_ohlcv：True（13789 OTC rows parsed）
 - volume_ranking：True（Computed from official OHLCV）
 - turnover_ranking：True（Computed from official OHLCV）
 - price_change_screening：True（Computed from official OHLCV）
 - limit_up_screening：True（Estimated from daily change percent）
 - volume_spike_screening：True（20-day volume history available）
-- institutional_trading：True（19850 institutional rows parsed from official sources）
-- margin_short：True（1987 margin/short rows parsed from official sources）
-- material_information：True（MOPS material information query verified with 885 events）
+- institutional_trading：True（20663 institutional rows parsed from official sources）
+- margin_short：True（1988 margin/short rows parsed from official sources）
+- material_information：False（MOPS material information unavailable or data date not verified）
 - revenue_financials：False（First version does not parse revenue or financial statements yet）
 - news_topics：True（At least one catalyst news source reachable）
 - technical_review：False（TradingView/WantGoo/CMoney are manual review sources, not automated signals）
 
 ## 缺少的資料段落
 
-- 無
+- material_information
 
 ## 限制
 
-- 無
+- URLError: <urlopen error [Errno 104] Connection reset by peer>
+- URLError: <urlopen error [Errno 104] Connection reset by peer>
+- 核心資料段落缺失：material_information
