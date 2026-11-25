@@ -1,82 +1,80 @@
-# ChatGPT Weekly Qullamaggie Source: 2026-11-23
+# ChatGPT Weekly Qullamaggie Source: 2026-11-24
 
 本資料包僅供 ChatGPT 排程週度複盤與觀察名單研究，不構成交易建議。
 
 ## 本週資料日期
-- dates: ['2026-11-17', '2026-11-18', '2026-11-19', '2026-11-20', '2026-11-23']
+- dates: ['2026-11-18', '2026-11-19', '2026-11-20', '2026-11-23', '2026-11-24']
 
 ## 缺失日期
 - missing_dates: []
 
 ## 本週 Setup 統計
-- counts: {'breakout': 0, 'episodic_pivot': 15, 'anticipation': 38, 'extended_watch': 19, 'failed_breakout': 32, 'insufficient_data': 250}
+- counts: {'breakout': 0, 'episodic_pivot': 19, 'anticipation': 35, 'extended_watch': 23, 'failed_breakout': 21, 'insufficient_data': 250}
 
 ## 重複出現候選
-- 1477 聚陽 setup=anticipation score=55
 - 2254 巨鎧精密-創 setup=anticipation score=55
+- 1477 聚陽 setup=anticipation score=55
 - 2412 中華電 setup=anticipation score=55
-- 2597 潤弘 setup=anticipation score=60
 - 6199 天品 setup=anticipation score=60
-- 2207 和泰車 setup=anticipation score=70
+- 2597 潤弘 setup=extended_watch score=70
+- 2207 和泰車 setup=anticipation score=55
 - 3293 鈊象 setup=anticipation score=50
-- 8415 大國鋼 setup=failed_breakout score=60
-- 7584 樂意 setup=failed_breakout score=45
-- 6416 瑞祺電通 setup=episodic_pivot score=100
-- 2610 華航 setup=anticipation score=50
-- 2618 長榮航 setup=anticipation score=45
-- 9933 中鼎 setup=extended_watch score=60
-- 4174 浩鼎 setup=failed_breakout score=55
-- 4807 日成-KY setup=extended_watch score=60
-- 6614 資拓宏宇 setup=extended_watch score=50
+- 8415 大國鋼 setup=failed_breakout score=50
+- 6782 視陽 setup=failed_breakout score=60
+- 5522 遠雄 setup=anticipation score=50
+- 7584 樂意 setup=failed_breakout score=30
+- 2610 華航 setup=episodic_pivot score=100
+- 2618 長榮航 setup=anticipation score=65
 - 8455 大拓-KY setup=failed_breakout score=35
-- 6782 視陽 setup=failed_breakout score=55
 - 2923 鼎固-KY setup=failed_breakout score=35
 - 7765 中華資安 setup=failed_breakout score=45
+- 6614 資拓宏宇 setup=failed_breakout score=30
+- 5457 宣德 setup=extended_watch score=30
 
 ## 本週 Breakout / Failed Breakout
 - 無
-- 1614 三洋電 setup=failed_breakout score=65
-- 8426 紅木-KY setup=failed_breakout score=60
-- 6212 理銘 setup=failed_breakout score=55
-- 3004 豐達科 setup=failed_breakout score=55
-- 4155 訊映 setup=failed_breakout score=50
-- 3054 立萬利 setup=failed_breakout score=45
-- 5206 坤悅 setup=failed_breakout score=45
-- 6884 海柏特 setup=failed_breakout score=45
-- 6140 訊達 setup=failed_breakout score=40
-- 4807 日成-KY setup=failed_breakout score=40
-- 7584 樂意 setup=failed_breakout score=35
-- 6614 資拓宏宇 setup=failed_breakout score=35
-- 6743 安普新 setup=failed_breakout score=30
-- 3285 微端 setup=failed_breakout score=30
-- 5212 凌網 setup=failed_breakout score=30
-- 1540 喬福 setup=failed_breakout score=25
-- 6752 叡揚 setup=failed_breakout score=25
 - 4174 浩鼎 setup=failed_breakout score=55
 - 7760 享溫馨 setup=failed_breakout score=30
 - 2412 中華電 setup=failed_breakout score=60
-
-## 下週 Watchlist Candidates
-- 1477 聚陽 setup=anticipation score=55
-- 2254 巨鎧精密-創 setup=anticipation score=55
-- 2412 中華電 setup=anticipation score=55
-- 2597 潤弘 setup=anticipation score=60
-- 6199 天品 setup=anticipation score=60
-- 2207 和泰車 setup=anticipation score=70
-- 3293 鈊象 setup=anticipation score=50
+- 1477 聚陽 setup=failed_breakout score=60
 - 8415 大國鋼 setup=failed_breakout score=60
-- 7584 樂意 setup=failed_breakout score=45
-- 6416 瑞祺電通 setup=episodic_pivot score=100
-- 2610 華航 setup=anticipation score=50
-- 2618 長榮航 setup=anticipation score=45
-- 9933 中鼎 setup=extended_watch score=60
-- 4174 浩鼎 setup=failed_breakout score=55
-- 4807 日成-KY setup=extended_watch score=60
-- 6614 資拓宏宇 setup=extended_watch score=50
+- 1476 儒鴻 setup=failed_breakout score=55
+- 1323 永裕 setup=failed_breakout score=45
+- 8089 康全電訊 setup=failed_breakout score=40
 - 8455 大拓-KY setup=failed_breakout score=35
 - 6782 視陽 setup=failed_breakout score=55
+- 1470 大統新創 setup=failed_breakout score=40
+- 2923 鼎固-KY setup=failed_breakout score=35
+- 9918 欣天然 setup=failed_breakout score=30
+- 7765 中華資安 setup=failed_breakout score=45
+- 7584 樂意 setup=failed_breakout score=45
+- 6782 視陽 setup=failed_breakout score=60
+- 5478 智冠 setup=failed_breakout score=55
+- 8415 大國鋼 setup=failed_breakout score=50
+- 5516 雙喜 setup=failed_breakout score=50
+- 7584 樂意 setup=failed_breakout score=30
+
+## 下週 Watchlist Candidates
+- 2254 巨鎧精密-創 setup=anticipation score=55
+- 1477 聚陽 setup=anticipation score=55
+- 2412 中華電 setup=anticipation score=55
+- 6199 天品 setup=anticipation score=60
+- 2597 潤弘 setup=extended_watch score=70
+- 2207 和泰車 setup=anticipation score=55
+- 3293 鈊象 setup=anticipation score=50
+- 8415 大國鋼 setup=failed_breakout score=50
+- 6782 視陽 setup=failed_breakout score=60
+- 5522 遠雄 setup=anticipation score=50
+- 7584 樂意 setup=failed_breakout score=30
+- 2610 華航 setup=episodic_pivot score=100
+- 2618 長榮航 setup=anticipation score=65
+- 8455 大拓-KY setup=failed_breakout score=35
 - 2923 鼎固-KY setup=failed_breakout score=35
 - 7765 中華資安 setup=failed_breakout score=45
+- 6614 資拓宏宇 setup=failed_breakout score=30
+- 5457 宣德 setup=extended_watch score=30
+- 2474 可成 setup=episodic_pivot score=100
+- 6904 伯鑫 setup=episodic_pivot score=100
 
 ## Weekly Review Gate
 - gate: {'can_generate_weekly_review': True, 'reason': []}
